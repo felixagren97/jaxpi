@@ -42,11 +42,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
 
     # Initialize model
-    model = models.Advection(config, u0, r_star)
+    model = models.Laplace(config, u0, u1, r_star)
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.AdvectionEvaluator(config, model)
+    evaluator = models.LaplaceEvaluator(config, model)
 
     # jit warm up
     print("Waiting for JIT...")

@@ -104,7 +104,7 @@ class Laplace(ForwardIVP):
         return error
 
 
-class AdvectionEvaluator(BaseEvaluator):
+class LaplaceEvaluator(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
