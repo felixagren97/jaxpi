@@ -47,7 +47,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.DriftDiffusion(config, model)
+    evaluator = models.DriftDiffusionEvalutor(config, model)
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
