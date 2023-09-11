@@ -4,6 +4,8 @@ from jax import vmap
 
 def get_dataset(n_t=200, n_x=128):
     # TODO: add real dataset 
+    T = 0.01 # per case 2
+    L = 1 # per case 2
     t_star = jnp.linspace(0, T, n_t)
     x_star = jnp.linspace(0, L, n_x)
 
