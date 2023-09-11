@@ -24,7 +24,7 @@ class DriftDiffusion(ForwardIVP):
         self.Diff = self.mu_n * self.kb * self.Temp/self.q 
 
         # initial conditions
-        self.n_injs = jnp.full_like(x_star, n_inj)
+        self.n_injs = jnp.full_like(t_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
         
         # domain
