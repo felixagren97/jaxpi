@@ -23,7 +23,7 @@ class DriftDiffusion(ForwardIVP):
         self.W = self.mu_n * self.E_ext
         self.Diff = self.mu_n * self.kb * self.Temp/self.q 
 
-        
+        self.boundary_loss = False # TODO: delete
         # initial conditions
         self.n_injs = jnp.full_like(x_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
@@ -40,6 +40,8 @@ class DriftDiffusion(ForwardIVP):
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
     def u_net(self, params, t, x):
+        if self.boundary_loss:
+            print('t', t.shape, 'x', x.shape)
         z = jnp.stack([t, x])
         u = self.state.apply_fn(params, z)
         return u[0]
@@ -70,6 +72,7 @@ class DriftDiffusion(ForwardIVP):
         ics_loss = jnp.mean((self.n_0s[1:] - u_pred[1:]) ** 2) # slicing to exclude x = 0
 
         # Boundary loss
+        self.boundary_loss = True
         u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, jnp.zeros_like(self.t_star))
         bcs_loss = jnp.mean((self.x_0s - u_pred) ** 2)
 
