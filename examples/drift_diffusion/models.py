@@ -120,7 +120,7 @@ class DriftDiffusion(ForwardIVP):
         return error
 
 
-class DriftDiffusion(BaseEvaluator):
+class DriftDiffusionEvalutor(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
