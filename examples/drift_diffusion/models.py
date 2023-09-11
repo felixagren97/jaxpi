@@ -39,8 +39,6 @@ class DriftDiffusion(ForwardIVP):
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
     def u_net(self, params, t, x):
-        if self.boundary_loss:
-            print('t', t.shape, 'x', x.shape)
         z = jnp.stack([t, x])
         u = self.state.apply_fn(params, z)
         return u[0]
