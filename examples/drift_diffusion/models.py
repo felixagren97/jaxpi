@@ -44,8 +44,8 @@ class DriftDiffusion(ForwardIVP):
         return u[0]
 
     def r_net(self, params, t, x):
-        dn_t = grad(self.u_net, argsnums=1)(params, t, x)
-        dn_x = grad(self.u_net, argsnums=2)(params, t, x)
+        dn_t = grad(self.u_net, argnums=1)(params, t, x)
+        dn_x = grad(self.u_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
         return 1/self.W*dn_t + dn_x - self.Diff/self.W*dn_xx
 
