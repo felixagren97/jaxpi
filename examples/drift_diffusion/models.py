@@ -20,7 +20,7 @@ class DriftDiffusion(ForwardIVP):
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
-        self.W = self.mu_n * self.Eext
+        self.W = self.mu_n * self.E_ext
         self.Diff = self.mu_n * self.kb * self.Temp/self.q 
 
         
