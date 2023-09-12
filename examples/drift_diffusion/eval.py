@@ -17,8 +17,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     E_ext = 1e6
     n_0 = 0.1
     n_inj = 1
-    n_t = 200  # number of time steps TODO: Increase?
-    n_x = 128  # number of spatial points
+    n_t = 2000  # number of time steps TODO: Increase?
+    n_x = 2000  # number of spatial points
 
     # Get  dataset
     u_ref, t_star, x_star = get_dataset(n_t, n_x)
@@ -45,12 +45,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # TODO: Change exact plot to match Arni's
     fig = plt.figure(figsize=(18, 5))
     plt.subplot(1, 3, 1)
-
-    plt.plot(u_pred[10,:], x_star)
-    plt.plot(u_pred[30,:], x_star)
-    plt.plot(u_pred[50,:], x_star)
-    plt.plot(u_pred[70,:], x_star)
-    plt.plot(u_pred[90,:], x_star)
+    idx_step = int(n_t/5)
+    plt.plot(x_star, u_pred[idx_step * 1, :])
+    plt.plot(x_star, u_pred[idx_step * 2, :])
+    plt.plot(x_star, u_pred[idx_step * 3, :])
+    plt.plot(x_star, u_pred[idx_step * 4, :])
+    plt.plot(x_star, u_pred[idx_step * 5, :])
     plt.xlabel("x")
     plt.ylabel("n")
     plt.title("Arni")
