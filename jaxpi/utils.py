@@ -8,6 +8,7 @@ from jax import jit, grad, tree_map
 from jax.tree_util import tree_map
 from jax.flatten_util import ravel_pytree
 
+import flax 
 from flax.training import checkpoints
 
 
@@ -32,6 +33,9 @@ def ntk_fn(apply_fn, params, *args):
 
 
 def save_checkpoint(state, workdir, keep=5, name=None):
+    #Use legacy checkpointing in order to run in colab 
+    flax.config.update('flax_use_orbax_checkpointing', False)
+    
     # Create the workdir if it doesn't exist.
     if not os.path.isdir(workdir):
         os.makedirs(workdir)
@@ -45,5 +49,8 @@ def save_checkpoint(state, workdir, keep=5, name=None):
 
 
 def restore_checkpoint(state, workdir, step=None):
+    #Use legacy checkpointing in order to run in colab
+    flax.config.update('flax_use_orbax_checkpointing', False)
+    
     state = checkpoints.restore_checkpoint(workdir, state, step=step)
     return state
