@@ -30,7 +30,7 @@ class Laplace(ForwardIVP):
 
     def u_net(self, params, r):
         # params = weights for NN 
-        r = jnp.reshape(r, (1, -1))
+        #r = jnp.reshape(r, (1, -1))
 
         u = self.state.apply_fn(params, r) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0]
@@ -74,7 +74,7 @@ class Laplace(ForwardIVP):
             #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
             print('#################   BATCHES DIFFERENT')
             print('batch',batch, 'batch[:, 0]', batch[:,0])
-            r_pred = vmap(self.r_net, (None, 0))(params, batch) #tried shifting to just batch
+            r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) #tried shifting to just batch
             res_loss = jnp.mean((r_pred) ** 2)
 
         loss_dict = {"ics": ics_loss, "res": res_loss}
