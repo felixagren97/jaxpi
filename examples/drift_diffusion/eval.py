@@ -51,8 +51,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.plot(u_pred[50,:], x_star)
     plt.plot(u_pred[70,:], x_star)
     plt.plot(u_pred[90,:], x_star)
-
-    plt.colorbar()
     plt.xlabel("x")
     plt.ylabel("n")
     plt.title("Arni")
