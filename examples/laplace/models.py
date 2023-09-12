@@ -38,8 +38,11 @@ class Laplace(ForwardIVP):
     def r_net(self, params, r):
         print('###########')
         print('r', r)
-        du_r = grad(self.u_net)(params, r)
-        du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
+        #du_r = grad(self.u_net)(params, r)
+        #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
+        du_r = grad(self.u_net, argnums=1)(params, r)
+        du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
+        
         print('du_r', du_r, 'du_rr', du_rr)
         print('r * du_rr + du_r ', r * du_rr + du_r)
         return r * du_rr + du_r  # Scaled by r, try w/o? 
@@ -69,6 +72,7 @@ class Laplace(ForwardIVP):
             res_loss = jnp.mean(l * w)
         else:
             #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
+            print('#################   BATCHES DIFFERENT')
             print('batch',batch, 'batch[:, 0]', batch[:,0])
             r_pred = vmap(self.r_net, (None, 0))(params, batch) #tried shifting to just batch
             res_loss = jnp.mean((r_pred) ** 2)
