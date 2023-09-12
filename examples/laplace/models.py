@@ -65,7 +65,7 @@ class Laplace(ForwardIVP):
             res_loss = jnp.mean(l * w)
         else:
             #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
-            r_pred = vmap(self.r_net, (None, 0))(params, batch[:, 0])
+            r_pred = vmap(self.r_net, (None, 0))(params, batch) #tried shifting to just batch
             res_loss = jnp.mean((r_pred) ** 2)
 
         loss_dict = {"ics": ics_loss, "res": res_loss}
