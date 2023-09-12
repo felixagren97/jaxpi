@@ -30,6 +30,9 @@ class Laplace(ForwardIVP):
 
     def u_net(self, params, r):
         # params = weights for NN 
+        print('############')
+        print('r', r)
+        print('############')
         u = self.state.apply_fn(params, r) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0]
 
