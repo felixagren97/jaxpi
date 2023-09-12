@@ -105,9 +105,12 @@ class Laplace(ForwardIVP):
             _, casual_weights = self.res_and_w(params, batch)
             res_ntk = res_ntk * casual_weights  # multiply by causal weights
         else:
-            res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
-                self.r_net, params, batch[:, 0], batch[:, 1]
+            res_ntk = vmap(ntk_fn, (None, None, 0))(
+                self.r_net, params, batch[:, 0]
             )
+            #res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
+            #    self.r_net, params, batch[:, 0], batch[:, 1]
+            #)
 
         ntk_dict = {"ics": ics_ntk, "res": res_ntk}
 
