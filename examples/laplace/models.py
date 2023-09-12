@@ -54,7 +54,8 @@ class Laplace(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
         # Initial condition loss
-        u_pred = vmap(self.u_net, (None, None, 0))(params, self.t0, self.x_star)
+        u_pred = vmap(self.u_net, (None, 0))(params, self.x_star)
+
         ics_loss = jnp.mean((self.u0 - u_pred) ** 2)
 
         # Residual loss
@@ -62,7 +63,8 @@ class Laplace(ForwardIVP):
             l, w = self.res_and_w(params, batch)
             res_loss = jnp.mean(l * w)
         else:
-            r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
+            #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
+            r_pred = vmap(self.r_net, (None, 0))(params, batch[:, 0])
             res_loss = jnp.mean((r_pred) ** 2)
 
         loss_dict = {"ics": ics_loss, "res": res_loss}
