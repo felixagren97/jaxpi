@@ -118,6 +118,8 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
+        print('############ R STAR ###############')
+        print(self.r_star)
         u_pred = self.u_pred_fn(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
