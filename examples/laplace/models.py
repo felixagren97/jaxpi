@@ -41,7 +41,7 @@ class Laplace(ForwardIVP):
         #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
         du_r = grad(self.u_net, argnums=1)(params, r)
         #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r)
+        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? 
 
         print('du_r', du_r, 'du_rr', du_rr)
         print('r * du_rr + du_r ', r * du_rr + du_r)
