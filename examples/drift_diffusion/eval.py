@@ -54,6 +54,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlabel("x")
     plt.ylabel("n")
     plt.title("Arni")
+    plt.legend()
     plt.tight_layout()
 
     plt.subplot(1, 3, 2)
