@@ -39,7 +39,7 @@ class Laplace(ForwardIVP):
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
-    def res_and_w(self, params, batch):
+    def res_and_w(self, params, batch): #TODO: think should never be called
         # Sort temporal coordinates for computing temporal weights
         t_sorted = batch[:, 0].sort()
         # Compute residuals over the full domain
@@ -54,7 +54,7 @@ class Laplace(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
         # Initial condition loss
-        u_pred = vmap(self.u_net, (None, 0))(params, self.x_star)
+        u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
 
         ics_loss = jnp.mean((self.u0 - u_pred) ** 2)
 
@@ -72,12 +72,16 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
-        ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
-            self.u_net, params, self.t0, self.x_star
+        # TODO: adopt to 1d
+        #ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
+        #    self.u_net, params, self.t0, self.r_star
+        #)
+        ics_ntk = vmap(ntk_fn, (None, None, 0))(
+            self.u_net, params, self.r_star
         )
 
         # Consider the effect of causal weights
-        if self.config.weighting.use_causal:
+        if self.config.weighting.use_causal: # Think should always be false, b/c no temporal domain
             # sort the time step for causal loss
             batch = jnp.array([batch[:, 0].sort(), batch[:, 1]]).T
             res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
@@ -101,7 +105,7 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
+        u_pred = self.u_pred_fn(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
@@ -115,7 +119,7 @@ class LaplaceEvaluator(BaseEvaluator):
         self.log_dict["l2_error"] = l2_error
 
     def log_preds(self, params):
-        u_pred = self.model.u_pred_fn(params, self.model.t_star, self.model.x_star)
+        u_pred = self.model.u_pred_fn(params, self.model.r_star)
         fig = plt.figure(figsize=(6, 5))
         plt.imshow(u_pred.T, cmap="jet")
         self.log_dict["u_pred"] = fig

@@ -53,7 +53,7 @@ def get_config():
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = True
+    weighting.use_causal = False # TODO: verify: was true, but changed to false as no temporal domain
     weighting.causal_tol = 1.0
     weighting.num_chunks = 32
 
