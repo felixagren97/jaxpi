@@ -36,8 +36,8 @@ class Laplace(ForwardIVP):
         return u[0]
 
     def r_net(self, params, r):
-        du_r = grad(self.u_net)(params, r)
-        du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
+        du_r = grad(self.u_net)(params, r, argnums=1)
+        du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r) # Don't need to use hessian b/c scalar f and r        
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
@@ -57,7 +57,6 @@ class Laplace(ForwardIVP):
     def losses(self, params, batch):
         # Initial condition loss
         u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
-
         ics_loss = jnp.mean((self.u0 - u_pred) ** 2)
 
         # Residual loss
