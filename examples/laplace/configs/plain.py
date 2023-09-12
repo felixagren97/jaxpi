@@ -22,9 +22,11 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (1.0,), "axis": (1,), "trainable": (False,)}
-    )
+    arch.periodicity = None # TODO: verify, but think we don't have periodicity for this
+
+    #arch.periodicity = ml_collections.ConfigDict(
+    #    {"period": (1.0,), "axis": (1,), "trainable": (False,)}
+    #)
     arch.fourier_emb = None
     arch.reparam = None
 
