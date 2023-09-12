@@ -29,6 +29,7 @@ class UniformSampler(BaseSampler):
         super().__init__(batch_size, rng_key)
         self.dom = dom
         self.dim = dom.shape[0]
+        print('dom', dom, 'dim', self.dim, 'batch_size', batch_size, 'minval', minval=self.dom[:, 0], 'maxval', maxval=self.dom[:, 1])
 
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
