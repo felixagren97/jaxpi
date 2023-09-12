@@ -71,7 +71,7 @@ def get_config():
     saving.num_keep_ckpts = 50
 
     # # Input shape for initializing Flax models
-    config.input_dim = 2
+    config.input_dim = 1 # TODO: changed from 2 to 1, verify if correct
 
     # Integer for PRNG random seed.
     config.seed = 42
