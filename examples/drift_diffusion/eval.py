@@ -45,12 +45,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # TODO: Change exact plot to match Arni's
     fig = plt.figure(figsize=(18, 5))
     plt.subplot(1, 3, 1)
-    
-    plt.plot(u_pred[:,10], x_star, cmap="jet")
-    plt.plot(u_pred[:,30], x_star, cmap="jet")
-    plt.plot(u_pred[:,50], x_star, cmap="jet")
-    plt.plot(u_pred[:,70], x_star, cmap="jet")
-    plt.plot(u_pred[:,90], x_star, cmap="jet")
+
+    plt.plot(u_pred[10,:], x_star, cmap="jet")
+    plt.plot(u_pred[30,:], x_star, cmap="jet")
+    plt.plot(u_pred[50,:], x_star, cmap="jet")
+    plt.plot(u_pred[70,:], x_star, cmap="jet")
+    plt.plot(u_pred[90,:], x_star, cmap="jet")
 
     plt.colorbar()
     plt.xlabel("x")
