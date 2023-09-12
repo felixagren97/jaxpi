@@ -30,8 +30,7 @@ class Laplace(ForwardIVP):
 
     def u_net(self, params, r):
         # params = weights for NN 
-        #r = jnp.reshape(r, (1, -1))
-
+        r = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, r) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0]
 
@@ -41,8 +40,9 @@ class Laplace(ForwardIVP):
         #du_r = grad(self.u_net)(params, r)
         #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
         du_r = grad(self.u_net, argnums=1)(params, r)
-        du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        
+        #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
+        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r)
+
         print('du_r', du_r, 'du_rr', du_rr)
         print('r * du_rr + du_r ', r * du_rr + du_r)
         return r * du_rr + du_r  # Scaled by r, try w/o? 
