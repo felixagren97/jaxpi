@@ -10,12 +10,38 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import UniformSampler
+from jaxpi.samplers import BaseSampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
 import models
 from utils import get_dataset
+
+from abc import ABC, abstractmethod
+from functools import partial
+
+import jax.numpy as jnp
+from jax import random, pmap, local_device_count
+
+from torch.utils.data import Dataset
+
+class OneDimensionalUniformSampler(BaseSampler):
+    def __init__(self, dom, batch_size, rng_key=random.PRNGKey(1234)):
+        super().__init__(batch_size, rng_key)
+        self.dom = dom
+        self.dim = 1
+
+    @partial(pmap, static_broadcasted_argnums=(0,))
+    def data_generation(self, key):
+        "Generates data containing batch_size samples"
+        batch = random.uniform(
+            key,
+            shape=(self.batch_size, self.dim),
+            minval=self.dom[0],
+            maxval=self.dom[1],
+        )
+
+        return batch
 
 
 def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -44,7 +70,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initialize model
     model = models.Laplace(config, u0, u1, r_star)
     # Initialize residual sampler
-    res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
+    res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
     evaluator = models.LaplaceEvaluator(config, model)
 
