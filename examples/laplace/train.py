@@ -52,7 +52,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Problem setup
     r_0 = 0.001  # inner radius
     r_1 = 1      # outer radius
-    n_r = 128    # number of spatial points (TODO: INCREASE A LOT?)
+    n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
