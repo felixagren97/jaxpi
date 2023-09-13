@@ -42,7 +42,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Plot results
     fig = plt.figure(figsize=(18, 5))
-    plt.subplot(1, 3, 1)
+    plt.subplot(1, 2, 1)
     idx_step = int(n_t/10)
     plt.plot(x_star, u_pred[idx_step * 0, :], label='t=0.000')
     plt.plot(x_star, u_pred[idx_step * 1, :], label='t=0.001')
@@ -58,7 +58,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.legend()
     plt.tight_layout()
 
-    plt.subplot(1, 3, 2)
+    plt.subplot(1, 2, 2)
     plt.pcolor(TT, XX, u_pred, cmap="jet")
     plt.colorbar()
     plt.xlabel("t")
@@ -66,13 +66,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.title("Predicted")
     plt.tight_layout()
 
-    plt.subplot(1, 3, 3)
-    plt.pcolor(TT, XX, jnp.abs(u_ref - u_pred), cmap="jet")
-    plt.colorbar()
-    plt.xlabel("t")
-    plt.ylabel("x")
-    plt.title("Absolute error")
-    plt.tight_layout()
+    #plt.subplot(1, 3, 3)
+    #plt.pcolor(TT, XX, jnp.abs(u_ref - u_pred), cmap="jet")
+    #plt.colorbar()
+    #plt.xlabel("t")
+    #plt.ylabel("x")
+    #plt.title("Absolute error")
+    #plt.tight_layout()
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
