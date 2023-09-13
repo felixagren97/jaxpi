@@ -59,7 +59,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, u_ref_np, linestyle='--', label='Analytical Solution', color='red')
-
+    plt.grid()
     plt.legend()
     plt.tight_layout()
     
@@ -73,6 +73,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.title('Absolute Potential Error')
 
     plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
+    plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
@@ -88,6 +89,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
+    plt.grid()
     plt.legend()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
@@ -99,6 +101,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.title('Absolute Electrical field')
 
     plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
+    plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
