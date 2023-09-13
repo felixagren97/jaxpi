@@ -30,9 +30,11 @@ class Laplace(ForwardIVP):
 
     def u_net(self, params, r):
         # params = weights for NN 
-        r = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
-        u = self.state.apply_fn(params, r) # gives r to the neural network's (self.state) forward pass (apply_fn)
-        return u[0]
+        r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
+        u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
+        #return u[0]
+        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
+
 
     def r_net(self, params, r):
         #print('###########')
@@ -68,7 +70,7 @@ class Laplace(ForwardIVP):
 
         # outer boundary condition 
         u_pred = self.u_net(params, self.r1)
-        outer_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
+        outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:
