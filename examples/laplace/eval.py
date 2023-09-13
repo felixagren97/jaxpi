@@ -7,7 +7,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
-
+import numpy as np
 import models
 from utils import get_dataset
 
@@ -46,6 +46,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 5))
+    plt.subplot(1, 2, 1)
     plt.xlabel('radius [m]')
     plt.ylabel('Potential V(r)')
 
@@ -55,12 +56,22 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, u_ref_np, linestyle='--', label='Analytical Solution', color='red')
 
-    # Add a legend
     plt.legend()
     plt.tight_layout()
     
     # Set x-axis limits to [r_star[0], r_star[-1]]
     plt.xlim(r_star_np[0], r_star_np[-1])
+
+    # plot absolute errors 
+    plt.subplot(1, 2, 2)
+    plt.xlabel('radius [m]')
+    plt.ylabel('Absolute potential error')
+
+    plt.plot(r_star_np, np.abs(u_pred_np -u_ref_np) , label='Prediction', color='red')
+    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.tight_layout()
+
+
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
