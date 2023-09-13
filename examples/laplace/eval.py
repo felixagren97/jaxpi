@@ -49,9 +49,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 5))
-    plt.subplot(1, 4, 1)
-    plt.xlabel('radius [m]')
+    plt.subplot(2, 2, 1)
+    plt.xlabel('Radius [m]')
     plt.ylabel('Potential V(r)')
+    plt.title('Predict and Analyical Potential')
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, u_pred_np, label='Prediction', color='blue')
@@ -66,19 +67,22 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
 
     # plot absolute errors 
-    plt.subplot(1, 4, 2)
-    plt.xlabel('radius [m]')
+    plt.subplot(2, 2, 2)
+    plt.xlabel('Radius [m]')
     plt.ylabel('Potenial [V]')
+    plt.title('Absolute Potential Error')
 
     plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
     # plot electrical field
-    plt.subplot(1, 4, 3)
+    plt.subplot(2, 2, 3)
 
-    plt.xlabel('radius [m]')
-    plt.ylabel('Eletric field [V/m]')
+    plt.xlabel('Radius [m]')
+    plt.ylabel('Electric field [V/m]')
+    plt.title('Predicted and Analytical Electrical field')
+
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
 
@@ -89,9 +93,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.tight_layout()
 
     # plot absolute field errors 
-    plt.subplot(1, 4, 4)
-    plt.xlabel('radius [m]')
-    plt.ylabel('Eletrical field [V/m]')
+    plt.subplot(2, 2, 4)
+    plt.xlabel('Radius [m]')
+    plt.ylabel('Electrical field [V/m]')
+    plt.title('Absolute Electrical field')
 
     plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
     plt.xlim(r_star_np[0], r_star_np[-1])
