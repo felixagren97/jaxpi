@@ -3,7 +3,7 @@ import os
 import ml_collections
 
 import jax.numpy as jnp
-
+import jax
 import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
@@ -17,6 +17,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     r_0 = 0.001  # inner radius
     r_1 = 1      # outer radius
     n_r = 10000    # used to be 128, but increased and kept separate for unique points
+    C = 1/(jnp.log(r_0)-jnp.log(r_1))
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
@@ -37,7 +38,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     u_pred = model.u_pred_fn(params, model.r_star)
 
-    
+    du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
+    e_pred = du_dr(params, model.r_star)
+    e_ref = C/model.r_star
     # Convert them to NumPy arrays for Matplotlib
     r_star_np = jnp.array(r_star)
     u_pred_np = jnp.array(u_pred)
@@ -45,7 +48,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 5))
-    plt.subplot(1, 2, 1)
+    plt.subplot(1, 4, 1)
     plt.xlabel('radius [m]')
     plt.ylabel('Potential V(r)')
 
@@ -62,13 +65,38 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
 
     # plot absolute errors 
-    plt.subplot(1, 2, 2)
+    plt.subplot(1, 4, 2)
     plt.xlabel('radius [m]')
     plt.ylabel('Potenial [V]')
 
     plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
+
+    # plot electrical field
+    plt.subplot(1, 4, 3)
+
+    plt.xlabel('radius [m]')
+    plt.ylabel('Eletric field [V/m]')
+    # Plot the prediction values as a solid line
+    plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
+
+    # Plot the analytical solution as a dashed line
+    plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
+    plt.legend()
+    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.tight_layout()
+
+    # plot absolute field errors 
+    plt.subplot(1, 4, 4)
+    plt.xlabel('radius [m]')
+    plt.ylabel('Eletrical field [V/m]')
+
+    plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
+    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.tight_layout()
+
+    
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
