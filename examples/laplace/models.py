@@ -21,9 +21,13 @@ class Laplace(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
+        #new new 
+        self.u_pred_fn = vmap(vmap(self.u_net, (None, 0)), (None, None))
+        self.r_pred_fn = vmap(vmap(self.r_net, (None, 0)), (None, None))
+
         # Predictions over a grid
-        self.u_pred_fn = vmap(self.u_net)
-        self.r_pred_fn = vmap(self.r_net)
+        #self.u_pred_fn = vmap(self.u_net)
+        #self.r_pred_fn = vmap(self.r_net)
 
         # old: self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         #      self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
@@ -121,6 +125,7 @@ class Laplace(ForwardIVP):
         print('############ R STAR ###############')
         print(self.r_star)
         u_pred = self.u_pred_fn(params, self.r_star)
+        #u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
