@@ -39,16 +39,16 @@ class Laplace(ForwardIVP):
         return u[0]
 
     def r_net(self, params, r):
-        print('###########')
-        print('r', r)
+        #print('###########')
+        #print('r', r)
         #du_r = grad(self.u_net)(params, r)
         #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
         du_r = grad(self.u_net, argnums=1)(params, r)
         #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? 
 
-        print('du_r', du_r, 'du_rr', du_rr)
-        print('r * du_rr + du_r ', r * du_rr + du_r)
+        #print('du_r', du_r, 'du_rr', du_rr)
+        #print('r * du_rr + du_r ', r * du_rr + du_r)
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
@@ -76,8 +76,8 @@ class Laplace(ForwardIVP):
             res_loss = jnp.mean(l * w)
         else:
             #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
-            print('#################   BATCHES DIFFERENT')
-            print('batch',batch, 'batch[:, 0]', batch[:,0])
+            #print('#################   BATCHES DIFFERENT')
+            #print('batch',batch, 'batch[:, 0]', batch[:,0])
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) #tried shifting to just batch
             res_loss = jnp.mean((r_pred) ** 2)
 
@@ -122,8 +122,8 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        print('############ R STAR ###############')
-        print(self.r_star)
+        #print('############ R STAR ###############')
+        #print(self.r_star)
         u_pred = self.u_pred_fn(params, self.r_star)
         #u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
