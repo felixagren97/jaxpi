@@ -8,6 +8,6 @@ def get_dataset(r_0=0.001, r_1=1, n_r=128):
     A = -jnp.log(r_1)*C
     
     u_exact_fn = lambda r: C*jnp.log(r)+A
-    u_exact = vmap(u_exact_fn)(jnp.exp(r_star))
+    u_exact = vmap(u_exact_fn)(r_star)
     
     return u_exact, r_star

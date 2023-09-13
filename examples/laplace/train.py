@@ -59,7 +59,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = u_ref[0]
-    u1 = u_ref[1] # need to add to loss as well? 
+    u1 = u_ref[-1] # need to add to loss as well? 
 
     # Define domain
     r0 = r_star[0]
