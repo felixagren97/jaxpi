@@ -67,7 +67,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
 
     # plot absolute errors 
-    plt.subplot(2, 2, 2)
+    plt.subplot(2, 2, 3)
     plt.xlabel('Radius [m]')
     plt.ylabel('Potenial [V]')
     plt.title('Absolute Potential Error')
@@ -78,7 +78,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.tight_layout()
 
     # plot electrical field
-    plt.subplot(2, 2, 3)
+    plt.subplot(2, 2, 2)
 
     plt.xlabel('Radius [m]')
     plt.ylabel('Electric field [V/m]')
