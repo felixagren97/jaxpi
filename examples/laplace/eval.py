@@ -58,6 +58,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Add a legend
     plt.legend()
     plt.tight_layout()
+    
+    # Set x-axis limits to [r_star[0], r_star[-1]]
+    plt.xlim(r_star_np[0], r_star_np[-1])
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
