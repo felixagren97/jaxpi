@@ -17,17 +17,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Problem setup
     r_0 = 0.001  # inner radius
     r_1 = 1      # outer radius
-    n_r = 128    # number of spatial points (TODO: INCREASE A LOT?)
+    n_r = 10000    # used to be 128, but increased and kept separate for unique points
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = u_ref[0]
-    u1 = u_ref[1] # need to add to loss as well? 
+    u1 = u_ref[-1] # need to add to loss as well? 
 
     # Restore model
-    model = models.Advection(config, u0, r_star)
+    model = models.Laplace(config, u0, u1, r_star)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
@@ -38,7 +38,34 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     u_pred = model.u_pred_fn(params, model.r_star)
 
-    # To do: Change all plots below this 
+    
+    # Convert them to NumPy arrays for Matplotlib
+    r_star_np = jnp.array(r_star)
+    u_pred_np = jnp.array(u_pred)
+    u_ref_np = jnp.array(u_ref)
+
+    # Create a Matplotlib figure and axis
+    fig = plt.figure(figsize=(18, 5))
+    plt.xlabel('radius [m]')
+    plt.ylabel('Potential V(r)')
+
+    # Plot the prediction values as a solid line
+    plt.plot(r_star_np, u_pred_np, label='Prediction', color='blue')
+
+    # Plot the analytical solution as a dashed line
+    plt.plot(r_star_np, u_ref_np, linestyle='--', label='Analytical Solution', color='red')
+
+    # Add a legend
+    plt.legend()
+    plt.tight_layout()
+
+    # Save the figure
+    save_dir = os.path.join(workdir, "figures", config.wandb.name)
+    if not os.path.isdir(save_dir):
+        os.makedirs(save_dir)
+
+    fig_path = os.path.join(save_dir, "laplace.pdf")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
     """
     TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
 
