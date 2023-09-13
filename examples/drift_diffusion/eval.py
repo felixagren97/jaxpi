@@ -36,6 +36,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
     TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
     
+    print('jnp.max(u_pred):' , jnp.max(u_pred))
     print('shape u_pred:', u_pred.shape)
     print('shape x_star:', x_star.shape)
     print('shape t_star:', t_star.shape)
