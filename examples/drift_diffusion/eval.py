@@ -17,12 +17,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     E_ext = 1e6
     n_0 = 0.1
     n_inj = 1
-    n_t = 2000  # number of time steps TODO: Increase?
-    n_x = 2000  # number of spatial points
+    n_t = 200  # number of time steps TODO: Increase?
+    n_x = 128  # number of spatial points
 
     # Get  dataset
     u_ref, t_star, x_star = get_dataset(n_t, n_x)
-
 
     # Restore model
     model = models.DriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star)
@@ -42,18 +41,20 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print('shape t_star:', t_star.shape)
     
     # Plot results
-    # TODO: Change exact plot to match Arni's
     fig = plt.figure(figsize=(18, 5))
     plt.subplot(1, 3, 1)
-    idx_step = int(n_t/5)
+    idx_step = int(n_t/10)
+    plt.plot(x_star, u_pred[idx_step * 0, :], label='t=0.000')
     plt.plot(x_star, u_pred[idx_step * 1, :], label='t=0.001')
     plt.plot(x_star, u_pred[idx_step * 2, :], label='t=0.002')
     plt.plot(x_star, u_pred[idx_step * 3, :], label='t=0.003')
     plt.plot(x_star, u_pred[idx_step * 4, :], label='t=0.004')
     plt.plot(x_star, u_pred[idx_step * 5, :], label='t=0.005')
+    plt.plot(x_star, u_pred[idx_step * 6, :], label='t=0.006')
+    plt.grid()
     plt.xlabel("x")
     plt.ylabel("n")
-    plt.title("Arni")
+    plt.title("Charge Density over x for different timesteps")
     plt.legend()
     plt.tight_layout()
 
@@ -80,3 +81,4 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     fig_path = os.path.join(save_dir, "drift_diffusion.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+
