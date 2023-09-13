@@ -21,13 +21,9 @@ class Laplace(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
-        #new new 
+        #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
-
-        # Predictions over a grid
-        #self.u_pred_fn = vmap(self.u_net)
-        #self.r_pred_fn = vmap(self.r_net)
 
         # old: self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         #      self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
@@ -45,7 +41,7 @@ class Laplace(ForwardIVP):
         #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
         du_r = grad(self.u_net, argnums=1)(params, r)
         #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? 
+        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
 
         #print('du_r', du_r, 'du_rr', du_rr)
         #print('r * du_rr + du_r ', r * du_rr + du_r)
@@ -66,9 +62,13 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
-        # Initial condition loss
-        u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
-        ics_loss = jnp.mean((self.u0 - u_pred) ** 2)
+        # inner boundary condition 
+        u_pred = self.u_net(params, self.r0)
+        inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
+
+        # outer boundary condition 
+        u_pred = self.u_net(params, self.r1)
+        outer_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:
@@ -81,7 +81,7 @@ class Laplace(ForwardIVP):
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) #tried shifting to just batch
             res_loss = jnp.mean((r_pred) ** 2)
 
-        loss_dict = {"ics": ics_loss, "res": res_loss}
+        loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss}
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
