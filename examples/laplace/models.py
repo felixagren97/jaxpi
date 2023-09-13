@@ -22,8 +22,8 @@ class Laplace(ForwardIVP):
         self.r1 = r_star[-1]
 
         #new new 
-        self.u_pred_fn = vmap(vmap(self.u_net, (None, 0)), (None, None))
-        self.r_pred_fn = vmap(vmap(self.r_net, (None, 0)), (None, None))
+        self.u_pred_fn = vmap(self.u_net, (None, 0))
+        self.r_pred_fn = vmap(self.r_net, (None, 0))
 
         # Predictions over a grid
         #self.u_pred_fn = vmap(self.u_net)
