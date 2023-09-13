@@ -7,7 +7,6 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
-import numpy as np
 import models
 from utils import get_dataset
 
@@ -65,13 +64,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # plot absolute errors 
     plt.subplot(1, 2, 2)
     plt.xlabel('radius [m]')
-    plt.ylabel('Absolute potential error')
+    plt.ylabel('Potenial [V]')
 
-    plt.plot(r_star_np, np.abs(u_pred_np -u_ref_np) , label='Prediction', color='red')
+    plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
-
-
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
@@ -80,41 +77,4 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     fig_path = os.path.join(save_dir, "laplace.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
-    """
-    TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
-
-    # Plot results
-    fig = plt.figure(figsize=(18, 5))
-    plt.subplot(1, 3, 1)
-    plt.pcolor(TT, XX, u_ref, cmap="jet")
-    plt.colorbar()
-    plt.xlabel("t")
-    plt.ylabel("x")
-    plt.title("Exact")
-    plt.tight_layout()
-
-    plt.subplot(1, 3, 2)
-    plt.pcolor(TT, XX, u_pred, cmap="jet")
-    plt.colorbar()
-    plt.xlabel("t")
-    plt.ylabel("x")
-    plt.title("Predicted")
-    plt.tight_layout()
-
-    plt.subplot(1, 3, 3)
-    plt.pcolor(TT, XX, jnp.abs(u_ref - u_pred), cmap="jet")
-    plt.colorbar()
-    plt.xlabel("t")
-    plt.ylabel("x")
-    plt.title("Absolute error")
-    plt.tight_layout()
-
-    # Save the figure
-    save_dir = os.path.join(workdir, "figures", config.wandb.name)
-    if not os.path.isdir(save_dir):
-        os.makedirs(save_dir)
-
-    fig_path = os.path.join(save_dir, "adv.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
-
-    """
+ 
