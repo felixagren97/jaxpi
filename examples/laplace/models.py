@@ -38,8 +38,8 @@ class Laplace(ForwardIVP):
 
     def r_net(self, params, r):        
         du_r = grad(self.u_net, argnums=1)(params, r)
-        #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
+        du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
+        #du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
