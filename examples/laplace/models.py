@@ -78,11 +78,6 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
-        raise NotImplementedError(f"NTK not implemented")
-        # TODO: adopt to 1d
-        #ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
-        #    self.u_net, params, self.t0, self.r_star
-        #)
         ics_ntk = vmap(ntk_fn, (None, None, 0))(
             self.u_net, params, self.r_star
         )
