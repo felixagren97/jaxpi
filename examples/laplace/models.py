@@ -65,9 +65,12 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
-        ics_ntk = vmap(ntk_fn, (None, None, 0))(
-            self.u_net, params, self.r_star
-        )
+        #ics_ntk = vmap(ntk_fn, (None, None, 0))(
+        #    self.u_net, params, self.r_star
+        #)
+        inner_bcs_ntk = self.u_net(params, self.r0)
+        outer_bcs_ntk = self.u_net(params, self.r1)
+
 
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
@@ -77,7 +80,8 @@ class Laplace(ForwardIVP):
             res_ntk = vmap(ntk_fn, (None, None, 0))(
                 self.r_net, params, batch[:, 0]
             )
-        ntk_dict = {"ics": ics_ntk, "res": res_ntk}
+        #ntk_dict = {"ics": ics_ntk, "res": res_ntk}
+        ntk_dict = {"inner_bcs": inner_bcs_ntk, "outer_bcs": outer_bcs_ntk, "res": res_ntk}
 
         return ntk_dict
 
