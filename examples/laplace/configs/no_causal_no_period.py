@@ -12,7 +12,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace"
-    wandb.name = "default"
+    wandb.name = "no_casual_no_period"
     wandb.tag = None
 
     # Arch
