@@ -52,7 +52,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.subplot(2, 2, 1)
     plt.xlabel('Radius [m]')
     plt.ylabel('Potential V(r)')
-    plt.title('Predict and Analyical Potential')
+    plt.title('Predicted and Analyical Potential')
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, u_pred_np, label='Prediction', color='blue')
