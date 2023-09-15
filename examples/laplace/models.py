@@ -36,21 +36,15 @@ class Laplace(ForwardIVP):
         #return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
 
 
-    def r_net(self, params, r):
-        #print('###########')
-        #print('r', r)
-        #du_r = grad(self.u_net)(params, r)
-        #du_rr = grad(grad(self.u_net))(params, r) # Don't need to use hessian b/c scalar f and r        
+    def r_net(self, params, r):        
         du_r = grad(self.u_net, argnums=1)(params, r)
         #du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
-
-        #print('du_r', du_r, 'du_rr', du_rr)
-        #print('r * du_rr + du_r ', r * du_rr + du_r)
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called
+        raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         # Sort temporal coordinates for computing temporal weights
         t_sorted = batch[:, 0].sort()
         # Compute residuals over the full domain
@@ -74,13 +68,9 @@ class Laplace(ForwardIVP):
 
         # Residual loss
         if self.config.weighting.use_causal == True:
-            l, w = self.res_and_w(params, batch)
-            res_loss = jnp.mean(l * w)
+            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         else:
-            #r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1])
-            #print('#################   BATCHES DIFFERENT')
-            #print('batch',batch, 'batch[:, 0]', batch[:,0])
-            r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) #tried shifting to just batch
+            r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
             res_loss = jnp.mean((r_pred) ** 2)
 
         loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss}
@@ -88,6 +78,7 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
+        raise NotImplementedError(f"NTK not implemented")
         # TODO: adopt to 1d
         #ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
         #    self.u_net, params, self.t0, self.r_star
@@ -97,37 +88,20 @@ class Laplace(ForwardIVP):
         )
 
         # Consider the effect of causal weights
-        if self.config.weighting.use_causal: # Think should always be false, b/c no temporal domain
-            # sort the time step for causal loss
-            batch = jnp.array([batch[:, 0].sort(), batch[:, 1]]).T
-            res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
-                self.r_net, params, batch[:, 0], batch[:, 1]
-            )
+        if self.config.weighting.use_causal: 
+            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
 
-            res_ntk = res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
-            res_ntk = jnp.mean(
-                res_ntk, axis=1
-            )  # average convergence rate over each chunk
-            _, casual_weights = self.res_and_w(params, batch)
-            res_ntk = res_ntk * casual_weights  # multiply by causal weights
         else:
             res_ntk = vmap(ntk_fn, (None, None, 0))(
                 self.r_net, params, batch[:, 0]
             )
-            #res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
-            #    self.r_net, params, batch[:, 0], batch[:, 1]
-            #)
-
         ntk_dict = {"ics": ics_ntk, "res": res_ntk}
 
         return ntk_dict
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        #print('############ R STAR ###############')
-        #print(self.r_star)
         u_pred = self.u_pred_fn(params, self.r_star)
-        #u_pred = vmap(self.u_net, (None, 0))(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
