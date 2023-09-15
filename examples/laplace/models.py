@@ -25,9 +25,6 @@ class Laplace(ForwardIVP):
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
-        # old: self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
-        #      self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
-
     def u_net(self, params, r):
         # params = weights for NN 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
@@ -45,16 +42,6 @@ class Laplace(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called
         raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
-        # Sort temporal coordinates for computing temporal weights
-        t_sorted = batch[:, 0].sort()
-        # Compute residuals over the full domain
-        r_pred = vmap(self.r_net, (None, 0, 0))(params, t_sorted, batch[:, 1])
-        # Split residuals into chunks
-        r_pred = r_pred.reshape(self.num_chunks, -1)
-        l = jnp.mean(r_pred**2, axis=1)
-        # Compute temporal weights
-        w = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ l)))
-        return l, w
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
