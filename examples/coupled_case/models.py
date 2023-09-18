@@ -28,6 +28,8 @@ class CoupledCase(ForwardIVP):
         self.n_0 = n_0
         self.n_injs = jnp.full_like(t_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
+        self.u_0s = jnp.full_like(x_star, u_0)
+        self.u_1s = jnp.full_like(x_star, u_1)
         
         # domain
         self.t_star = t_star
@@ -37,8 +39,12 @@ class CoupledCase(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Predictions over a grid
+        #self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
+        #self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
-        self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
+        self.n_pred_fn = vmap(vmap(self.n_net, (None, None, 0)), (None, 0, None))
+        self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
+
 
     def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -56,18 +62,6 @@ class CoupledCase(ForwardIVP):
         return n
 
     def r_net(self, params, t, x):
-        """
-        n, U = y[:, 0:1], y[:, 1:2]
-        dn_t = dde.grad.jacobian(y, x, i=0, j=1)
-        dn_x = dde.grad.jacobian(y, x, i=0, j=0)
-        dn_xx = dde.grad.hessian(y, x, component = 0, i=0, j=0)
-        E = -dde.grad.jacobian(y,x,i=1,j=0)  #E = -du/dx
-        dU_xx = dde.grad.hessian(y, x, component = 1, i=0, j=0)
-        W = mu_n*E
-        source = q/epsilon*n*1e9    # here I multiply by 1e9 to scale the problem correctly
-        # multiply with n_inj again to rescale n before feeding¢
-        return [1/W*dn_t + dn_x- Diff/W*dn_xx, dU_xx + source]"""
-    
         u, n = self.neural_net(params, t, x)
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
@@ -80,49 +74,77 @@ class CoupledCase(ForwardIVP):
         
         rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
         ru = du_xx + source
-        return rn, ru
+        return ru, rn
+
+    def ru_net(self, params, t, x):
+        ru, _ = self.r_net(params, t, x)
+        return ru
 
     def rn_net(self, params, t, x):
-        rn, _ = self.r_net(params, t, x)
+        _, rn = self.r_net(params, t, x)
         return rn
-    
-    def ru_net(self, params, t, x):
-        _, ru = self.r_net(params, t, x)
-        return ru
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch):
-        # Sort temporal coordinates for computing  temporal weights
+        # Sort temporal coordinates for computing temporal weights
         t_sorted = batch[:, 0].sort()
         # Compute residuals over the full domain
-        r_pred = vmap(self.r_net, (None, 0, 0))(params, t_sorted, batch[:, 1])
+        ru_pred, rn_pred = self.r_pred_fn(params, t_sorted, batch[:, 1], batch[:, 2])
         # Split residuals into chunks
-        r_pred = r_pred.reshape(self.num_chunks, -1)
-        l = jnp.mean(r_pred**2, axis=1)
+        ru_pred = ru_pred.reshape(self.num_chunks, -1)
+        rn_pred = rn_pred.reshape(self.num_chunks, -1)
+
+        ru_l = jnp.mean(ru_pred**2, axis=1)
+        rn_l = jnp.mean(rn_pred**2, axis=1)
         # Compute temporal weights
-        w = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ l)))
-        return l, w
+        ru_gamma = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ ru_l)))
+        rn_gamma = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ rn_l)))
+
+        # Take minimum of the causal weights
+        gamma = jnp.vstack([ru_gamma, rn_gamma])
+        gamma = gamma.min(0)
+
+        return ru_l, rn_l, gamma
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
         # Initial loss 
-        u_pred = vmap(self.u_net, (None, None, 0))(params, self.t0, self.x_star)
-        ics_loss = jnp.mean((self.n_0s[1:] - u_pred[1:]) ** 2) # slicing to exclude x = 0
+        n_pred = vmap(self.n_net, (None, None, 0))(params, self.t0, self.x_star)
+        ics_loss = jnp.mean((self.n_0s[1:] - n_pred[1:]) ** 2) # slicing to exclude x = 0
 
-        # Boundary loss
+        # Boundary loss: n(x=0)=n_inj
         x_0 = 0
+        n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
+        bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
+
+        # Boundary loss: U(x=0)=U_0
         u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
-        bcs_loss = jnp.mean((self.n_injs - u_pred) ** 2)
+        bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
+
+        # Boundary loss: U(x=0)=U_0
+        x_1 = 1
+        u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
+        bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:
-            l, w = self.res_and_w(params, batch)
-            res_loss = jnp.mean(l * w)
+            ru_l, rn_l, gamma = self.res_and_w(params, batch)
+            ru_loss = jnp.mean(ru_l * gamma)
+            rn_loss = jnp.mean(rn_l * gamma)
         else:
-            r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1]) 
-            res_loss = jnp.mean((r_pred) ** 2)
+            ru_pred, rn_pred = self.r_pred_fn(params, batch[:, 0], batch[:, 1])
+            # Compute loss
+            ru_loss = jnp.mean(ru_pred**2)
+            rn_loss = jnp.mean(rn_pred**2)
 
-        loss_dict = {"ics": ics_loss, "bcs": bcs_loss, "res": res_loss}
+        loss_dict = {
+            "ics": ics_loss,
+            "bcs_n": bcs_n, 
+            "bcs_inner": bcs_inner,
+            "bcs_outer": bcs_inner,
+            "ru_loss": ru_loss,
+            "rn_loss": rn_loss
+        }
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
