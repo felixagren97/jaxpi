@@ -21,8 +21,11 @@ class CoupledCase(ForwardIVP):
         self.kb = 1.38e-23
         self.W = self.mu_n * self.E_ext
         self.Diff = self.mu_n * self.kb * self.Temp/self.q 
+        self.epsilon = 8.85e-12
 
         # initial conditions
+        self.n_inj = n_inj
+        self.n_0 = n_0
         self.n_injs = jnp.full_like(t_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
         
@@ -37,17 +40,55 @@ class CoupledCase(ForwardIVP):
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
-    def u_net(self, params, t, x):
+    def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
-        u = self.state.apply_fn(params, z)
-        return u[0]
+        outputs = self.state.apply_fn(params, z)
+        u = outputs[0]
+        n = outputs[1]
+        return u, n
+    
+    def u_net(self, params, t, x):
+        u, _ = self.neural_net(params, t, x)
+        return u
+
+    def n_net(self, params, t, x):
+        _, n = self.neural_net(params, t, x)
+        return n
 
     def r_net(self, params, t, x):
+        """
+        n, U = y[:, 0:1], y[:, 1:2]
+        dn_t = dde.grad.jacobian(y, x, i=0, j=1)
+        dn_x = dde.grad.jacobian(y, x, i=0, j=0)
+        dn_xx = dde.grad.hessian(y, x, component = 0, i=0, j=0)
+        E = -dde.grad.jacobian(y,x,i=1,j=0)  #E = -du/dx
+        dU_xx = dde.grad.hessian(y, x, component = 1, i=0, j=0)
+        W = mu_n*E
+        source = q/epsilon*n*1e9    # here I multiply by 1e9 to scale the problem correctly
+        # multiply with n_inj again to rescale n before feeding¢
+        return [1/W*dn_t + dn_x- Diff/W*dn_xx, dU_xx + source]"""
+    
+        u, n = self.neural_net(params, t, x)
+        du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
+        dn_t = grad(self.n_net, argnums=1)(params, t, x)
+        dn_x = grad(self.n_net, argnums=2)(params, t, x)
+        dn_xx = grad(grad(self.n_net, argnums=2), argnums=2)(params, t, x)
 
-        dn_t = grad(self.u_net, argnums=1)(params, t, x)
-        dn_x = grad(self.u_net, argnums=2)(params, t, x)
-        dn_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        return 1/self.W*dn_t + dn_x - self.Diff/self.W*dn_xx
+        E = -grad(self.u_net, argnums=2)(params, t, x)
+        W = self.mu_n * E
+        source = (self.q / self.epsilon * n) * self.n_inj # scale back with n_inj  # TODO: makes sense?
+        
+        rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
+        ru = du_xx + source
+        return rn, ru
+
+    def rn_net(self, params, t, x):
+        rn, _ = self.r_net(params, t, x)
+        return rn
+    
+    def ru_net(self, params, t, x):
+        _, ru = self.r_net(params, t, x)
+        return ru
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch):
