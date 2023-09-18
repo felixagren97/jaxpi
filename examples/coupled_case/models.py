@@ -10,7 +10,7 @@ from jaxpi.utils import ntk_fn, flatten_pytree
 from matplotlib import pyplot as plt
 
 
-class DriftDiffusion(ForwardIVP):
+class CoupledCase(ForwardIVP):
     def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star):
         super().__init__(config)
 
@@ -120,7 +120,7 @@ class DriftDiffusion(ForwardIVP):
         return error
 
 
-class DriftDiffusionEvalutor(BaseEvaluator):
+class CoupledCaseEvalutor(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
