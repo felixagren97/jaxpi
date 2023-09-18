@@ -11,11 +11,10 @@ from matplotlib import pyplot as plt
 
 
 class CoupledCase(ForwardIVP):
-    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star):
+    def __init__(self, config, n_inj, n_0, u_0, u_1, t_star, x_star):
         super().__init__(config)
 
         # constants
-        self.E_ext = E_ext
         self.mu_n = 2e-4
         self.Temp = 293
         self.q = 1.602e-19
@@ -44,6 +43,7 @@ class CoupledCase(ForwardIVP):
         return u[0]
 
     def r_net(self, params, t, x):
+
         dn_t = grad(self.u_net, argnums=1)(params, t, x)
         dn_x = grad(self.u_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
