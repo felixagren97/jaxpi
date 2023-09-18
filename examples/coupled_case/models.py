@@ -149,19 +149,28 @@ class CoupledCase(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
+        # n(t=0)
         ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
-            self.u_net, params, self.t0, self.x_star
+            self.n_net, params, self.t0, self.x_star
         )
 
-        # Consider the effect of causal weights
+        # n(x=0)
+        x_0 = 0
+        n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
+
+        # Residual loss
         if self.config.weighting.use_causal:
             # sort the time step for causal loss
             batch = jnp.array([batch[:, 0].sort(), batch[:, 1]]).T
-            res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
-                self.r_net, params, batch[:, 0], batch[:, 1]
+            u_res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
+                self.u_net, params, batch[:, 0], batch[:, 1]
+            )
+            n_res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
+                self.n_net, params, batch[:, 0], batch[:, 1]
             )
 
-            res_ntk = res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
+            u_res_ntk = u_res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
+            n_res_ntk = n_res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
             res_ntk = jnp.mean(
                 res_ntk, axis=1
             )  # average convergence rate over each chunk
