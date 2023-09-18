@@ -11,7 +11,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Drift-Diffusion"
+    wandb.project = "PINN-Drift-diffusion"
     wandb.name = "default"
     wandb.tag = None
 
