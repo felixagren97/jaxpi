@@ -15,7 +15,7 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
    # Problem setup
     E_ext = 1e6
-    n_0 = 0.1
+    n_0 = 0.1/1e9
     n_inj = 1
     n_t = 200  # number of time steps TODO: Increase?
     n_x = 128  # number of spatial points
