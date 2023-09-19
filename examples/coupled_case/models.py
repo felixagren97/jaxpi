@@ -89,7 +89,7 @@ class CoupledCase(ForwardIVP):
         # Sort temporal coordinates for computing temporal weights
         t_sorted = batch[:, 0].sort()
         # Compute residuals over the full domain
-        ru_pred, rn_pred = self.r_pred_fn(params, t_sorted, batch[:, 1], batch[:, 2])
+        ru_pred, rn_pred = self.r_pred_fn(params, t_sorted, batch[:, 1])
         # Split residuals into chunks
         ru_pred = ru_pred.reshape(self.num_chunks, -1)
         rn_pred = rn_pred.reshape(self.num_chunks, -1)
