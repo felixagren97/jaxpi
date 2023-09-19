@@ -142,8 +142,8 @@ class CoupledCase(ForwardIVP):
             "bcs_n": bcs_n, 
             "bcs_inner": bcs_inner,
             "bcs_outer": bcs_outer,
-            "ru_loss": ru_loss,
-            "rn_loss": rn_loss
+            "ru": ru_loss,
+            "rn": rn_loss
         }
         return loss_dict
 
@@ -202,8 +202,8 @@ class CoupledCase(ForwardIVP):
             "bcs_n": bcs_n_ntk, 
             "bcs_inner": bcs_inner_ntk,
             "bcs_outer": bcs_outer_ntk,
-            "ru_loss": u_res_ntk,
-            "rn_loss": n_res_ntk
+            "ru": u_res_ntk,
+            "rn": n_res_ntk
         }
 
         return ntk_dict
