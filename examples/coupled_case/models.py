@@ -39,8 +39,6 @@ class CoupledCase(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Predictions over a grid
-        #self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
-        #self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.n_pred_fn = vmap(vmap(self.n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
