@@ -32,7 +32,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_x = 128  # number of spatial points
 
     # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t, n_x)
+    u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
 
     # Define domain
     t0 = t_star[0]
@@ -69,7 +69,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 # Get the first replica of the state and batch
                 state = jax.device_get(tree_map(lambda x: x[0], model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
-                log_dict = evaluator(state, batch, u_ref)
+                log_dict = evaluator(state, batch, u_ref, n_ref)
                 wandb.log(log_dict, step)
                 end_time = time.time()
 
