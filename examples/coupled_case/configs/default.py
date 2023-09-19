@@ -54,8 +54,8 @@ def get_config():
             "bcs_n": 1.0, 
             "bcs_inner": 1.0,
             "bcs_outer": 1.0,
-            "ru_loss": 1.0,
-            "rn_loss": 1.0
+            "ru": 1.0,
+            "rn": 1.0
         })
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
