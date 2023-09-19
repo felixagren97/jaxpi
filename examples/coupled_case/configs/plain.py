@@ -47,7 +47,14 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = None
-    weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0, "bcs": 1.0})
+    weighting.init_weights = ml_collections.ConfigDict({
+            "ics": 1.0,
+            "bcs_n": 1.0, 
+            "bcs_inner": 1.0,
+            "bcs_outer": 1.0,
+            "ru": 1.0,
+            "rn": 1.0
+        })
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
