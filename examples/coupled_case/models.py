@@ -231,21 +231,16 @@ class CoupledCaseEvalutor(BaseEvaluator):
 
     def log_preds(self, params):
         pass
-        #u_pred = self.model.u_pred_fn(params, self.model.t_star, self.model.x_star)
-        #fig = plt.figure(figsize=(6, 5))
-        #plt.imshow(u_pred.T, cmap="jet")
-        #self.log_dict["u_pred"] = fig
-        #plt.close()
 
-    def __call__(self, state, batch, u_ref):
+    def __call__(self, state, batch, u_ref, n_ref):
         self.log_dict = super().__call__(state, batch)
 
         if self.config.weighting.use_causal:
-            _, causal_weight = self.model.res_and_w(state.params, batch)
+            _, _, causal_weight = self.model.res_and_w(state.params, batch)
             self.log_dict["cas_weight"] = causal_weight.min()
 
         if self.config.logging.log_errors:
-            self.log_errors(state.params, u_ref)
+            self.log_errors(state.params, u_ref, n_ref)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
