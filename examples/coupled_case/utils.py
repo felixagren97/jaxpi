@@ -12,5 +12,6 @@ def get_dataset(n_t=200, n_x=128):
     # Dummy function to replace analytical solution.
     u_exact_fn = lambda t, x: 0
     u_exact = vmap(vmap(u_exact_fn, (None, 0)), (0, None))(t_star, x_star)
+    n_exact = vmap(vmap(u_exact_fn, (None, 0)), (0, None))(t_star, x_star)
 
-    return u_exact, t_star, x_star
+    return u_exact, n_exact, t_star, x_star
