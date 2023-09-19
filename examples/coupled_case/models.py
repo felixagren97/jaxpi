@@ -141,7 +141,7 @@ class CoupledCase(ForwardIVP):
             "ics": ics_loss,
             "bcs_n": bcs_n, 
             "bcs_inner": bcs_inner,
-            "bcs_outer": bcs_inner,
+            "bcs_outer": bcs_outer,
             "ru_loss": ru_loss,
             "rn_loss": rn_loss
         }
@@ -153,15 +153,23 @@ class CoupledCase(ForwardIVP):
         ics_ntk = vmap(ntk_fn, (None, None, None, 0))(
             self.n_net, params, self.t0, self.x_star
         )
-
-        # n(x=0)
+        #TODO: Do we need to specify boundary values somewhere?
+        # Boundary loss: n(x=0)=n_inj
         x_0 = 0
-        n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
+        bcs_n_ntk = vmap(ntk_fn, (None, None, 0, None))(self.n_net, params, self.t_star, x_0)
+
+        # Boundary loss: U(x=0)=u_0
+        bcs_inner_ntk = vmap(ntk_fn, (None, None, 0, None))(self.u_net, params, self.t_star, x_0)
+
+        # Boundary loss: U(x=0)=u_1
+        x_1 = 1
+        bcs_outer_ntk = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
 
         # Residual loss
         if self.config.weighting.use_causal:
             # sort the time step for causal loss
             batch = jnp.array([batch[:, 0].sort(), batch[:, 1]]).T
+            
             u_res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
                 self.u_net, params, batch[:, 0], batch[:, 1]
             )
@@ -169,43 +177,65 @@ class CoupledCase(ForwardIVP):
                 self.n_net, params, batch[:, 0], batch[:, 1]
             )
 
-            u_res_ntk = u_res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
-            n_res_ntk = n_res_ntk.reshape(self.num_chunks, -1)  # shape: (num_chunks, -1)
-            res_ntk = jnp.mean(
-                res_ntk, axis=1
-            )  # average convergence rate over each chunk
-            _, casual_weights = self.res_and_w(params, batch)
-            res_ntk = res_ntk * casual_weights  # multiply by causal weights
+            # shape: (num_chunks, -1)
+            u_res_ntk = u_res_ntk.reshape(self.num_chunks, -1)  
+            n_res_ntk = n_res_ntk.reshape(self.num_chunks, -1)  
+            
+            # average convergence rate over each chunk
+            u_res_ntk = jnp.mean(u_res_ntk, axis=1)
+            n_res_ntk = jnp.mean(n_res_ntk, axis=1)
+
+            # multiply by causal weights
+            _, _, casual_weights = self.res_and_w(params, batch)
+            u_res_ntk *= casual_weights
+            n_res_ntk *= casual_weights
         else:
-            res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
-                self.r_net, params, batch[:, 0], batch[:, 1]
+            u_res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
+                self.u_net, params, batch[:, 0], batch[:, 1]
+            )
+            n_res_ntk = vmap(ntk_fn, (None, None, 0, 0))(
+                self.n_net, params, batch[:, 0], batch[:, 1]
             )
 
-        ntk_dict = {"ics": ics_ntk, "res": res_ntk}
+        ntk_dict = {
+            "ics": ics_ntk,
+            "bcs_n": bcs_n_ntk, 
+            "bcs_inner": bcs_inner_ntk,
+            "bcs_outer": bcs_outer_ntk,
+            "ru_loss": u_res_ntk,
+            "rn_loss": n_res_ntk
+        }
 
         return ntk_dict
 
+
     @partial(jit, static_argnums=(0,))
-    def compute_l2_error(self, params, u_test):
+    def compute_l2_error(self, params, u_ref, n_ref):
+        #TODO: Other methods have implemented for general t,x arrays, should we? 
         u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
-        error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
-        return error
+        n_pred = self.n_pred_fn(params, self.t_star, self.x_star)
+        
+        u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
+        n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
+        return u_error, n_error
 
 
 class CoupledCaseEvalutor(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
-    def log_errors(self, params, u_ref):
-        l2_error = self.model.compute_l2_error(params, u_ref)
-        self.log_dict["l2_error"] = l2_error
+    def log_errors(self, params, u_ref, n_ref):
+        u_error, n_error = self.model.compute_l2_error(params, u_ref, n_ref)
+        self.log_dict["u_error"] = u_error
+        self.log_dict["n_error"] = n_error
 
     def log_preds(self, params):
-        u_pred = self.model.u_pred_fn(params, self.model.t_star, self.model.x_star)
-        fig = plt.figure(figsize=(6, 5))
-        plt.imshow(u_pred.T, cmap="jet")
-        self.log_dict["u_pred"] = fig
-        plt.close()
+        pass
+        #u_pred = self.model.u_pred_fn(params, self.model.t_star, self.model.x_star)
+        #fig = plt.figure(figsize=(6, 5))
+        #plt.imshow(u_pred.T, cmap="jet")
+        #self.log_dict["u_pred"] = fig
+        #plt.close()
 
     def __call__(self, state, batch, u_ref):
         self.log_dict = super().__call__(state, batch)
