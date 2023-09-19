@@ -28,8 +28,8 @@ class CoupledCase(ForwardIVP):
         self.n_0 = n_0
         self.n_injs = jnp.full_like(t_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
-        self.u_0s = jnp.full_like(x_star, u_0)
-        self.u_1s = jnp.full_like(x_star, u_1)
+        self.u_0s = jnp.full_like(t_star, u_0)
+        self.u_1s = jnp.full_like(t_star, u_1)
         
         # domain
         self.t_star = t_star
