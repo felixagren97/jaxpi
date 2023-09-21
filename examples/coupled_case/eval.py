@@ -5,7 +5,7 @@ import ml_collections
 import jax.numpy as jnp
 
 import matplotlib.pyplot as plt
-
+import train
 from jaxpi.utils import restore_checkpoint
 from jax import grad, vmap
 import models
@@ -16,6 +16,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
    
     # Problem Setup
     n_scale = 1e11
+
     n_0 = 0.1/n_scale   # Initial condition for n, charge density before injection.
     n_inj = 1 # Boundary condition for n, charge density at x=0. 
     u_0 = 1e6   # Boundary condition for u, Potential at inner electrode

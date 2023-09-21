@@ -23,9 +23,12 @@ class CoupledCase(ForwardIVP):
         self.Diff = self.mu_n * self.kb * self.Temp/self.q 
         self.epsilon = 8.85e-12
 
+        # Scale factor for charge density to speed up training. 
+        self.n_scale = n_inj
+
         # initial conditions
-        self.n_inj = n_inj
-        self.n_0 = n_0
+        self.n_inj = n_inj / self.n_scale
+        self.n_0 = n_0 / self.n_scale
         self.n_injs = jnp.full_like(t_star, n_inj)
         self.n_0s = jnp.full_like(x_star, n_0)
         self.u_0s = jnp.full_like(t_star, u_0)
@@ -76,7 +79,7 @@ class CoupledCase(ForwardIVP):
 
         E = -grad(self.u_net, argnums=2)(params, t, x)
         W = self.mu_n * E
-        source = (self.q / self.epsilon * n) * 1e11 # scale back with n_inj  # TODO: makes sense?
+        source = (self.q / self.epsilon * n) * self.n_scale # scale back with n_inj  # TODO: makes sense?
         
         rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
         ru = du_xx + source

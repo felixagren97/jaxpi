@@ -24,8 +24,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    n_0 = 0.1/1e11
-    n_inj = 1
+    n_0 = 0.1
+    n_inj = 1e11
     u_0 = 1e6
     u_1 = 0
     n_t = 200  # number of time steps TODO: Increase?
