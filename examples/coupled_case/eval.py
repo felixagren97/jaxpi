@@ -15,10 +15,9 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
    
     # Problem Setup
-    n_scale = 1e11
 
-    n_0 = 0.1/n_scale   # Initial condition for n, charge density before injection.
-    n_inj = 1 # Boundary condition for n, charge density at x=0. 
+    n_0 = 0.1   # Initial condition for n, charge density before injection.
+    n_inj = 1e11 # Boundary condition for n, charge density at x=0. 
     u_0 = 1e6   # Boundary condition for u, Potential at inner electrode
     u_1 = 0     # Boundary condition for u, Potential at outer electrode
     n_t = 200   # Number of time steps TODO: Increase?
@@ -37,7 +36,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Compute L2 error [Cannot do with small]
     #u_error, n_error = model.compute_l2_error(params, u_ref, n_ref)
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star) # TODO: Ensure rescaled
-    n_pred = n_scale*model.n_pred_fn(params, model.t_star, model.x_star)
+    n_pred = model.n_pred_fn(params, model.t_star, model.x_star)
     
     #print("L2 error u: {:.3e}".format(u_error))
     #print("L2 error n: {:.3e}".format(n_error))

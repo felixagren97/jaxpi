@@ -29,8 +29,8 @@ class CoupledCase(ForwardIVP):
         # initial conditions
         self.n_inj = n_inj / self.n_scale
         self.n_0 = n_0 / self.n_scale
-        self.n_injs = jnp.full_like(t_star, n_inj)
-        self.n_0s = jnp.full_like(x_star, n_0)
+        self.n_injs = jnp.full_like(t_star, self.n_inj)
+        self.n_0s = jnp.full_like(x_star, self.n_0)
         self.u_0s = jnp.full_like(t_star, u_0)
         self.u_1s = jnp.full_like(t_star, u_1)
         self.u_0 = u_0
@@ -47,7 +47,7 @@ class CoupledCase(ForwardIVP):
 
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
-        self.n_pred_fn = vmap(vmap(self.n_net, (None, None, 0)), (None, 0, None))
+        self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
 
@@ -69,6 +69,9 @@ class CoupledCase(ForwardIVP):
     def n_net(self, params, t, x):
         _, n = self.neural_net(params, t, x)
         return n
+    
+    def scaled_n_net(self, params, t, x):
+        return self.n_scale*self.n_net(params, t, x)
 
     def r_net(self, params, t, x):
         u, n = self.neural_net(params, t, x)
