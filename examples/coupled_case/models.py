@@ -76,7 +76,7 @@ class CoupledCase(ForwardIVP):
 
         E = -grad(self.u_net, argnums=2)(params, t, x)
         W = self.mu_n * E
-        source = (self.q / self.epsilon * n) * self.n_inj # scale back with n_inj  # TODO: makes sense?
+        source = (self.q / self.epsilon * n) * 1e11 # scale back with n_inj  # TODO: makes sense?
         
         rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
         ru = du_xx + source
@@ -124,13 +124,13 @@ class CoupledCase(ForwardIVP):
         bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
 
         # Boundary loss: U(x=0)=U_0
-        u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
-        bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
+        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
+        #bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
 
         # Boundary loss: U(x=0)=U_0
         x_1 = 1
-        u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
-        bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
+        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
+        #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:
@@ -146,8 +146,8 @@ class CoupledCase(ForwardIVP):
         loss_dict = {
             "ics": ics_loss,
             "bcs_n": bcs_n, 
-            "bcs_inner": bcs_inner,
-            "bcs_outer": bcs_outer,
+            #"bcs_inner": bcs_inner, Hard boundary
+            #"bcs_outer": bcs_outer, Hard boundary
             "ru": ru_loss,
             "rn": rn_loss
         }
@@ -165,11 +165,11 @@ class CoupledCase(ForwardIVP):
         bcs_n_ntk = vmap(ntk_fn, (None, None, 0, None))(self.n_net, params, self.t_star, x_0)
 
         # Boundary loss: U(x=0)=u_0
-        bcs_inner_ntk = vmap(ntk_fn, (None, None, 0, None))(self.u_net, params, self.t_star, x_0)
+        #bcs_inner_ntk = vmap(ntk_fn, (None, None, 0, None))(self.u_net, params, self.t_star, x_0)
 
         # Boundary loss: U(x=0)=u_1
         x_1 = 1
-        bcs_outer_ntk = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
+        #bcs_outer_ntk = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
 
         # Residual loss
         if self.config.weighting.use_causal:
@@ -206,8 +206,8 @@ class CoupledCase(ForwardIVP):
         ntk_dict = {
             "ics": ics_ntk,
             "bcs_n": bcs_n_ntk, 
-            "bcs_inner": bcs_inner_ntk,
-            "bcs_outer": bcs_outer_ntk,
+            #"bcs_inner": bcs_inner_ntk, Hard boundary
+            #"bcs_outer": bcs_outer_ntk, Hard boundary
             "ru": u_res_ntk,
             "rn": n_res_ntk
         }

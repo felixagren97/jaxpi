@@ -52,8 +52,8 @@ def get_config():
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
-            "bcs_inner": 1.0,
-            "bcs_outer": 1.0,
+            #"bcs_inner": 1.0, Hard boundary
+            #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
             "rn": 1.0
         })
