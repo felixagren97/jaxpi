@@ -15,15 +15,17 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
    
     # Problem Setup
-    n_0 = 0.1/1e11   # Initial condition for n, charge density before injection.
+    n_scale = 1e11
+    n_0 = 0.1/n_scale   # Initial condition for n, charge density before injection.
     n_inj = 1 # Boundary condition for n, charge density at x=0. 
     u_0 = 1e6   # Boundary condition for u, Potential at inner electrode
     u_1 = 0     # Boundary condition for u, Potential at outer electrode
     n_t = 200   # Number of time steps TODO: Increase?
-    n_x = 128   # Number of spatial points TODO: Increase?
+    n_x = 10_000   # Number of spatial points TODO: Increase?
 
     # Get  dataset
     u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
+    t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore model
     model = models.CoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
@@ -31,13 +33,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    # Compute L2 error
-    u_error, n_error = model.compute_l2_error(params, u_ref, n_ref)
+    # Compute L2 error [Cannot do with small t_star]
+    #u_error, n_error = model.compute_l2_error(params, u_ref, n_ref)
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star) # TODO: Ensure rescaled
-    n_pred = model.n_pred_fn(params, model.t_star, model.x_star)
+    n_pred = n_scale*model.n_pred_fn(params, model.t_star, model.x_star)
     
-    print("L2 error u: {:.3e}".format(u_error))
-    print("L2 error n: {:.3e}".format(n_error))
+    #print("L2 error u: {:.3e}".format(u_error))
+    #print("L2 error n: {:.3e}".format(n_error))
 
     print('Max predicted n:' , jnp.max(n_pred))
     print('Min predicted n:' , jnp.min(n_pred))
@@ -49,13 +51,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig = plt.figure(figsize=(18, 12))
     plt.subplot(3, 1, 1)
     idx_step = int(n_t/10)
-    plt.plot(x_star, n_pred[idx_step * 0, :], label='t=0.000')
-    plt.plot(x_star, n_pred[idx_step * 1, :], label='t=0.001')
-    plt.plot(x_star, n_pred[idx_step * 2, :], label='t=0.002')
-    plt.plot(x_star, n_pred[idx_step * 3, :], label='t=0.003')
-    plt.plot(x_star, n_pred[idx_step * 4, :], label='t=0.004')
-    plt.plot(x_star, n_pred[idx_step * 5, :], label='t=0.005')
-    plt.plot(x_star, n_pred[idx_step * 6, :], label='t=0.006')
+    plt.plot(x_star, n_pred[0,:], label='t=0.000')
+    plt.plot(x_star, n_pred[1,:], label='t=0.001')
+    plt.plot(x_star, n_pred[2,:], label='t=0.002')
+    plt.plot(x_star, n_pred[3,:], label='t=0.003')
+    plt.plot(x_star, n_pred[4,:], label='t=0.004')
+    plt.plot(x_star, n_pred[5,:], label='t=0.005')
+    plt.plot(x_star, n_pred[6,:], label='t=0.006')
     plt.grid()
     plt.xlabel("x [m]")
     plt.ylabel("Charge density n(x) [#/m3]")
@@ -71,13 +73,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # plot Potential field
     plt.subplot(3, 1, 2)
     idx_step = int(n_t/10)
-    plt.plot(x_star, u_pred[idx_step * 0, :], label='t=0.000')
-    plt.plot(x_star, u_pred[idx_step * 1, :], label='t=0.001')
-    plt.plot(x_star, u_pred[idx_step * 2, :], label='t=0.002')
-    plt.plot(x_star, u_pred[idx_step * 3, :], label='t=0.003')
-    plt.plot(x_star, u_pred[idx_step * 4, :], label='t=0.004')
-    plt.plot(x_star, u_pred[idx_step * 5, :], label='t=0.005')
-    plt.plot(x_star, u_pred[idx_step * 6, :], label='t=0.006')
+    plt.plot(x_star, u_pred[0,:], label='t=0.000')
+    plt.plot(x_star, u_pred[1,:], label='t=0.001')
+    plt.plot(x_star, u_pred[2,:], label='t=0.002')
+    plt.plot(x_star, u_pred[3,:], label='t=0.003')
+    plt.plot(x_star, u_pred[4,:], label='t=0.004')
+    plt.plot(x_star, u_pred[5,:], label='t=0.005')
+    plt.plot(x_star, u_pred[6,:], label='t=0.006')
     plt.xlabel("x [m]")
     plt.ylabel("Potential [V]")
     plt.title("Predicted Potentials")
@@ -89,13 +91,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # plot electrical field
     plt.subplot(3, 1, 3)
     idx_step = int(n_t/10)
-    plt.plot(x_star, e_pred[idx_step * 0, :], label='t=0.000')
-    plt.plot(x_star, e_pred[idx_step * 1, :], label='t=0.001')
-    plt.plot(x_star, e_pred[idx_step * 2, :], label='t=0.002')
-    plt.plot(x_star, e_pred[idx_step * 3, :], label='t=0.003')
-    plt.plot(x_star, e_pred[idx_step * 4, :], label='t=0.004')
-    plt.plot(x_star, e_pred[idx_step * 5, :], label='t=0.005')
-    plt.plot(x_star, e_pred[idx_step * 6, :], label='t=0.006')
+    plt.plot(x_star, e_pred[0,:], label='t=0.000')
+    plt.plot(x_star, e_pred[1,:], label='t=0.001')
+    plt.plot(x_star, e_pred[2,:], label='t=0.002')
+    plt.plot(x_star, e_pred[3,:], label='t=0.003')
+    plt.plot(x_star, e_pred[4,:], label='t=0.004')
+    plt.plot(x_star, e_pred[5,:], label='t=0.005')
+    plt.plot(x_star, e_pred[6,:], label='t=0.006')
     plt.xlabel("x [m]")
     plt.ylabel("Electric field [V/m]")
     plt.title("Predicted Electrical field")
