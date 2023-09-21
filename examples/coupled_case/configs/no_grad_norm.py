@@ -12,7 +12,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Coupled-case"
-    wandb.name = "default"
+    wandb.name = "no_grad_norm"
     wandb.tag = None
 
     # Arch
