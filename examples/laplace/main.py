@@ -23,7 +23,7 @@ config_flags.DEFINE_config_file(
     lock_config=True,
 )
 
-
+#Init commit comment
 def main(argv):
     if FLAGS.config.mode == "train":
         train.train_and_evaluate(FLAGS.config, FLAGS.workdir)
