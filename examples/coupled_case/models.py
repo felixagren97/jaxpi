@@ -51,9 +51,9 @@ class CoupledCase(ForwardIVP):
     def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
-        print('Shape output in neural_net: ', outputs.shape)
-        print('Shape u (output[0]) in neural_net: ', outputs[0].shape)
-        print('Shape n (output[1]) in neural_net: ', outputs[1].shape)
+        #print('Shape output in neural_net: ', outputs.shape)
+        #print('Shape u (output[0]) in neural_net: ', outputs[0].shape)
+        #print('Shape n (output[1]) in neural_net: ', outputs[1].shape)
         u = outputs[0]
         n = outputs[1]
         return u, n
