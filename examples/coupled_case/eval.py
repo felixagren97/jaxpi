@@ -33,7 +33,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    # Compute L2 error [Cannot do with small t_star]
+    # Compute L2 error [Cannot do with small]
     #u_error, n_error = model.compute_l2_error(params, u_ref, n_ref)
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star) # TODO: Ensure rescaled
     n_pred = n_scale*model.n_pred_fn(params, model.t_star, model.x_star)
