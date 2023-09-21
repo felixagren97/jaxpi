@@ -30,10 +30,14 @@ class CoupledCase(ForwardIVP):
         self.n_0s = jnp.full_like(x_star, n_0)
         self.u_0s = jnp.full_like(t_star, u_0)
         self.u_1s = jnp.full_like(t_star, u_1)
+        self.u_0 = u_0
         
         # domain
         self.t_star = t_star
         self.x_star = x_star
+        self.x0 = x_star[0]
+        self.x1 = x_star[-1]
+
 
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
@@ -47,12 +51,16 @@ class CoupledCase(ForwardIVP):
     def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
+        print('Shape output in neural_net: ', outputs.shape)
+        print('Shape u (output[0]) in neural_net: ', outputs[0].shape)
+        print('Shape n (output[1]) in neural_net: ', outputs[1].shape)
         u = outputs[0]
         n = outputs[1]
         return u, n
     
     def u_net(self, params, t, x):
         u, _ = self.neural_net(params, t, x)
+        u = (self.x1-x)/(self.x1-self.x0) * self.u_0 + (x-self.x0)*(self.x1 - x) * u # hard boundary
         return u
 
     def n_net(self, params, t, x):

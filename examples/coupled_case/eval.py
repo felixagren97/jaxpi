@@ -15,7 +15,7 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
    
     # Problem setup
-    n_0 = 0.1/1e9
+    n_0 = 0.1
     n_inj = 1
     u_0 = 1e6
     u_1 = 0
