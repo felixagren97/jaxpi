@@ -17,7 +17,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Problem Setup
 
     n_0 = 0.1   # Initial condition for n, charge density before injection.
-    n_inj = 1e11 # Boundary condition for n, charge density at x=0. 
+    n_inj = 1e10 # Boundary condition for n, charge density at x=0. 
     u_0 = 1e6   # Boundary condition for u, Potential at inner electrode
     u_1 = 0     # Boundary condition for u, Potential at outer electrode
     n_t = 200   # Number of time steps TODO: Increase?
