@@ -21,6 +21,10 @@ class Laplace(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
+        # parameters 
+        self.q = 1.602e-19
+        self.epsilon = 8.85e-12
+
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
