@@ -1,0 +1,130 @@
+2023-09-08 10:00:38,608 INFO    StreamThr :23405 [internal.py:wandb_internal():86] W&B internal server running at pid: 23405, started at: 2023-09-08 10:00:38.606173
+2023-09-08 10:00:38,613 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: status
+2023-09-08 10:00:38,617 INFO    WriterThread:23405 [datastore.py:open_for_write():85] open: /Users/felix/Documents/GitHub/jaxpi/examples/laplace/wandb/offline-run-20230908_100038-lknsuh0l/run-lknsuh0l.wandb
+2023-09-08 10:00:38,652 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: run_start
+2023-09-08 10:00:38,664 DEBUG   HandlerThread:23405 [system_info.py:__init__():32] System info init
+2023-09-08 10:00:38,664 DEBUG   HandlerThread:23405 [system_info.py:__init__():47] System info init done
+2023-09-08 10:00:38,665 INFO    HandlerThread:23405 [system_monitor.py:start():181] Starting system monitor
+2023-09-08 10:00:38,665 INFO    SystemMonitor:23405 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-09-08 10:00:38,665 INFO    HandlerThread:23405 [system_monitor.py:probe():201] Collecting system info
+2023-09-08 10:00:38,668 INFO    SystemMonitor:23405 [interfaces.py:start():190] Started cpu monitoring
+2023-09-08 10:00:38,668 INFO    SystemMonitor:23405 [interfaces.py:start():190] Started disk monitoring
+2023-09-08 10:00:38,669 DEBUG   HandlerThread:23405 [system_info.py:probe():196] Probing system
+2023-09-08 10:00:38,671 INFO    SystemMonitor:23405 [interfaces.py:start():190] Started memory monitoring
+2023-09-08 10:00:38,672 INFO    SystemMonitor:23405 [interfaces.py:start():190] Started network monitoring
+2023-09-08 10:00:38,679 DEBUG   HandlerThread:23405 [system_info.py:_probe_git():181] Probing git
+2023-09-08 10:00:38,702 DEBUG   HandlerThread:23405 [system_info.py:_probe_git():189] Probing git done
+2023-09-08 10:00:38,702 DEBUG   HandlerThread:23405 [system_info.py:probe():244] Probing system done
+2023-09-08 10:00:38,702 DEBUG   HandlerThread:23405 [system_monitor.py:probe():210] {'os': 'macOS-12.5.1-x86_64-i386-64bit', 'python': '3.10.1', 'heartbeatAt': '2023-09-08T08:00:38.671643', 'startedAt': '2023-09-08T08:00:38.587304', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/felix/Documents/GitHub/jaxpi/examples/laplace/main.py', 'codePathLocal': 'main.py', 'codePath': 'examples/laplace/main.py', 'git': {'remote': 'https://github.com/felixagren97/jaxpi.git', 'commit': '5633f786fa781d52556f5ba27ee10564b7681a6a'}, 'email': 'felixagren@outlook.com', 'root': '/Users/felix/Documents/GitHub/jaxpi', 'host': 'Felixs-MacBook-Air.local', 'username': 'felix', 'executable': '/usr/local/bin/python3', 'cpu_count': 2, 'cpu_count_logical': 4, 'cpu_freq': {'current': 1800, 'min': 1800, 'max': 1800}, 'cpu_freq_per_core': [{'current': 1800, 'min': 1800, 'max': 1800}], 'disk': {'/': {'total': 112.80464935302734, 'used': 21.794879913330078}}, 'memory': {'total': 8.0}}
+2023-09-08 10:00:38,702 INFO    HandlerThread:23405 [system_monitor.py:probe():211] Finished collecting system info
+2023-09-08 10:00:38,702 INFO    HandlerThread:23405 [system_monitor.py:probe():214] Publishing system info
+2023-09-08 10:00:38,703 DEBUG   HandlerThread:23405 [system_info.py:_save_pip():52] Saving list of pip packages installed into the current environment
+2023-09-08 10:00:38,703 DEBUG   HandlerThread:23405 [system_info.py:_save_pip():68] Saving pip packages done
+2023-09-08 10:00:38,704 INFO    HandlerThread:23405 [system_monitor.py:probe():216] Finished publishing system info
+2023-09-08 10:00:39,589 DEBUG   SenderThread:23405 [sender.py:send():379] send: exit
+2023-09-08 10:00:39,589 INFO    SenderThread:23405 [sender.py:send_exit():584] handling exit code: 1
+2023-09-08 10:00:39,590 INFO    SenderThread:23405 [sender.py:send_exit():586] handling runtime: 0
+2023-09-08 10:00:39,590 INFO    SenderThread:23405 [sender.py:_save_file():1375] saving file wandb-summary.json with policy end
+2023-09-08 10:00:39,590 INFO    SenderThread:23405 [sender.py:send_exit():592] send defer
+2023-09-08 10:00:39,591 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,591 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 0
+2023-09-08 10:00:39,592 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,592 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 0
+2023-09-08 10:00:39,592 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 1
+2023-09-08 10:00:39,592 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,592 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 1
+2023-09-08 10:00:39,592 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,593 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 1
+2023-09-08 10:00:39,593 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 2
+2023-09-08 10:00:39,593 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,593 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 2
+2023-09-08 10:00:39,593 INFO    HandlerThread:23405 [system_monitor.py:finish():190] Stopping system monitor
+2023-09-08 10:00:39,595 INFO    HandlerThread:23405 [interfaces.py:finish():202] Joined cpu monitor
+2023-09-08 10:00:39,595 DEBUG   SystemMonitor:23405 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2023-09-08 10:00:39,595 INFO    HandlerThread:23405 [interfaces.py:finish():202] Joined disk monitor
+2023-09-08 10:00:39,596 DEBUG   SystemMonitor:23405 [system_monitor.py:_start():166] Finished system metrics aggregation loop
+2023-09-08 10:00:39,596 INFO    HandlerThread:23405 [interfaces.py:finish():202] Joined memory monitor
+2023-09-08 10:00:39,596 DEBUG   SystemMonitor:23405 [system_monitor.py:_start():170] Publishing last batch of metrics
+2023-09-08 10:00:39,597 INFO    HandlerThread:23405 [interfaces.py:finish():202] Joined network monitor
+2023-09-08 10:00:39,600 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,600 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 2
+2023-09-08 10:00:39,600 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 3
+2023-09-08 10:00:39,600 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,601 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 3
+2023-09-08 10:00:39,601 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,601 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 3
+2023-09-08 10:00:39,602 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 4
+2023-09-08 10:00:39,602 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,602 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 4
+2023-09-08 10:00:39,602 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,602 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 4
+2023-09-08 10:00:39,602 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 5
+2023-09-08 10:00:39,603 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,603 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 5
+2023-09-08 10:00:39,603 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,603 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 5
+2023-09-08 10:00:39,603 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 6
+2023-09-08 10:00:39,604 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,604 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 6
+2023-09-08 10:00:39,604 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,604 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 6
+2023-09-08 10:00:39,604 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 7
+2023-09-08 10:00:39,604 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: status_report
+2023-09-08 10:00:39,605 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,605 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 7
+2023-09-08 10:00:39,605 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: status_report
+2023-09-08 10:00:39,605 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,606 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 7
+2023-09-08 10:00:39,606 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 8
+2023-09-08 10:00:39,606 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,606 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 8
+2023-09-08 10:00:39,606 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,607 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 8
+2023-09-08 10:00:39,607 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 9
+2023-09-08 10:00:39,607 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,607 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 9
+2023-09-08 10:00:39,608 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,608 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 9
+2023-09-08 10:00:39,608 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 10
+2023-09-08 10:00:39,608 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,608 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 10
+2023-09-08 10:00:39,609 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,609 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 10
+2023-09-08 10:00:39,609 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 11
+2023-09-08 10:00:39,610 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,610 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 11
+2023-09-08 10:00:39,612 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,612 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 11
+2023-09-08 10:00:39,612 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 12
+2023-09-08 10:00:39,612 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,613 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 12
+2023-09-08 10:00:39,613 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,613 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 12
+2023-09-08 10:00:39,613 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 13
+2023-09-08 10:00:39,613 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,614 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 13
+2023-09-08 10:00:39,614 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,614 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 13
+2023-09-08 10:00:39,614 INFO    SenderThread:23405 [sender.py:transition_state():612] send defer: 14
+2023-09-08 10:00:39,615 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: defer
+2023-09-08 10:00:39,615 DEBUG   SenderThread:23405 [sender.py:send():379] send: final
+2023-09-08 10:00:39,615 INFO    HandlerThread:23405 [handler.py:handle_request_defer():170] handle defer: 14
+2023-09-08 10:00:39,616 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: defer
+2023-09-08 10:00:39,616 INFO    SenderThread:23405 [sender.py:send_request_defer():608] handle sender defer: 14
+2023-09-08 10:00:39,617 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: poll_exit
+2023-09-08 10:00:39,617 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: poll_exit
+2023-09-08 10:00:39,618 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: poll_exit
+2023-09-08 10:00:39,620 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: server_info
+2023-09-08 10:00:39,622 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: poll_exit
+2023-09-08 10:00:39,623 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: server_info
+2023-09-08 10:00:39,623 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: get_summary
+2023-09-08 10:00:39,624 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: sampled_history
+2023-09-08 10:00:39,625 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: internal_messages
+2023-09-08 10:00:39,626 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: job_info
+2023-09-08 10:00:39,626 DEBUG   SenderThread:23405 [sender.py:send_request():406] send_request: job_info
+2023-09-08 10:00:39,626 INFO    MainThread:23405 [wandb_run.py:_footer_history_summary_info():3557] rendering history
+2023-09-08 10:00:39,627 INFO    MainThread:23405 [wandb_run.py:_footer_history_summary_info():3589] rendering summary
+2023-09-08 10:00:39,628 DEBUG   HandlerThread:23405 [handler.py:handle_request():144] handle_request: shutdown
+2023-09-08 10:00:39,628 INFO    HandlerThread:23405 [handler.py:finish():840] shutting down handler
+2023-09-08 10:00:40,630 INFO    WriterThread:23405 [datastore.py:close():294] close: /Users/felix/Documents/GitHub/jaxpi/examples/laplace/wandb/offline-run-20230908_100038-lknsuh0l/run-lknsuh0l.wandb
+2023-09-08 10:00:40,630 INFO    SenderThread:23405 [sender.py:finish():1531] shutting down sender
