@@ -75,7 +75,7 @@ class PeriodEmbs(nn.Module):
                 y.extend([jnp.cos(period * xi), jnp.sin(period * xi)])
             else:
                 y.append(xi)
-
+        
         return jnp.hstack(y)
 
 
