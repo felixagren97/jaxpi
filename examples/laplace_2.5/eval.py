@@ -44,7 +44,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.subplot(3,1,1)
     plt.xlabel('Distance [m]')
     plt.ylabel('Charge density n(x)')
-    plt.title('Charde density')
+    plt.title('Charge density')
     plt.plot(x_star, n_values, label='n(x)', color='red')
     plt.tight_layout()    
     plt.xlim(x_star[0], x_star[-1])
@@ -60,7 +60,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.plot(x_star, u_pred, label='Predicted V(x)', color='blue')
 
     # Plot original V(x)
-    plt.plot(x_star, 1e6*(-x_star + 1), linestyle='--', label='Original V(x)', color='green') 
+    plt.plot(x_star, 1e6*(-x_star + 1), linestyle='--', label='Original V(x)', color='red') 
     plt.grid()
     plt.legend()
     plt.tight_layout()    
