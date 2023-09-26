@@ -60,12 +60,6 @@ class PeriodEmbs(nn.Module):
 
     @nn.compact
     def __call__(self, x):
-        print('INSIDE __call__ of PeriodEmbs')
-        print('x.shape = ', x.shape)
-        print('x[0]: ', x[0])
-        #print('x[0][0]: ', x[0][0])
-
-        
 
         """
         Apply the period embeddings to the specified axes.
@@ -75,18 +69,13 @@ class PeriodEmbs(nn.Module):
         for i, xi in enumerate(x):
             print('i, xi', i, xi)
             if i in self.axis:
-                print('INSEIDE if i in self.axis')
+                raise NotImplementedError('Should not be here!!!!')
                 idx = self.axis.index(i)
                 period = self.period_params[f"period_{idx}"]
                 y.extend([jnp.cos(period * xi), jnp.sin(period * xi)])
             else:
                 y.append(xi)
 
-        print('y:'  , y)
-        print('len(y): ', len(y))
-        print('y[0]: ', y[0])
-        #print('y[0][0]: ', y[0][0])
-        print('jnp.hstack(y): ', jnp.hstack(y))
         return jnp.hstack(y)
 
 
