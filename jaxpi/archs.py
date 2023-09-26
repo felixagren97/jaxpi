@@ -67,7 +67,6 @@ class PeriodEmbs(nn.Module):
         y = []
 
         for i, xi in enumerate(x):
-            print('i, xi', i, xi)
             if i in self.axis:
                 raise NotImplementedError('Should not be here!!!!')
                 idx = self.axis.index(i)
