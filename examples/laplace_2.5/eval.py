@@ -14,104 +14,69 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Problem setup
-    r_0 = 0.001  # inner radius
-    r_1 = 1      # outer radius
-    n_r = 10000    # used to be 128, but increased and kept separate for unique points
-    C = 1/(jnp.log(r_0)-jnp.log(r_1))
+
+    n_x = 15_000    # used to be 128, but increased and kept separate for unique points
 
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r)
+    _, x_star = get_dataset(n_x = n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = u_ref[0]
-    u1 = u_ref[-1] # need to add to loss as well? 
+    u0 = 1e6
+    u1 = 0 # need to add to loss as well? 
+    n_inj = 1e9
 
     # Restore model
-    model = models.Laplace(config, u0, u1, r_star)
+    model = models.Laplace(config, u0, u1, x_star, n_inj)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    # Compute L2 error
-    l2_error = model.compute_l2_error(params, u_ref)
-    print("L2 error: {:.3e}".format(l2_error))
-
-    u_pred = model.u_pred_fn(params, model.r_star)
-    e_pred_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
+    u_pred = model.u_pred_fn(params, model.x_star)
+    n_values = n_inj * jax.vmap(model.heaviside)(x_star)
+    e_pred_fn = jax.vmap(lambda params, x: jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
-    e_pred = e_pred_fn(params, model.r_star)
-    e_ref = C/model.r_star
-    # Convert them to NumPy arrays for Matplotlib
-    r_star_np = jnp.array(r_star)
-    u_pred_np = jnp.array(u_pred)
-    u_ref_np = jnp.array(u_ref)
+    e_pred = e_pred_fn(params, model.x_star)
+    
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 8))
-    plt.subplot(2, 2, 1)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Potential V(r)')
-    plt.title('Predicted and Analyical Potential')
+    plt.subplot(2, 1, 1)
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Potential V(x)')
+    plt.title('Potential')
 
     # Plot the prediction values as a solid line
-    plt.plot(r_star_np, u_pred_np, label='Prediction', color='blue')
+    plt.plot(x_star, u_pred, label='Predicted V(x)', color='blue')
 
-    # Plot the analytical solution as a dashed line
-    plt.plot(r_star_np, u_ref_np, linestyle='--', label='Analytical Solution', color='red')
+    # Plot n(x)
+    plt.plot(x_star, n_values, linestyle='--', label='n(x)', color='red')
+
+    # Plot original V(x)
+    plt.plot(x_star, 1e6*(-x_star + 1), linestyle='--', label='Original V(x)', color='green') 
     plt.grid()
     plt.legend()
-    plt.tight_layout()
-    
-    # Set x-axis limits to [r_star[0], r_star[-1]]
-    plt.xlim(r_star_np[0], r_star_np[-1])
-
-    # plot absolute errors 
-    plt.subplot(2, 2, 3)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Potenial [V]')
-    plt.title('Absolute Potential Error')
-
-    plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
-    plt.grid()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
+    plt.tight_layout()    
+    plt.xlim(x_star[0], x_star[-1])
 
     # plot electrical field
-    plt.subplot(2, 2, 2)
+    plt.subplot(2, 1, 2)
 
-    plt.xlabel('Radius [m]')
+    plt.xlabel('Distance [m]')
     plt.ylabel('Electric field [V/m]')
-    plt.title('Predicted and Analytical Electrical field')
+    plt.title('Electrical field')
 
     # Plot the prediction values as a solid line
-    plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
-
-    # Plot the analytical solution as a dashed line
-    plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
+    plt.plot(x_star, e_pred, color='blue')
     plt.grid()
-    plt.legend()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
-
-    # plot absolute field errors 
-    plt.subplot(2, 2, 4)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Electrical field [V/m]')
-    plt.title('Absolute Electrical field')
-
-    plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
-    plt.grid()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
-
-    
+    plt.xlim(x_star[0], x_star[-1])
+    plt.tight_layout()    
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace.pdf")
+    fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
  
