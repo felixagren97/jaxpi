@@ -144,10 +144,8 @@ class Mlp(nn.Module):
 
     @nn.compact
     def __call__(self, x):
-        print("BEFORE", 'x', x, 'x.shape',x.shape)
         if self.periodicity:
             x = PeriodEmbs(**self.periodicity)(x)
-        print("AFTER", 'x', x, 'x.shape',x.shape)
         if self.fourier_emb:
             x = FourierEmbs(**self.fourier_emb)(x)
 
