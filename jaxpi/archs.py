@@ -63,6 +63,8 @@ class PeriodEmbs(nn.Module):
         print('INSIDE __call__ of PeriodEmbs')
         print('x.shape = ', x.shape)
         print('x[0]: ', x[0])
+        print('x[0][0]: ', x[0][0])
+
         
 
         """
@@ -72,6 +74,7 @@ class PeriodEmbs(nn.Module):
 
         for i, xi in enumerate(x):
             if i in self.axis:
+                print('INSEIDE if i in self.axis')
                 idx = self.axis.index(i)
                 period = self.period_params[f"period_{idx}"]
                 y.extend([jnp.cos(period * xi), jnp.sin(period * xi)])
@@ -79,6 +82,9 @@ class PeriodEmbs(nn.Module):
                 y.append(xi)
 
         print('y:'  , y)
+        print('len(y): ', len(y))
+        print('y[0]: ', y[0])
+        print('y[0][0]: ', y[0][0])
 
         return jnp.hstack(y)
 
