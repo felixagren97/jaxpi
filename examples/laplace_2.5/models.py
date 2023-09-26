@@ -11,12 +11,13 @@ from matplotlib import pyplot as plt
 
 
 class Laplace(ForwardIVP):
-    def __init__(self, config, u0, u1, x_star):
+    def __init__(self, config, u0, u1, x_star, n_inj):
         super().__init__(config)
 
         self.u0 = u0
         self.u1 = u1
         self.x_star = x_star
+        self.n_inj = n_inj
 
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
@@ -33,14 +34,18 @@ class Laplace(ForwardIVP):
         x_reshape = jnp.reshape(x, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, x_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0] # soft boundary
-        #return (self.x1-r)/(self.x1-self.x0) + (r-self.x0)*(self.x1 - r)*u[0] # hard boundary
+        #return (self.x1-x)/(self.x1-self.x0) + (x-self.x0)*(self.x1 - x)*u[0] # hard boundary
 
+    def heaviside(self, x, k=25, a=0.5):
+        # https://en.wikipedia.org/wiki/Heaviside_step_function
+        # larger k -> steeper step
+        # larger a -> larger positive translation
+        return 1 - 1 / (1 + jnp.exp(-2 * k * (x - a)))
 
     def r_net(self, params, x):        
-        du_x = grad(self.u_net, argnums=1)(params, x)
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        #du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
-        return x * du_xx + du_x  # Scaled by r, try w/o? 
+        n = self.n_inj * self.heaviside(x=x, k=25, a=0.5)
+        return du_xx - self.q * n / self.epsilon
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called

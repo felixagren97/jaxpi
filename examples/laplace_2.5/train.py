@@ -51,6 +51,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Problem setup
     n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    n_inj = 1e9
 
     # Get  dataset
     u_ref, x_star = get_dataset(n_x=n_x)
@@ -66,7 +67,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([x0, x1]) # TODO: used to be 2d, check if creates issues? 
 
     # Initialize model
-    model = models.Laplace(config, u0, u1, x_star)
+    model = models.Laplace(config, u0, u1, x_star, n_inj)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
