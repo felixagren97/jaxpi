@@ -34,7 +34,7 @@ class Laplace(ForwardIVP):
         x_reshape = jnp.reshape(x, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, x_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0] # soft boundary
-        #return (self.x1-x)/(self.x1-self.x0) + (x-self.x0)*(self.x1 - x)*u[0] # hard boundary
+        #return self.u0*(self.x1-x)/(self.x1-self.x0) + (x-self.x0)*(self.x1 - x)*u[0] # hard boundary
 
     def heaviside(self, x, k=25, a=0.5):
         # https://en.wikipedia.org/wiki/Heaviside_step_function
