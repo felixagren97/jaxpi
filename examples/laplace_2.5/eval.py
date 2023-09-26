@@ -85,5 +85,5 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
         os.makedirs(save_dir)
 
     fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=600)
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
  
