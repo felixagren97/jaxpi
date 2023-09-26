@@ -2,12 +2,11 @@ import jax.numpy as jnp
 from jax import vmap
 
 
-def get_dataset(r_0=0.001, r_1=1, n_r=128):
-    r_star = jnp.linspace(r_0, r_1, n_r)
-    C = 1/(jnp.log(r_0)-jnp.log(r_1))
-    A = -jnp.log(r_1)*C
+def get_dataset(n_x):
+    L = 1 # per case 2
+    x_star = jnp.linspace(0, L, n_x)
+    # Dummy function to replace analytical solution.
+    u_exact_fn = lambda t, x: 0
+    u_exact = vmap(u_exact_fn)(x_star)
     
-    u_exact_fn = lambda r: C*jnp.log(r)+A
-    u_exact = vmap(u_exact_fn)(r_star)
-    
-    return u_exact, r_star
+    return u_exact, x_star
