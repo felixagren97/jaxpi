@@ -40,17 +40,24 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
 
     # Create a Matplotlib figure and axis
-    fig = plt.figure(figsize=(18, 8))
-    plt.subplot(2, 1, 1)
+    fig = plt.figure(figsize=(18, 14))
+    plt.subplot(3,1,1)
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Charge density n(x)')
+    plt.title('Charde density')
+    plt.plot(x_star, n_values, label='n(x)', color='red')
+    plt.tight_layout()    
+    plt.xlim(x_star[0], x_star[-1])
+    plt.grid()
+
+
+    plt.subplot(3, 1, 2)
     plt.xlabel('Distance [m]')
     plt.ylabel('Potential V(x)')
     plt.title('Potential')
 
-    # Plot the prediction values as a solid line
+    # Plot the prediction
     plt.plot(x_star, u_pred, label='Predicted V(x)', color='blue')
-
-    # Plot n(x)
-    plt.plot(x_star, n_values, linestyle='--', label='n(x)', color='red')
 
     # Plot original V(x)
     plt.plot(x_star, 1e6*(-x_star + 1), linestyle='--', label='Original V(x)', color='green') 
@@ -60,7 +67,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(x_star[0], x_star[-1])
 
     # plot electrical field
-    plt.subplot(2, 1, 2)
+    plt.subplot(3, 1, 3)
 
     plt.xlabel('Distance [m]')
     plt.ylabel('Electric field [V/m]')
@@ -78,5 +85,5 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
         os.makedirs(save_dir)
 
     fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+    fig.savefig(fig_path, bbox_inches="tight", dpi=600)
  
