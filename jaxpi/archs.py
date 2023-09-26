@@ -73,6 +73,7 @@ class PeriodEmbs(nn.Module):
         y = []
 
         for i, xi in enumerate(x):
+            print('i, xi', i, xi)
             if i in self.axis:
                 print('INSEIDE if i in self.axis')
                 idx = self.axis.index(i)
@@ -85,7 +86,7 @@ class PeriodEmbs(nn.Module):
         print('len(y): ', len(y))
         print('y[0]: ', y[0])
         #print('y[0][0]: ', y[0][0])
-
+        print('jnp.hstack(y): ', jnp.hstack(y))
         return jnp.hstack(y)
 
 
