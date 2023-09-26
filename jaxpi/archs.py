@@ -60,6 +60,9 @@ class PeriodEmbs(nn.Module):
 
     @nn.compact
     def __call__(self, x):
+        print('INSIDE __call__ of PeriodEmbs')
+        print('x.shape = ', x.shape)
+        
         """
         Apply the period embeddings to the specified axes.
         """
