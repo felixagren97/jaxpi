@@ -30,7 +30,7 @@ class Laplace(ForwardIVP):
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
     def u_net(self, params, r):
-        # params = weights for NN 
+        # params = weights for NN
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return u[0] # soft boundary

@@ -11,7 +11,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
+    wandb.project = "PINN-Laplace-2.5"
     wandb.name = "default"
     wandb.tag = None
 
@@ -22,9 +22,7 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)}
-    )
+    arch.periodicity = ml_collections.ConfigDict({"period": (1.0, ), "axis": (1,), "trainable": (False,)})
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict(
         {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
@@ -69,11 +67,11 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None
+    saving.save_every_steps = 10000
     saving.num_keep_ckpts = 10
 
     # # Input shape for initializing Flax models
-    config.input_dim = 2
+    config.input_dim = 1
 
     # Integer for PRNG random seed.
     config.seed = 42
