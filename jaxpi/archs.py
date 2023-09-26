@@ -62,9 +62,9 @@ class PeriodEmbs(nn.Module):
     def __call__(self, x):
         print('INSIDE __call__ of PeriodEmbs')
         print('x.shape = ', x.shape)
-        print('x[0]: ', x[0])
-        print('x[1]: ', x[1])
-        
+        print('x[0, :]: ', x[0, :])
+        print('x[:, 0]: ', x[:, 0])
+        print('len(x[0, :]): ', len(x[0, :]))
 
         """
         Apply the period embeddings to the specified axes.
@@ -80,7 +80,7 @@ class PeriodEmbs(nn.Module):
                 y.append(xi)
 
         print('y:'  , y)
-        
+
         return jnp.hstack(y)
 
 
