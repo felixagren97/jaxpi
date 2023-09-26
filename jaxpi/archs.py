@@ -63,7 +63,7 @@ class PeriodEmbs(nn.Module):
         print('INSIDE __call__ of PeriodEmbs')
         print('x.shape = ', x.shape)
         print('x[0]: ', x[0])
-        print('x[0][0]: ', x[0][0])
+        #print('x[0][0]: ', x[0][0])
 
         
 
@@ -84,7 +84,7 @@ class PeriodEmbs(nn.Module):
         print('y:'  , y)
         print('len(y): ', len(y))
         print('y[0]: ', y[0])
-        print('y[0][0]: ', y[0][0])
+        #print('y[0][0]: ', y[0][0])
 
         return jnp.hstack(y)
 
