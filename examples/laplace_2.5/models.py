@@ -54,12 +54,12 @@ class Laplace(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
         # inner boundary condition 
-        u_pred = self.u_net(params, self.x0)
-        inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
+        #u_pred = self.u_net(params, self.x0) #Hard boundary
+        #inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2) #Hard boundary
 
         # outer boundary condition 
-        u_pred = self.u_net(params, self.x1)
-        outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
+        #u_pred = self.u_net(params, self.x1) #Hard boundary
+        #outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2) #Hard boundary
 
         # Residual loss
         if self.config.weighting.use_causal == True:
@@ -68,14 +68,14 @@ class Laplace(ForwardIVP):
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
             res_loss = jnp.mean((r_pred) ** 2)
 
-        loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss}
+        loss_dict = {"res": res_loss} # #Hard boundary {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss}
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
 
-        inner_bcs_ntk = self.u_net(params, self.x0)
-        outer_bcs_ntk = self.u_net(params, self.x1)
+        #inner_bcs_ntk = self.u_net(params, self.x0)
+        #outer_bcs_ntk = self.u_net(params, self.x1)
 
 
         # Consider the effect of causal weights
@@ -87,7 +87,7 @@ class Laplace(ForwardIVP):
                 self.r_net, params, batch[:, 0]
             )
         #ntk_dict = {"ics": ics_ntk, "res": res_ntk}
-        ntk_dict = {"inner_bcs": inner_bcs_ntk, "outer_bcs": outer_bcs_ntk, "res": res_ntk}
+        ntk_dict = {"res": res_ntk} #{"inner_bcs": inner_bcs_ntk, "outer_bcs": outer_bcs_ntk, "res": res_ntk}
 
         return ntk_dict
 
