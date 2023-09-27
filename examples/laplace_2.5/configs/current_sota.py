@@ -12,7 +12,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace-2.5"
-    wandb.name = "curret_sota"
+    wandb.name = "current_sota"
     wandb.tag = None
 
     # Arch
