@@ -44,7 +44,7 @@ class Laplace(ForwardIVP):
 
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        n = self.n_inj * self.heaviside(x=x, k=25, a=0.5)
+        n = self.n_inj * self.heaviside(x=x)
         return du_xx + self.q * n / self.epsilon
 
     @partial(jit, static_argnums=(0,))
