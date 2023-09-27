@@ -12,7 +12,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace-2.5"
-    wandb.name = "default"
+    wandb.name = "curret_sota"
     wandb.tag = None
 
     # Arch
@@ -45,7 +45,7 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = None 
-    weighting.init_weights = ml_collections.ConfigDict({"inner_bcs": 1.0, "outer_bcs": 1.0, "res": 1.0})
+    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0}) # ml_collections.ConfigDict({"inner_bcs": 1.0, "outer_bcs": 1.0, "res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
