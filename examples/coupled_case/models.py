@@ -30,7 +30,10 @@ class CoupledCase(ForwardIVP):
         self.n_inj = n_inj / self.n_scale
         self.n_0 = n_0 / self.n_scale
         self.n_injs = jnp.full_like(t_star, self.n_inj)
-        self.n_0s = jnp.full_like(x_star, self.n_0) # TODO: Change to heaviside values
+
+        # initial condition with heaviside for n
+        self.n_0s = self.heaviside(x_star) / self.heaviside(0)
+        
         self.u_0s = jnp.full_like(t_star, u_0)
         self.u_1s = jnp.full_like(t_star, u_1)
         self.u_0 = u_0
@@ -50,6 +53,9 @@ class CoupledCase(ForwardIVP):
         self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
+
+    def heaviside(self, x, k = 100, a = 0.05):
+        return 1 - 1 / (1 + jnp.exp(- 2 * k * (x - a)))
 
     def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
