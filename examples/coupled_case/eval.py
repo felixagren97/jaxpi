@@ -121,6 +121,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
         os.makedirs(save_dir)
 
     fig_path = os.path.join(save_dir, "coupled_case.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+    fig.savefig(fig_path, bbox_inches="tight", dpi=700)
  
 
