@@ -30,7 +30,7 @@ class CoupledCase(ForwardIVP):
         self.n_inj = n_inj / self.n_scale
         self.n_0 = n_0 / self.n_scale
         self.n_injs = jnp.full_like(t_star, self.n_inj)
-        self.n_0s = jnp.full_like(x_star, self.n_0)
+        self.n_0s = jnp.full_like(x_star, self.n_0) # TODO: Change to heaviside values
         self.u_0s = jnp.full_like(t_star, u_0)
         self.u_1s = jnp.full_like(t_star, u_1)
         self.u_0 = u_0
