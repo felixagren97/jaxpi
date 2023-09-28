@@ -110,7 +110,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.ylabel("Charge density n(x) [#/m3]")
     plt.title("Charge density at t = 0")
     plt.grid()
-    plt.legend()
     plt.tight_layout()
     plt.xlim(x_star[0], x_star[-1])
 
