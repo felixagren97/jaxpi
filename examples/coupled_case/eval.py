@@ -48,9 +48,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print('Min predicted u:' , jnp.min(u_pred))
     
     # Plot results
-    fig = plt.figure(figsize=(18, 12))
-    plt.subplot(3, 1, 1)
-    idx_step = int(n_t/10)
+    fig = plt.figure(figsize=(18, 15))
+    plt.subplot(4, 1, 1)
     plt.plot(x_star, n_pred[0,:], label='t=0.000')
     plt.plot(x_star, n_pred[1,:], label='t=0.001')
     plt.plot(x_star, n_pred[2,:], label='t=0.002')
@@ -71,8 +70,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     e_pred = e_pred_fn(params, model.t_star, model.x_star)
     
     # plot Potential field
-    plt.subplot(3, 1, 2)
-    idx_step = int(n_t/10)
+    plt.subplot(4, 1, 2)
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
@@ -89,8 +87,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(x_star[0], x_star[-1])
 
     # plot electrical field
-    plt.subplot(3, 1, 3)
-    idx_step = int(n_t/10)
+    plt.subplot(4, 1, 3)
     plt.plot(x_star, e_pred[0,:], label='t=0.000')
     plt.plot(x_star, e_pred[1,:], label='t=0.001')
     plt.plot(x_star, e_pred[2,:], label='t=0.002')
@@ -101,6 +98,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlabel("x [m]")
     plt.ylabel("Electric field [V/m]")
     plt.title("Predicted Electrical field")
+    plt.grid()
+    plt.legend()
+    plt.tight_layout()
+    plt.xlim(x_star[0], x_star[-1])
+
+    # plot initial n(t,x) field
+    plt.subplot(4, 1, 4)
+    plt.plot(x_star, model.heaviside(x_star) / model.heaviside(0) * (1 - model.n_0) + model.n_0)
+    plt.xlabel("x [m]")
+    plt.ylabel("Charge density n(x) [#/m3]")
+    plt.title("Charge density at t = 0")
     plt.grid()
     plt.legend()
     plt.tight_layout()
