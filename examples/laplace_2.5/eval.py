@@ -15,7 +15,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Problem setup
 
-    n_x = 15_000    # used to be 128, but increased and kept separate for unique points
+    n_x = 50_000    # used to be 128, but increased and kept separate for unique points
 
     # Get  dataset
     _, x_star = get_dataset(n_x = n_x)
@@ -38,10 +38,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
     
+    r_pred = model.r_pred_fn(params, model.x_star)**2
+
+    
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 14))
-    plt.subplot(3,1,1)
+    plt.subplot(4,1,1)
     plt.xlabel('Distance [m]')
     plt.ylabel('Charge density n(x)')
     plt.title('Charge density')
@@ -51,7 +54,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.grid()
 
 
-    plt.subplot(3, 1, 2)
+    plt.subplot(4, 1, 2)
     plt.xlabel('Distance [m]')
     plt.ylabel('Potential V(x)')
     plt.title('Potential')
@@ -67,7 +70,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(x_star[0], x_star[-1])
 
     # plot electrical field
-    plt.subplot(3, 1, 3)
+    plt.subplot(4, 1, 3)
 
     plt.xlabel('Distance [m]')
     plt.ylabel('Electric field [V/m]')
@@ -78,6 +81,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.grid()
     plt.xlim(x_star[0], x_star[-1])
     plt.tight_layout()    
+
+    plt.subplot(4, 1, 4)
+    plt.scatter(x_star, r_pred, color='blue', marker='o', s=1)  # Use marker='o' for circular markers, adjust 's' for marker size
+
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Squared Residual Loss')
+    plt.title('Squared Residual Loss')
+
+    plt.grid()
+    plt.xlim(x_star[0], x_star[-1])
+    plt.tight_layout()
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
