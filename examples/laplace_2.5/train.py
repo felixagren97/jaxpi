@@ -51,7 +51,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Problem setup
     n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
-    n_inj = 5e9
+    n_inj = 5e13
 
     # Get  dataset
     u_ref, x_star = get_dataset(n_x=n_x)
