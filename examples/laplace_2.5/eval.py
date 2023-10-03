@@ -83,12 +83,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.tight_layout()    
 
     plt.subplot(4, 1, 4)
-    plt.scatter(x_star, r_pred, color='blue', marker='o', s=1, alpha=0.1)  # Use marker='o' for circular markers, adjust 's' for marker size
+    plt.scatter(x_star, r_pred, color='blue', marker='o', s=1, alpha=0.5)  # Use marker='o' for circular markers, adjust 's' for marker size
+    plt.yscale('log')
     plt.plot(x_star, jnp.full_like(x_star, jnp.mean(r_pred)), label='Mean', linestyle='--', color='red')
+
     plt.xlabel('Distance [m]')
     plt.ylabel('Squared Residual Loss')
     plt.title('Squared Residual Loss')
-
+    plt.legend()
     plt.grid()
     plt.xlim(x_star[0], x_star[-1])
     plt.tight_layout()
