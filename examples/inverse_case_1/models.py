@@ -29,7 +29,8 @@ class InversePoisson(ForwardIVP):
        (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
         self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
 
-        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (100,), minval=self.r0, maxval=self.r1)
+        # Number of points to sample for observation loss
+        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (1000,), minval=self.r0, maxval=self.r1)
         self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
 
         #new  
@@ -82,9 +83,7 @@ class InversePoisson(ForwardIVP):
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         else:
-            print('CRASH 1')
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
-            print('CRASH 2')
             
             res_loss = jnp.mean((r_pred) ** 2)
 
