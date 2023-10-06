@@ -13,6 +13,9 @@ from utils import get_dataset
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
+    eps = 8.85e-12
+    true_rho = 5e-10
+
     # Problem setup
     r_0 = 0.005  # inner radius
     r_1 = 0.5      # outer radius
@@ -26,6 +29,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = 1 #u_ref[0]
     u1 = 0 #u_ref[-1] # need to add to loss as well? 
+    
+    C_1 = ((4*eps*jnp.log(r_1) + true_rho * r_0**2 * jnp.log(r_1) - true_rho * r_1**2 * jnp.log(r_0)) /
+       (4 * eps * (-jnp.log(r_0) + jnp.log(r_1))))
+    
+    C_2 = (-4 * eps - true_rho*r_0**2 + true_rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
 
     # Restore model
     model = models.InversePoisson(config, u0, u1, r_star)
@@ -38,14 +46,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("L2 error: {:.3e}".format(l2_error))
 
     u_pred = model.u_pred_fn(params, model.r_star)
-    e_pred_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
+    e_pred_fn = jax.vmap(lambda params, r: -jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
 
     rho_pred = model.rho_pred_fn(params, model.r_star)
 
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
-    e_ref = C/model.r_star
+    e_ref = -(C_2 / r_star - true_rho * r_star / (2 * eps)) # analytical solution for e
     # Convert them to NumPy arrays for Matplotlib
     r_star_np = jnp.array(r_star)
     u_pred_np = jnp.array(u_pred)

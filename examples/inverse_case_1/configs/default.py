@@ -26,7 +26,7 @@ def get_config():
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
 
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
@@ -47,7 +47,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None #"grad_norm"
+    weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"inner_bcs": 1.0, "outer_bcs": 1.0, "res": 1.0, "observ": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
