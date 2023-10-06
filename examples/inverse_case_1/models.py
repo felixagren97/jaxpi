@@ -14,6 +14,7 @@ class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, r_star):
         super().__init__(config)
 
+        self.n_obs = 1000
         self.eps = 8.85e-12
         self.true_rho = 5e-10
 
@@ -30,7 +31,7 @@ class InversePoisson(ForwardIVP):
         self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
 
         # Number of points to sample for observation loss
-        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (1000,), minval=self.r0, maxval=self.r1)
+        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=self.r0, maxval=self.r1)
         self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
 
         #new  

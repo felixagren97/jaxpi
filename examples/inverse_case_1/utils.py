@@ -18,7 +18,7 @@ def get_dataset(r_0=0.001, r_1=1, n_r=128):
     C_2 = (-4 * eps - true_rho*r0**2 + true_rho * r1**2) / (4 * eps * (-jnp.log(r0) + jnp.log(r1)))
 
     
-    u_exact_fn = lambda r: C_1 + C_2 * jnp.log(r) - (true_rho * r**2) / (4 * eps)#C*jnp.log(r)+A
+    u_exact_fn = lambda r: C_1 + C_2 * jnp.log(r) - (true_rho * r**2) / (4 * eps)
     u_exact = vmap(u_exact_fn)(r_star)
     
     return u_exact, r_star
