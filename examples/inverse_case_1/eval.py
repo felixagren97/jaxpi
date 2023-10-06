@@ -14,8 +14,8 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Problem setup
-    r_0 = 0.001  # inner radius
-    r_1 = 1      # outer radius
+    r_0 = 0.005  # inner radius
+    r_1 = 0.5      # outer radius
     n_r = 10000    # used to be 128, but increased and kept separate for unique points
     C = 1/(jnp.log(r_0)-jnp.log(r_1))
 

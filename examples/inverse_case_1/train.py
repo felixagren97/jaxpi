@@ -50,8 +50,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    r_0 = 0.001  # inner radius
-    r_1 = 1      # outer radius
+    r_0 = 0.005  # inner radius
+    r_1 = 0.5      # outer radius
     n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
     # Get  dataset
