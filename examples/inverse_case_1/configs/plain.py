@@ -11,7 +11,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
+    wandb.project = "PINN-Inverse-Poisson"
     wandb.name = "plain"
     wandb.tag = None
 
@@ -20,7 +20,7 @@ def get_config():
     arch.arch_name = "Mlp"
     arch.num_layers = 4
     arch.layer_size = 256
-    arch.out_dim = 1
+    arch.out_dim = 2
     arch.activation = "tanh"
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 

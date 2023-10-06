@@ -27,7 +27,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u1 = u_ref[-1] # need to add to loss as well? 
 
     # Restore model
-    model = models.Laplace(config, u0, u1, r_star)
+    model = models.InversePoisson(config, u0, u1, r_star)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params

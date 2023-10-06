@@ -68,7 +68,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
 
     # Initialize model
-    model = models.Laplace(config, u0, u1, r_star)
+    model = models.InversePoisson(config, u0, u1, r_star)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 

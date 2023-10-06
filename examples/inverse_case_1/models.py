@@ -10,7 +10,7 @@ from jaxpi.utils import ntk_fn, flatten_pytree
 from matplotlib import pyplot as plt
 
 
-class Laplace(ForwardIVP):
+class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, r_star):
         super().__init__(config)
 
@@ -51,10 +51,12 @@ class Laplace(ForwardIVP):
         #return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
     
     def u_net(self, params, r):
-        return self.neural_net(params, r)[0] # Soft boundary
+        u, _ = self.neural_net(params, r)
+        return u # Soft boundary
     
     def rho_net(self, params, r):
-        return self.neural_net(params, r)[1]
+        _, rho = self.neural_net(params, r)
+        return rho
 
     def r_net(self, params, r):        
         du_r = grad(self.u_net, argnums=1)(params, r)
