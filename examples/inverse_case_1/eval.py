@@ -40,6 +40,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_pred = model.u_pred_fn(params, model.r_star)
     e_pred_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
 
+    rho_pred = model.rho_pred_fn(params, model.r_star)
+
+
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
     e_ref = C/model.r_star
@@ -78,7 +81,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
-    # plot electrical field
+    # plot electrical field and rho
     plt.subplot(2, 2, 2)
 
     plt.xlabel('Radius [m]')
@@ -87,7 +90,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
-
+    plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
     plt.grid()
@@ -113,6 +116,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace.pdf")
+    fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
  
