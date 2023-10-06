@@ -30,7 +30,7 @@ class Laplace(ForwardIVP):
         self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
 
         self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (100,), minval=self.r0, maxval=self.r1)
-        self.obs_u = self.analytical_potential(self.obs_r) 
+        self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
