@@ -52,7 +52,7 @@ class InversePoisson(ForwardIVP):
     
     def u_net(self, params, r):
         u, _ = self.neural_net(params, r)
-        return u # Soft boundary
+        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u # Soft boundary
     
     def rho_net(self, params, r):
         _, rho = self.neural_net(params, r)
