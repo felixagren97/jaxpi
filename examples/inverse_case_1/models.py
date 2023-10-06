@@ -80,7 +80,10 @@ class Laplace(ForwardIVP):
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         else:
+            print('CRASH 1')
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
+            print('CRASH 2')
+            
             res_loss = jnp.mean((r_pred) ** 2)
 
         # Observation loss
