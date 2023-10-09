@@ -11,12 +11,12 @@ from matplotlib import pyplot as plt
 
 
 class InversePoisson(ForwardIVP):
-    def __init__(self, config, u0, u1, r_star):
+    def __init__(self, config, u0, u1, r_star, true_rho):
         super().__init__(config)
 
         self.n_obs = 1000
         self.eps = 8.85e-12
-        self.true_rho = 5e-10
+        self.true_rho = true_rho
 
         self.u0 = u0
         self.u1 = u1

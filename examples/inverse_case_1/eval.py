@@ -14,17 +14,15 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     eps = 8.85e-12
-    true_rho = 5e-10
+    true_rho = 0.5e-10
 
     # Problem setup
     r_0 = 0.005  # inner radius
     r_1 = 0.5      # outer radius
     n_r = 10000    # used to be 128, but increased and kept separate for unique points
     
-    C = 1/(jnp.log(r_0)-jnp.log(r_1))
-
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r)
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = 1 #u_ref[0]
@@ -36,7 +34,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     C_2 = (-4 * eps - true_rho*r_0**2 + true_rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
 
     # Restore model
-    model = models.InversePoisson(config, u0, u1, r_star)
+    model = models.InversePoisson(config, u0, u1, r_star, true_rho)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
