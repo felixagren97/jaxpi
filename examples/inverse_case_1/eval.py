@@ -98,7 +98,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
-    plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
+    plt.plot(r_star_np, rho_pred, label='rho(r)', color='green')
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
     plt.grid()
