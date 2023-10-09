@@ -43,29 +43,19 @@ class InversePoisson(ForwardIVP):
         return self.C_1 + self.C_2 * jnp.log(r) - (true_rho * r**2) / (4 * self.eps)
         
         
-    def neural_net(self, params, r):
+    def u_net(self, params, r):
         # params = weights for NN 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
-        y = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
-        u = y[0] # first output of the neural network
-        rho = y[1] # second output of the neural network
-        return u, rho
-        #return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
+        u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
+        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u # hard boundary
     
-    def u_net(self, params, r):
-        u, _ = self.neural_net(params, r)
-        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u # Soft boundary
-    
-    def rho_net(self, params, r):
-        _, rho = self.neural_net(params, r)
-        return rho
 
-    def r_net(self, params, r):        
+    def r_net(self, params, r):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        rho = self.rho_net(params, r)
-        return r * du_rr + du_r + (1e-10 * rho/self.eps) * r # TODO: check if this is correct  
-
+        rho = params['rho_param']
+        return r * du_rr + du_r + (1e-10 * rho/self.eps) * r 
+    
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called
         raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
@@ -91,7 +81,6 @@ class InversePoisson(ForwardIVP):
         # Observation loss
         obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_r)
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
-        #        n_pred = vmap(self.n_net, (None, None, 0))(params, self.t0, self.x_star)
 
         loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss, "observ": obs_loss}
         return loss_dict

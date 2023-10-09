@@ -20,7 +20,7 @@ def get_config():
     arch.arch_name = "Mlp"
     arch.num_layers = 6
     arch.layer_size = 128
-    arch.out_dim = 2
+    arch.out_dim = 1
     arch.activation = "tanh"
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
