@@ -36,7 +36,6 @@ class InversePoisson(ForwardIVP):
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
-        self.rho_pred_fn = vmap(self.rho_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
     def analytical_potential(self, true_rho, r): # TODO: does this work for jnp arrays?
