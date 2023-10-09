@@ -169,7 +169,7 @@ class InverseMlp(nn.Module):
     
     def setup(self):
         self.activation_fn = _get_activation(self.activation)
-        self.rho_param = self.param('rho_param', lambda rng, _: jax.random.normal(rng, (1,)))        
+        self.rho_param = self.param('rho_param', jax.random.normal(jax.random.PRNGKey(0), (1,)))        
 
     @nn.compact
     def __call__(self, x):
