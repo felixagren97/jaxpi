@@ -98,7 +98,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
-    plt.plot(r_star_np, rho_pred, label='rho(r)', color='green')
     # Plot the analytical solution as a dashed line
     plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
     plt.grid()
@@ -109,10 +108,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # plot absolute field errors 
     plt.subplot(2, 2, 4)
     plt.xlabel('Radius [m]')
-    plt.ylabel('Electrical field [V/m]')
-    plt.title('Absolute Electrical field')
+    plt.ylabel('Space charge')
+    plt.title('Rho(r) VS True Rho')
+    plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
+    plt.plot(r_star_np, jnp.full_like(rho_pred, 5), linestyle='--', color='orange')
 
-    plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
+    #plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
     plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()

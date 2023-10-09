@@ -18,8 +18,8 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 4
-    arch.layer_size = 256
+    arch.num_layers = 6
+    arch.layer_size = 128
     arch.out_dim = 2
     arch.activation = "tanh"
     arch.periodicity = ml_collections.ConfigDict(
