@@ -51,6 +51,9 @@ def _create_arch(config):
     elif config.arch_name == "DeepONet":
         arch = archs.DeepONet(**config)
 
+    elif config.arch_name == "InverseMlp":
+        pass
+
     else:
         raise NotImplementedError(f"Arch {config.arch_name} not supported yet!")
 

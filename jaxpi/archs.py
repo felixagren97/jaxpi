@@ -7,6 +7,7 @@ from flax.core.frozen_dict import freeze
 from jax import random, jit, vmap
 import jax.numpy as jnp
 from jax.nn.initializers import glorot_normal, normal, zeros, constant
+import jax
 
 activation_fn = {
     "relu": nn.relu,
@@ -140,6 +141,35 @@ class Mlp(nn.Module):
 
     def setup(self):
         self.activation_fn = _get_activation(self.activation)
+
+    @nn.compact
+    def __call__(self, x):
+        if self.periodicity:
+            x = PeriodEmbs(**self.periodicity)(x)
+        if self.fourier_emb:
+            x = FourierEmbs(**self.fourier_emb)(x)
+
+        for _ in range(self.num_layers):
+            x = Dense(features=self.layer_size, reparam=self.reparam)(x)
+            x = self.activation_fn(x)
+
+        x = Dense(features=self.out_dim, reparam=self.reparam)(x)
+        return x
+    
+class InverseMlp(nn.Module):
+    arch_name: Optional[str] = "InverseMlp"
+    num_layers: int = 4
+    layer_size: int = 256
+    out_dim: int = 1
+    activation: str = "tanh"
+    periodicity: Union[None, Dict] = None
+    fourier_emb: Union[None, Dict] = None
+    reparam: Union[None, Dict] = None
+
+    
+    def setup(self):
+        self.activation_fn = _get_activation(self.activation)
+        self.rho_param = self.param('rho_param', lambda rng, shape: jax.random.normal(rng, shape=()))        
 
     @nn.compact
     def __call__(self, x):

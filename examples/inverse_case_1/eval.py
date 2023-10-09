@@ -109,7 +109,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.ylabel('Space charge')
     plt.title('Rho(r) VS True Rho')
     plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
-    plt.plot(r_star_np, jnp.full_like(rho_pred, 5), linestyle='--', color='orange')
+    plt.plot(r_star_np, jnp.full_like(rho_pred, true_rho), linestyle='--', color='orange')
 
     #plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
     plt.grid()
