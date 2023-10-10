@@ -1,7 +1,7 @@
 import os
 
 import ml_collections
-
+from math import floor, log
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from jaxpi.utils import restore_checkpoint
 import models
 from utils import get_dataset
+
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -125,10 +126,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     fig.show()
-    rho_pred = model.state.params['params']['rho_param']
-    rho_scale = config.setting.rho_scale 
+    rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
     rho_ref = config.setting.true_rho
-    print(f' \n Final Rho value: {10**rho_pred*rho_scale} (ref value: {rho_ref}) \n')
+    pred_scale = floor(log(rho_pred, 10))
+    rho_pred = round(rho_pred, pred_scale + 3)
+    print(f'\nFinal predicted Rho value: {rho_pred} (true value: {rho_ref})\n')
 
 
     
