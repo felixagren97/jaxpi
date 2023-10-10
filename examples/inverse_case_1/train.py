@@ -101,6 +101,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 end_time = time.time()
 
                 logger.log_iter(step, start_time, end_time, log_dict)
+            
+            if step % 1000 == 0: 
+                print(model.state.params['params']['rho_param'])
 
         # Saving
         if config.saving.save_every_steps is not None:
