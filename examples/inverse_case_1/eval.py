@@ -53,7 +53,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_ref_np = jnp.array(u_ref)
 
     # Create a Matplotlib figure and axis
-    fig = plt.figure(figsize=(18, 8))
+    fig = plt.figure(figsize=(14, 8))
     plt.subplot(2, 2, 1)
     plt.xlabel('Radius [m]')
     plt.ylabel('Potential V(r)')
