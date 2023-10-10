@@ -11,13 +11,13 @@ from matplotlib import pyplot as plt
 
 
 class InversePoisson(ForwardIVP):
-    def __init__(self, config, u0, u1, r_star, true_rho, rho_scale):
+    def __init__(self, config, u0, u1, r_star, true_offset):
         super().__init__(config)
 
         self.n_obs = 1_000
         self.eps = 8.85e-12
-        self.true_rho = true_rho
-        self.rho_scale = rho_scale
+        self.rho = 5e-10
+        self.true_offset = true_offset
 
         self.u0 = u0
         self.u1 = u1
@@ -26,21 +26,11 @@ class InversePoisson(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
-        # TODO: Do we need to define these constants here? A bit ugly imo.
-        self.C_1 = ((4*self.eps*jnp.log(self.r1) + self.true_rho * self.r0**2 * jnp.log(self.r1) - self.true_rho * self.r1**2 * jnp.log(self.r0)) /
-       (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
-        self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
-
-        # Number of points to sample for observation loss
-        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=self.r0, maxval=self.r1)
-        self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
+        self.obs_r, self.obs_u = self.get_observations(self.r0, self.r1, self.true_offset)
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
-
-    def analytical_potential(self, true_rho, r): # TODO: does this work for jnp arrays?
-        return self.C_1 + self.C_2 * jnp.log(r) - (true_rho * r**2) / (4 * self.eps)
         
         
     def u_net(self, params, r):
@@ -53,8 +43,8 @@ class InversePoisson(ForwardIVP):
     def r_net(self, params, r):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        rho = params['params']['rho_param']
-        return r * du_rr + du_r + (self.rho_scale * rho/self.eps) * r 
+        offset = params['params']['offset_param']
+        return (r+offset) * du_rr + du_r + (self.rho_scale * self.rho/self.eps) * (r+offset) 
     
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called

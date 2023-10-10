@@ -15,8 +15,9 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     eps = 8.85e-12
-    true_rho = config.setting.true_rho
-    rho_scale = config.setting.rho_scale
+    rho = 5e-10
+
+    true_offset = config.setting.true_offset
 
     # Problem setup
     r_0 = config.setting.r_0  # inner radius
@@ -24,19 +25,19 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_r = 10_000
     
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_offset)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = 1 #u_ref[0]
     u1 = 0 #u_ref[-1]
     
-    C_1 = ((4*eps*jnp.log(r_1) + true_rho * r_0**2 * jnp.log(r_1) - true_rho * r_1**2 * jnp.log(r_0)) /
+    C_1 = ((4*eps*jnp.log(r_1) + rho * r_0**2 * jnp.log(r_1) - rho * r_1**2 * jnp.log(r_0)) /
        (4 * eps * (-jnp.log(r_0) + jnp.log(r_1))))
     
-    C_2 = (-4 * eps - true_rho*r_0**2 + true_rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
+    C_2 = (-4 * eps - rho*r_0**2 + rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
 
     # Restore model
-    model = models.InversePoisson(config, u0, u1, r_star, true_rho, rho_scale)
+    model = models.InversePoisson(config, u0, u1, r_star, true_offset)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
@@ -46,7 +47,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
-    e_ref = -(C_2 / r_star - true_rho * r_star / (2 * eps)) # analytical solution for e
+    e_ref = -(C_2 / r_star - rho * r_star / (2 * eps)) # analytical solution for e
     # Convert them to NumPy arrays for Matplotlib
     r_star_np = jnp.array(r_star)
     u_pred_np = jnp.array(u_pred)
