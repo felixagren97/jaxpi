@@ -52,9 +52,6 @@ class InversePoisson(ForwardIVP):
     def r_net(self, params, r):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        #print('parameters in r_net:')
-        #print(params)
-        #print(params['params']['Dense_0'])
         rho = params['params']['rho_param']
         return r * du_rr + du_r + (1e-10 * rho/self.eps) * r 
     
@@ -85,7 +82,6 @@ class InversePoisson(ForwardIVP):
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
 
         loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss, "observ": obs_loss}
-        print('rho in losses:', params['params']['rho_param'])
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
