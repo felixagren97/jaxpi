@@ -134,9 +134,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # print the predicted & final rho values
     rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
     rho_ref = config.setting.true_rho
+    rel_error = (rho_pred-rho_ref)/rho_ref
     pred_scale = abs(floor(log(rho_pred, 10)))
     rho_pred = round(rho_pred, pred_scale + 3)
-    rel_error = (rho_pred-rho_ref)/rho_ref
     print(f'Predicted Rho:  {rho_pred}')
     print(f'True Rho:       {rho_ref}')
     print(f'Relative error: {rel_error:.1%}\n')
