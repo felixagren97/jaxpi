@@ -123,6 +123,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig_path = os.path.join(save_dir, "inverse_poisson.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
+    # To view in colab, run, run: 
+    # from IPython.display import Image
+    # Image(filename='/content/jaxpi/examples/inverse_case_1/figures/current_sota/inverse_poisson.png')
+
     # --- final result prints ---
     print('\n--------- SUMMARY ---------\n')
     # print L2 error
