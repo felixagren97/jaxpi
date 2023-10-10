@@ -112,13 +112,15 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     #plt.tight_layout()
 
     
-    fig.show()
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
     fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    # save as png for easy copy
+    fig_path = os.path.join(save_dir, "inverse_poisson.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     # --- final result prints ---
