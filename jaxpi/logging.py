@@ -32,7 +32,6 @@ class Logger:
 
     def log_iter(self, step, start_time, end_time, log_dict):
         log_keys = get_log_keys(log_dict)
-        print('log_keys:', log_keys)
 
         log_list = [[key, "{:.3e}".format(log_dict[key])] for key in log_keys]
 
