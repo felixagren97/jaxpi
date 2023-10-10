@@ -9,6 +9,8 @@ from jaxpi.utils import ntk_fn, flatten_pytree
 
 from matplotlib import pyplot as plt
 
+from utils import get_observations
+
 
 class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, r_star, true_offset):
@@ -26,7 +28,7 @@ class InversePoisson(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
-        self.obs_r, self.obs_u = self.get_observations(self.r0, self.r1, self.true_offset)
+        self.obs_r, self.obs_u = get_observations(self.r0, self.r1, self.true_offset)
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))

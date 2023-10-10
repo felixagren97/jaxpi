@@ -48,6 +48,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
     e_ref = -(C_2 / r_star - rho * r_star / (2 * eps)) # analytical solution for e
+
     # Convert them to NumPy arrays for Matplotlib
     r_star_np = jnp.array(r_star)
     u_pred_np = jnp.array(u_pred)
