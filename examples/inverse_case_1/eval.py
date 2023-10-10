@@ -116,7 +116,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     #plt.tight_layout()
 
     
-
+    fig.show()
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
@@ -124,8 +124,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-
-    fig.show()
 
     # print the predicted & final rho values
     rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
