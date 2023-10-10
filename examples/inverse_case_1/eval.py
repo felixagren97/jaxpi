@@ -15,6 +15,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     eps = 8.85e-12
     true_rho = 0.5e-10
+    rho_scale = 1e-10
 
     # Problem setup
     r_0 = 0.005  # inner radius
@@ -22,7 +23,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_r = 10000    # used to be 128, but increased and kept separate for unique points
     
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho, rho_scale)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = 1 #u_ref[0]

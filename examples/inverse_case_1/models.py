@@ -11,12 +11,13 @@ from matplotlib import pyplot as plt
 
 
 class InversePoisson(ForwardIVP):
-    def __init__(self, config, u0, u1, r_star, true_rho):
+    def __init__(self, config, u0, u1, r_star, true_rho, rho_scale):
         super().__init__(config)
 
         self.n_obs = 1000
         self.eps = 8.85e-12
         self.true_rho = true_rho
+        self.rho_scale = rho_scale
 
         self.u0 = u0
         self.u1 = u1
@@ -53,7 +54,7 @@ class InversePoisson(ForwardIVP):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         rho = params['params']['rho_param']
-        return r * du_rr + du_r + (1e-10 * rho/self.eps) * r 
+        return r * du_rr + du_r + (self.rho_scale * rho/self.eps) * r 
     
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called

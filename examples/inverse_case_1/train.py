@@ -55,6 +55,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
     true_rho = 0.5e-10 
+    rho_scale = 1e-10
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
@@ -70,7 +71,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
 
     # Initialize model
-    model = models.InversePoisson(config, u0, u1, r_star, true_rho)
+    model = models.InversePoisson(config, u0, u1, r_star, true_rho, rho_scale)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
