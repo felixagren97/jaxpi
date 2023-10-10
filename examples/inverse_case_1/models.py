@@ -52,6 +52,8 @@ class InversePoisson(ForwardIVP):
     def r_net(self, params, r):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
+        print('parameters in r_net:')
+        print(params)
         rho = params['rho_param']
         return r * du_rr + du_r + (1e-10 * rho/self.eps) * r 
     
