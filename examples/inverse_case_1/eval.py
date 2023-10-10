@@ -126,6 +126,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     fig.show()
+
+    # print the predicted & final rho values
     rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
     rho_ref = config.setting.true_rho
     pred_scale = floor(log(rho_pred, 10))

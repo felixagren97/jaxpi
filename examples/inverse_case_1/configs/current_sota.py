@@ -12,7 +12,7 @@ def get_config():
     # Setting 
     config.setting = setting = ml_collections.ConfigDict()
 
-    setting.r_0 = 0.005    # inner radius
+    setting.r_0 = 0.001    # inner radius
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
 
@@ -79,7 +79,7 @@ def get_config():
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 10_000
-    saving.num_keep_ckpts = 3
+    saving.num_keep_ckpts = 2
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
