@@ -46,9 +46,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_pred = model.u_pred_fn(params, model.r_star)
     e_pred_fn = jax.vmap(lambda params, r: -jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
 
-    rho_pred = model.rho_pred_fn(params, model.r_star)
-
-
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
     e_ref = -(C_2 / r_star - true_rho * r_star / (2 * eps)) # analytical solution for e
@@ -104,17 +101,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.tight_layout()
 
     # plot absolute field errors 
-    plt.subplot(2, 2, 4)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Space charge')
-    plt.title('Rho(r) VS True Rho')
-    plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
-    plt.plot(r_star_np, jnp.full_like(rho_pred, true_rho), linestyle='--', color='orange')
-
-    #plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
-    plt.grid()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
+    #plt.subplot(2, 2, 4)
+    #plt.xlabel('Radius [m]')
+    #plt.ylabel('Space charge')
+    #plt.title('Rho(r) VS True Rho')
+    #plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
+    #plt.plot(r_star_np, jnp.full_like(rho_pred, true_rho), linestyle='--', color='orange')
+#
+    ##plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
+    #plt.grid()
+    #plt.xlim(r_star_np[0], r_star_np[-1])
+    #plt.tight_layout()
 
     
 
