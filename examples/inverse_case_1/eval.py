@@ -98,18 +98,16 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
-    # plot absolute field errors 
-    #plt.subplot(2, 2, 4)
-    #plt.xlabel('Radius [m]')
-    #plt.ylabel('Space charge')
-    #plt.title('Rho(r) VS True Rho')
-    #plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
-    #plt.plot(r_star_np, jnp.full_like(rho_pred, true_rho), linestyle='--', color='orange')
-#
-    ##plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
-    #plt.grid()
-    #plt.xlim(r_star_np[0], r_star_np[-1])
-    #plt.tight_layout()
+    #plot absolute field errors 
+    plt.subplot(2, 2, 4)
+    plt.xlabel('Radius [m]')
+    plt.ylabel('Electrical field [V/m]')
+    plt.title('Absolute Electrical field')
+
+    plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
+    plt.grid()
+    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.tight_layout()
 
     
     # Save the figure
