@@ -165,11 +165,13 @@ class InverseMlp(nn.Module):
     periodicity: Union[None, Dict] = None
     fourier_emb: Union[None, Dict] = None
     reparam: Union[None, Dict] = None
+    rho_param = None 
 
     
     def setup(self):
         self.activation_fn = _get_activation(self.activation)
-        self.rho_param = self.param('rho_param', lambda _ : jax.random.normal(jax.random.PRNGKey(0), (1,)))  # TODO: check if this can be done in a nicer way    
+        #self.rho_param = self.param('rho_param', lambda _ : jax.random.normal(jax.random.PRNGKey(0), (1,)))  # TODO: check if this can be done in a nicer way
+        self.rho_param = self.param('rho_param', lambda rng, _: jnp.array(2.0))  # Initialize with a constant value    
 
     @nn.compact
     def __call__(self, x):
