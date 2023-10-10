@@ -128,7 +128,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # print the predicted & final rho values
     rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
     rho_ref = config.setting.true_rho
-    pred_scale = floor(log(rho_pred, 10))
+    pred_scale = abs(floor(log(rho_pred, 10)))
     rho_pred = round(rho_pred, pred_scale + 3)
     print(f'\nFinal predicted Rho value: {rho_pred} (true value: {rho_ref})\n')
 
