@@ -41,10 +41,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    # Compute L2 error
-    l2_error = model.compute_l2_error(params, u_ref)
-    print("L2 error: {:.3e}".format(l2_error))
-
     u_pred = model.u_pred_fn(params, model.r_star)
     e_pred_fn = jax.vmap(lambda params, r: -jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
 
@@ -125,12 +121,22 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
+    # --- final result prints ---
+    print('\n--------- SUMMARY ---------\n')
+    # print L2 error
+    l2_error = model.compute_l2_error(params, u_ref)
+    print("L2 error: {:.3e}".format(l2_error))  
+
     # print the predicted & final rho values
     rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
     rho_ref = config.setting.true_rho
     pred_scale = abs(floor(log(rho_pred, 10)))
     rho_pred = round(rho_pred, pred_scale + 3)
-    print(f'\nFinal predicted Rho value: {rho_pred} (true value: {rho_ref})\n')
+    rel_error = (rho_pred-rho_ref)/rho_ref
+    print(f'Predicted Rho: {rho_pred}')
+    print(f'True Rho:      {rho_ref}')
+    print(f'Relative error: {rel_error:.1%}\n')
+    print('---------------------------\n')
 
 
     
