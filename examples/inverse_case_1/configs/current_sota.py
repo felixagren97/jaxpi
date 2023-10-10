@@ -7,7 +7,17 @@ def get_config():
     """Get the default hyperparameter configuration."""
     config = ml_collections.ConfigDict()
 
-    config.mode = "train"
+    config.mode = "train" 
+
+    # Setting 
+    config.setting = setting = ml_collections.ConfigDict()
+
+    setting.r_0 = 0.005    # inner radius
+    setting.r_1 = 0.5      # outer radius
+    setting.n_r = 12_800    # number of spatial points 
+
+    setting.true_rho = 0.5e-10 
+    setting.rho_scale = 1e-10   
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()

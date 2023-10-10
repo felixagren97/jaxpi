@@ -14,7 +14,7 @@ class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, r_star, true_rho, rho_scale):
         super().__init__(config)
 
-        self.n_obs = 1000
+        self.n_obs = 1_000
         self.eps = 8.85e-12
         self.true_rho = true_rho
         self.rho_scale = rho_scale

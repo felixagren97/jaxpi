@@ -50,12 +50,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    r_0 = 0.005  # inner radius
-    r_1 = 0.5      # outer radius
-    n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    r_0 = config.setting.r_0  # inner radius
+    r_1 = config.setting.r_1  # outer radius
+    n_r = config.setting.n_r  # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
-    true_rho = 0.5e-10 
-    rho_scale = 1e-10
+    true_rho = config.setting.true_rho
+    rho_scale = config.setting.rho_scale
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
