@@ -97,7 +97,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 state = jax.device_get(tree_map(lambda x: x[0], model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
                 log_dict = evaluator(state, batch, u_ref)
-                rho = state.params['params']['rho_param']
+                rho = state.params['params']['rho_param'][0]
                 log_dict['rho'] = rho
                 wandb.log(log_dict, step)
                 end_time = time.time()
