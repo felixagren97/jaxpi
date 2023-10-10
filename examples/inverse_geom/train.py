@@ -54,11 +54,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     r_1 = config.setting.r_1  # outer radius
     n_r = config.setting.n_r  # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
-    true_rho = config.setting.true_rho
-    rho_scale = config.setting.rho_scale
+    true_offset = config.setting.true_offset
+    
 
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_offset)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 =  1 #u_ref[0]
@@ -72,10 +72,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize model
     model = models.InversePoisson(config, u0, u1, r_star, true_rho, rho_scale)
+    
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.LaplaceEvaluator(config, model)
+    evaluator = models.InversePoissonEvaluator(config, model)
 
     # jit warm up
     print("Waiting for JIT...")

@@ -12,24 +12,23 @@ def get_config():
     # Setting 
     config.setting = setting = ml_collections.ConfigDict()
 
-    setting.r_0 = 0.001    # inner radius
+    setting.r_0 = 0.0    # inner radius
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
 
-    setting.true_rho = 0.5e-10 
-    setting.rho_scale = 1e-10   
+    setting.true_offset = 0.005 # True offset   
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Poisson"   
+    wandb.project = "PINN-Inverse-Geometry"   
     wandb.name = "current_sota"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlp"
-    arch.num_layers = 6
-    arch.layer_size = 128
+    arch.num_layers = 4
+    arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(

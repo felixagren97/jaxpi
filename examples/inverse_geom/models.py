@@ -114,7 +114,7 @@ class InversePoisson(ForwardIVP):
         return error
 
 
-class LaplaceEvaluator(BaseEvaluator):
+class InversePoissonEvaluator(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
