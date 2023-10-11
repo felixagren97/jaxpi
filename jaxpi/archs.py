@@ -163,7 +163,7 @@ class InverseMlpOffset(Mlp):
         super().setup()  # Call the setup method of the parent class
 
         # Additional setup for InverseMlp
-        self.offset_param = self.param('offset_param', lambda rng: jnp.array([-4.0]))  # TODO: Change to a random value in an appropriate range
+        self.offset_param = self.param('offset_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=jnp.log(1e-4), maxval=jnp.log(1e-1)))  # TODO: Change to a random value in an appropriate range
 
 
 class ModifiedMlp(nn.Module):
