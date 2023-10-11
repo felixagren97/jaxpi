@@ -1,7 +1,5 @@
 import jax.numpy as jnp
 from jax import vmap
-import con
-
 
 def get_dataset(n_t, n_x, true_mu, n_inj, n_0):
     # TODO: add real dataset 
