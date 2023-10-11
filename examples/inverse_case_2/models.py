@@ -87,7 +87,7 @@ class InverseDriftDiffusion(ForwardIVP):
         bcs_loss = jnp.mean((self.n_injs - u_pred) ** 2)
 
         # Observation 
-        obs_u_pred = vmap(self.u_net, (None, 0, 0))(params, self.obs_t, self.obs_x) 
+        obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x) 
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
 
         # Residual loss
