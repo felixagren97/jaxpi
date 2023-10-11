@@ -174,6 +174,15 @@ class InverseMlpRho(Mlp):
         # Additional setup for InverseMlp
         self.offset_param = self.param('rho_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,)))
 
+class InverseMlpMu(Mlp):
+    arch_name: Optional[str] = "InverseMlpMu"
+
+    def setup(self):
+        super().setup()  # Call the setup method of the parent class
+
+        # Additional setup for InverseMlp
+        self.offset_param = self.param('mu_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=2e-5, maxval=2e-3)) #True mu = 2e-4
+
 class ModifiedMlp(nn.Module):
     arch_name: Optional[str] = "ModifiedMlp"
     num_layers: int = 4
