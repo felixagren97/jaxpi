@@ -24,7 +24,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_ref, t_star, x_star = get_dataset(n_t, n_x)
 
     # Restore model
-    model = models.DriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star)
+    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
@@ -80,6 +80,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "drift_diffusion.pdf")
+    fig_path = os.path.join(save_dir, "Inverse_drift_diffusion.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
 
