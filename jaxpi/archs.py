@@ -157,7 +157,7 @@ class Mlp(nn.Module):
         return x
 
 class InverseMlpOffset(Mlp):
-    arch_name: Optional[str] = "InverseMlp"
+    arch_name: Optional[str] = "InverseMlpOffset"
 
     def setup(self):
         super().setup()  # Call the setup method of the parent class
