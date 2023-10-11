@@ -24,7 +24,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_ref, t_star, x_star = get_dataset(n_t, n_x)
 
     # Restore model
-    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star)
+    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_ref)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params

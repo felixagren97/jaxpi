@@ -1,5 +1,5 @@
 from functools import partial
-
+import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
 
@@ -11,17 +11,23 @@ from matplotlib import pyplot as plt
 
 
 class InverseDriftDiffusion(ForwardIVP):
-    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star):
+    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star, u_ref):
         super().__init__(config)
+        # param
+        self.n_t_obs = 100
+        self.n_x_obs = 64
 
         # constants
         self.E_ext = E_ext
-        self.mu_n = 2e-4
+        self.true_mu = config.settings.true_mu
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
-        self.W = self.mu_n * self.E_ext
-        self.Diff = self.mu_n * self.kb * self.Temp/self.q 
+
+        # functions
+        self.obs_t = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=t_star[0], maxval=t_star[-1])
+        self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=x_star[0], maxval=x_star[-1])
+        self.obs_u = u_ref(self.obs_t, self.obs_x)
 
         # initial conditions
         self.n_injs = jnp.full_like(t_star, n_inj)
@@ -44,10 +50,15 @@ class InverseDriftDiffusion(ForwardIVP):
         return u[0]
 
     def r_net(self, params, t, x):
+        mu_n = params['params']['mu_param']
+        W = mu_n * self.E_ext
+        Diff = mu_n * self.kb * self.Temp/self.q 
+
+
         dn_t = grad(self.u_net, argnums=1)(params, t, x)
         dn_x = grad(self.u_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        return 1/self.W*dn_t + dn_x - self.Diff/self.W*dn_xx
+        return 1/W*dn_t + dn_x - Diff/W*dn_xx
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch):
@@ -73,6 +84,10 @@ class InverseDriftDiffusion(ForwardIVP):
         u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
         bcs_loss = jnp.mean((self.n_injs - u_pred) ** 2)
 
+        # Observation 
+        obs_u_pred = vmap(self.u_net, (None, 0, 0))(params, self.obs_t, self.obs_x) 
+        obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
+
         # Residual loss
         if self.config.weighting.use_causal == True:
             l, w = self.res_and_w(params, batch)
@@ -81,7 +96,7 @@ class InverseDriftDiffusion(ForwardIVP):
             r_pred = vmap(self.r_net, (None, 0, 0))(params, batch[:, 0], batch[:, 1]) 
             res_loss = jnp.mean((r_pred) ** 2)
 
-        loss_dict = {"ics": ics_loss, "bcs": bcs_loss, "res": res_loss}
+        loss_dict = {"ics": ics_loss, "bcs": bcs_loss, "res": res_loss, "obs" : obs_loss}
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
