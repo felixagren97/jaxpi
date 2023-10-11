@@ -155,34 +155,15 @@ class Mlp(nn.Module):
 
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
         return x
-    
-class InverseMlp(nn.Module):
+
+class InverseMlpOffset(Mlp):
     arch_name: Optional[str] = "InverseMlp"
-    num_layers: int = 4
-    layer_size: int = 256
-    out_dim: int = 1
-    activation: str = "tanh"
-    periodicity: Union[None, Dict] = None
-    fourier_emb: Union[None, Dict] = None
-    reparam: Union[None, Dict] = None
-    
+
     def setup(self):
-        self.activation_fn = _get_activation(self.activation)
-        self.offset_param = self.param('offset_param', lambda rng: jnp.array([-4.0]))  # TODO: Change to random value in appropriate range
+        super().setup()  # Call the setup method of the parent class
 
-    @nn.compact
-    def __call__(self, x):
-        if self.periodicity:
-            x = PeriodEmbs(**self.periodicity)(x)
-        if self.fourier_emb:
-            x = FourierEmbs(**self.fourier_emb)(x)
-
-        for _ in range(self.num_layers):
-            x = Dense(features=self.layer_size, reparam=self.reparam)(x)
-            x = self.activation_fn(x)
-
-        x = Dense(features=self.out_dim, reparam=self.reparam)(x)
-        return x
+        # Additional setup for InverseMlp
+        self.offset_param = self.param('offset_param', lambda rng: jnp.array([-4.0]))  # TODO: Change to a random value in an appropriate range
 
 
 class ModifiedMlp(nn.Module):

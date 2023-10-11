@@ -26,7 +26,7 @@ def get_config():
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "InverseMlp"
+    arch.arch_name = "InverseMlpOffset"
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
