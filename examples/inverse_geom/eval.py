@@ -24,6 +24,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     r_1 = config.setting.r_1  # outer radius
     n_r = 10_000
     
+    true_r_0 = r_0 + true_offset
+    true_r_1 = r_1 + true_offset
+
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r, true_offset)
 
@@ -31,10 +34,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u0 = 1 #u_ref[0]
     u1 = 0 #u_ref[-1]
     
-    C_1 = ((4*eps*jnp.log(r_1) + rho * r_0**2 * jnp.log(r_1) - rho * r_1**2 * jnp.log(r_0)) /
-       (4 * eps * (-jnp.log(r_0) + jnp.log(r_1))))
+    # Constants for analytical solution
+    C_1 = ((4*eps*jnp.log(true_r_1) + rho * r_0**2 * jnp.log(true_r_1) - rho * true_r_1**2 * jnp.log(true_r_0)) /
+       (4 * eps * (-jnp.log(true_r_0) + jnp.log(true_r_1))))
     
-    C_2 = (-4 * eps - rho*r_0**2 + rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
+    C_2 = (-4 * eps - rho*true_r_0**2 + rho * true_r_1**2) / (4 * eps * (-jnp.log(true_r_0) + jnp.log(true_r_1)))
 
     # Restore model
     model = models.InversePoisson(config, u0, u1, r_star, true_offset)
@@ -47,7 +51,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.r_star)
-    e_ref = -(C_2 / r_star - rho * r_star / (2 * eps)) # analytical solution for e
+    e_ref = -(C_2 / (r_star + true_offset) - rho * (r_star+true_offset) / (2 * eps)) # analytical solution for e
 
     # Convert them to NumPy arrays for Matplotlib
     r_star_np = jnp.array(r_star)
@@ -134,13 +138,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("L2 error:       {:.3e}".format(l2_error))  
 
     # print the predicted & final rho values
-    rho_pred = model.state.params['params']['rho_param'][0] * config.setting.rho_scale 
-    rho_ref = config.setting.true_rho
-    rel_error = (rho_pred-rho_ref)/rho_ref
-    pred_scale = abs(floor(log(rho_pred, 10)))
-    rho_pred = round(rho_pred, pred_scale + 3)
-    print(f'Predicted Rho:  {rho_pred}')
-    print(f'True Rho:       {rho_ref}')
+    offset_pred = jnp.exp(model.state.params['params']['offset_param'][0]) 
+    offset_ref = config.setting.true_offset
+    rel_error = (offset_pred-offset_ref)/offset_ref
+    #pred_scale = abs(floor(log(rho_pred, 10)))
+    #rho_pred = round(rho_pred, pred_scale + 3)
+    print(f'Predicted Offset:  {offset_pred}')
+    print(f'True Offset:       {offset_ref}')
     print(f'Relative error: {rel_error:.1%}\n')
     print('---------------------------\n')
 
