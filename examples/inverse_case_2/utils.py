@@ -9,9 +9,15 @@ def get_dataset(n_t, n_x, true_mu, n_inj, n_0):
     t_star = jnp.linspace(0, T, n_t)
     x_star = jnp.linspace(0, L, n_x)
 
-    # Analytical solution
-    u_exact_fn = lambda t, x: n_inj if x >= E_ext * true_mu * t else n_0
-    
-    u_exact = vmap(vmap(u_exact_fn, (None, 0)), (0, None))(t_star, x_star)
+    def analytical_solution(t, x):
+        condition = x >= E_ext * true_mu * t
+        result = jnp.where(condition, n_inj, n_0)
+        return result
 
-    return u_exact, t_star, x_star
+    # Analytical solution
+    
+    u_exact_fn = vmap(vmap(analytical_solution, (None, 0)), (0, None))
+
+    u_exact = u_exact_fn(t_star, x_star)
+
+    return u_exact, t_star, x_star, u_exact_fn

@@ -33,7 +33,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     true_mu = config.setting.true_mu
 
     # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t, n_x, true_mu, n_inj, n_0)
+    u_ref, t_star, x_star, u_exact_fn = get_dataset(n_t, n_x, true_mu, n_inj, n_0)
 
     # Define domain
     t0 = t_star[0]
@@ -45,7 +45,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize model
-    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_ref)
+    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_exact_fn)
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 

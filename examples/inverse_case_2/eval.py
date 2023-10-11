@@ -20,13 +20,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_t = 200  # number of time steps TODO: Increase?
     n_x = 10_000  # number of spatial points
 
-    # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t, n_x)
-    t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
+    true_mu = config.setting.true_mu
 
+    # Get  dataset
+    u_ref, t_star, x_star, u_exact_fn = get_dataset(n_t, n_x, true_mu, n_inj, n_0)
+    t_star = jnp.linspace(0, 0.006, 7)
 
     # Restore model
-    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_ref)
+    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_exact_fn)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params

@@ -7,11 +7,13 @@ from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 
+from utils import get_dataset
+
 from matplotlib import pyplot as plt
 
 
 class InverseDriftDiffusion(ForwardIVP):
-    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star, u_ref):
+    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star, u_exact_fn):
         super().__init__(config)
         # param
         self.n_t_obs = 100
@@ -19,7 +21,7 @@ class InverseDriftDiffusion(ForwardIVP):
 
         # constants
         self.E_ext = E_ext
-        self.true_mu = config.settings.true_mu
+        self.true_mu = config.setting.true_mu
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
@@ -27,7 +29,7 @@ class InverseDriftDiffusion(ForwardIVP):
         # functions
         self.obs_t = jax.random.uniform(jax.random.PRNGKey(0), (self.n_t_obs,), minval=t_star[0], maxval=t_star[-1])
         self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_x_obs,), minval=x_star[0], maxval=x_star[-1])
-        self.obs_u = u_ref(self.obs_t, self.obs_x)
+        self.obs_u = u_exact_fn(self.obs_t, self.obs_x)
 
         # initial conditions
         self.n_injs = jnp.full_like(t_star, n_inj)
