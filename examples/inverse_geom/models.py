@@ -46,7 +46,8 @@ class InversePoisson(ForwardIVP):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         offset = params['params']['offset_param']
-        return (r+offset) * du_rr + du_r + (self.rho/self.eps) * (r+offset) 
+        C = jnp.exp(offset) # ensure C is positive
+        return (r+C) * du_rr + du_r + (self.rho/self.eps) * (r+C) 
     
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called
