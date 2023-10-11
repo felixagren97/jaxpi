@@ -86,7 +86,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("L2 error:       {:.3e}".format(l2_error))  
 
     # print the predicted & final rho values
-    mu_pred = model.state.params['params']['mu_param'][0] 
+    mu_pred = jnp.exp(model.state.params['params']['mu_param'][0]) 
     mu_ref = config.setting.true_mu
     rel_error = (mu_pred-mu_ref)/mu_ref
     #pred_scale = abs(floor(log(rho_pred, 10)))

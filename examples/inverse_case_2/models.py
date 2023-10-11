@@ -52,7 +52,7 @@ class InverseDriftDiffusion(ForwardIVP):
         return u[0]
 
     def r_net(self, params, t, x):
-        mu_n = params['params']['mu_param']
+        mu_n = jnp.exp(params['params']['mu_param'])
         W = mu_n * self.E_ext
         Diff = mu_n * self.kb * self.Temp/self.q 
 
