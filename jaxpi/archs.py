@@ -168,7 +168,7 @@ class InverseMlp(nn.Module):
     
     def setup(self):
         self.activation_fn = _get_activation(self.activation)
-        self.offset_param = self.param('offset_param', lambda rng: jnp.array([-3]))  # TODO: Change to random value in appropriate range
+        self.offset_param = self.param('offset_param', lambda rng: jnp.array([-3.0]))  # TODO: Change to random value in appropriate range
 
     @nn.compact
     def __call__(self, x):
