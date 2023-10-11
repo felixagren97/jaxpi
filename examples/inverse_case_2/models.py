@@ -25,8 +25,8 @@ class InverseDriftDiffusion(ForwardIVP):
         self.kb = 1.38e-23
 
         # functions
-        self.obs_t = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=t_star[0], maxval=t_star[-1])
-        self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=x_star[0], maxval=x_star[-1])
+        self.obs_t = jax.random.uniform(jax.random.PRNGKey(0), (self.n_t_obs,), minval=t_star[0], maxval=t_star[-1])
+        self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_x_obs,), minval=x_star[0], maxval=x_star[-1])
         self.obs_u = u_ref(self.obs_t, self.obs_x)
 
         # initial conditions
