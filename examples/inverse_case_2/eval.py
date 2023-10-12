@@ -17,13 +17,15 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     E_ext = 1e6
     n_0 = 0.1/1e9
     n_inj = 1
-    n_t = 200  # number of time steps TODO: Increase?
+    n_t = 200  # number of time steps
     n_x = 10_000  # number of spatial points
 
     true_mu = config.setting.true_mu
 
     # Get  dataset
     u_ref, t_star, x_star, u_exact_fn = get_dataset(n_t, n_x, true_mu, n_inj, n_0)
+
+    # Selected time steps to evaluate, every 0.001 seconds
     t_star = jnp.linspace(0, 0.006, 7)
 
     # Restore model
@@ -32,14 +34,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
+
+    u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
+    #TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
+
     # Compute L2 error
     print('Max predicted n:' , jnp.max(u_pred))
     print('Min predicted n:' , jnp.min(u_pred))
-
-    u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
-    TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
-    
-    print('jnp.max(u_pred):' , jnp.max(u_pred))
     print('shape u_pred:', u_pred.shape)
     print('shape x_star:', x_star.shape)
     print('shape t_star:', t_star.shape)
