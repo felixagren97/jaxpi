@@ -10,7 +10,7 @@ def get_dataset(n_t, n_x, true_mu, n_inj, n_0):
 
     # Analytical solution
     def analytical_solution(t, x):
-        condition = x >= E_ext * true_mu * t
+        condition = x <= E_ext * true_mu * t
         result = jnp.where(condition, n_inj, n_0)
         return result
 
