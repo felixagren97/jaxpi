@@ -181,7 +181,7 @@ class InverseMlpMu(Mlp):
         super().setup()  # Call the setup method of the parent class
 
         # Additional setup for InverseMlp
-        self.offset_param = self.param('mu_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=jnp.log(2e-3), maxval=jnp.log(2e-3))) #True mu = 2e-4, Interval 2e-5 to 2e-3
+        self.offset_param = self.param('mu_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=jnp.log(2e-5), maxval=jnp.log(2e-5))) #True mu = 2e-4, Interval 2e-5 to 2e-3
 
 class ModifiedMlp(nn.Module):
     arch_name: Optional[str] = "ModifiedMlp"
