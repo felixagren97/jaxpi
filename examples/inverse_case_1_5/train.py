@@ -22,6 +22,7 @@ from functools import partial
 
 import jax.numpy as jnp
 from jax import random, pmap, local_device_count
+from eval import evaluate
 
 from torch.utils.data import Dataset
 
@@ -101,10 +102,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         # Saving
         if config.saving.save_every_steps is not None:
-            if (step + 1) % config.saving.save_every_steps == 0 or (
-                step + 1
-            ) == config.training.max_steps:
+            if (step + 1) % config.saving.save_every_steps == 0 or (step + 1) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
-
+                if config.saving.plot == True:
+                    evaluate(config, workdir)
     return model

@@ -18,7 +18,7 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 8
+    arch.num_layers = 6
     arch.layer_size = 256
     arch.out_dim = 2
     arch.activation = "gelu"
@@ -70,6 +70,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 10_000
     saving.num_keep_ckpts = 3
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
