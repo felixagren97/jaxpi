@@ -13,28 +13,24 @@ from utils import get_dataset
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
-    eps = 8.85e-12
-    true_rho = 0.5e-10
+     # Problem setup
+    n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    n_scale = 5e13
 
-    # Problem setup
-    r_0 = 0.005  # inner radius
-    r_1 = 0.5      # outer radius
-    n_r = 10000    # used to be 128, but increased and kept separate for unique points
-    
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = 1 #u_ref[0]
-    u1 = 0 #u_ref[-1] # need to add to loss as well? 
-    
-    C_1 = ((4*eps*jnp.log(r_1) + true_rho * r_0**2 * jnp.log(r_1) - true_rho * r_1**2 * jnp.log(r_0)) /
-       (4 * eps * (-jnp.log(r_0) + jnp.log(r_1))))
-    
-    C_2 = (-4 * eps - true_rho*r_0**2 + true_rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
+    u0 = 1e6
+    u1 = 0 
 
+    # Define domain
+    x0 = x_star[0]
+    x1 = x_star[-1]
+
+    dom = jnp.array([x0, x1]) 
     # Restore model
-    model = models.InversePoisson(config, u0, u1, r_star, true_rho)
+    model = models.InversePoisson(config, u0, u1, x_star, n_scale)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
@@ -43,86 +39,83 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     l2_error = model.compute_l2_error(params, u_ref)
     print("L2 error: {:.3e}".format(l2_error))
 
-    u_pred = model.u_pred_fn(params, model.r_star)
-    e_pred_fn = jax.vmap(lambda params, r: -jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
+    u_pred = model.u_pred_fn(params, model.x_star)
+    e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
-    rho_pred = model.rho_pred_fn(params, model.r_star)
+    n_pred = model.n_pred_fn(params, model.x_star)
+    n_pred *= n_scale   # TODO: check if correct
 
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
-    e_pred = e_pred_fn(params, model.r_star)
-    e_ref = -(C_2 / r_star - true_rho * r_star / (2 * eps)) # analytical solution for e
+    e_pred = e_pred_fn(params, model.x_star)
+    
     # Convert them to NumPy arrays for Matplotlib
-    r_star_np = jnp.array(r_star)
+    x_star_np = jnp.array(x_star)
     u_pred_np = jnp.array(u_pred)
     u_ref_np = jnp.array(u_ref)
+    n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+
+    r_pred = model.r_pred_fn(params, model.x_star)**2
+
 
     # Create a Matplotlib figure and axis
-    fig = plt.figure(figsize=(18, 8))
-    plt.subplot(2, 2, 1)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Potential V(r)')
-    plt.title('Predicted and Analyical Potential')
+    fig = plt.figure(figsize=(18, 14))
+    plt.subplot(4,1,1)
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Charge density n(x)')
+    plt.title('Charge density')
+    plt.plot(x_star, n_values, label='n(x)', color='red')
+    plt.plot(x_star, n_pred, label='n_pred(x)', color='blue')
+    plt.tight_layout()    
+    plt.xlim(x_star[0], x_star[-1])
+    plt.grid()
 
-    # Plot the prediction values as a solid line
-    plt.plot(r_star_np, u_pred_np, label='Prediction', color='blue')
 
-    # Plot the analytical solution as a dashed line
-    plt.plot(r_star_np, u_ref_np, linestyle='--', label='Analytical Solution', color='red')
+    plt.subplot(4, 1, 2)
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Potential V(x)')
+    plt.title('Potential')
+
+    # Plot the prediction
+    plt.plot(x_star, u_pred, label='Predicted V(x)', color='blue')
+
+    # Plot original V(x)
+    plt.plot(x_star, 1e6*(-x_star + 1), linestyle='--', label='Original V(x)', color='red') 
     plt.grid()
     plt.legend()
-    plt.tight_layout()
-    
-    # Set x-axis limits to [r_star[0], r_star[-1]]
-    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.tight_layout()    
+    plt.xlim(x_star[0], x_star[-1])
 
-    # plot absolute errors 
-    plt.subplot(2, 2, 3)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Potenial [V]')
-    plt.title('Absolute Potential Error')
+    # plot electrical field
+    plt.subplot(4, 1, 3)
 
-    plt.plot(r_star_np, jnp.abs(u_pred_np - u_ref_np) , label='Absolute error', color='red')
-    plt.grid()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
-
-    # plot electrical field and rho
-    plt.subplot(2, 2, 2)
-
-    plt.xlabel('Radius [m]')
+    plt.xlabel('Distance [m]')
     plt.ylabel('Electric field [V/m]')
-    plt.title('Predicted and Analytical Electrical field')
+    plt.title('Electrical field')
 
     # Plot the prediction values as a solid line
-    plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
-    # Plot the analytical solution as a dashed line
-    plt.plot(r_star_np, e_ref, linestyle='--', label='Analytical Solution', color='red')
+    plt.plot(x_star, e_pred, color='blue')
     plt.grid()
+    plt.xlim(x_star[0], x_star[-1])
+    plt.tight_layout()    
+
+    plt.subplot(4, 1, 4)
+    plt.scatter(x_star, r_pred, color='blue', marker='o', s=1, alpha=0.5)  # Use marker='o' for circular markers, adjust 's' for marker size
+    plt.yscale('log')
+    plt.plot(x_star, jnp.full_like(x_star, jnp.mean(r_pred)), label='Mean', linestyle='--', color='red')
+
+    plt.xlabel('Distance [m]')
+    plt.ylabel('Squared Residual Loss')
+    plt.title('Squared Residual Loss')
     plt.legend()
-    plt.xlim(r_star_np[0], r_star_np[-1])
-    plt.tight_layout()
-
-    # plot absolute field errors 
-    plt.subplot(2, 2, 4)
-    plt.xlabel('Radius [m]')
-    plt.ylabel('Space charge')
-    plt.title('Rho(r) VS True Rho')
-    plt.plot(r_star_np, rho_pred, label='Prediction', color='green')
-    plt.plot(r_star_np, jnp.full_like(rho_pred, true_rho), linestyle='--', color='orange')
-
-    #plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
     plt.grid()
-    plt.xlim(r_star_np[0], r_star_np[-1])
+    plt.xlim(x_star[0], x_star[-1])
     plt.tight_layout()
-
-    
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
- 
+    fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)

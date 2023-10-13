@@ -7,65 +7,67 @@ from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 
+from utils import get_dataset, get_observations
+
 from matplotlib import pyplot as plt
 
 
 class InversePoisson(ForwardIVP):
-    def __init__(self, config, u0, u1, r_star, true_rho):
+    def __init__(self, config, u0, u1, x_star, n_scale):
         super().__init__(config)
-
-        self.n_obs = 1000
-        self.eps = 8.85e-12
-        self.true_rho = true_rho
 
         self.u0 = u0
         self.u1 = u1
-        self.r_star = r_star
+        self.x_star = x_star
+        self.n_scale = n_scale
 
-        self.r0 = r_star[0]
-        self.r1 = r_star[-1]
+        self.x0 = x_star[0]
+        self.x1 = x_star[-1]
 
-        # TODO: Do we need to define these constants here? A bit ugly imo.
-        self.C_1 = ((4*self.eps*jnp.log(self.r1) + self.true_rho * self.r0**2 * jnp.log(self.r1) - self.true_rho * self.r1**2 * jnp.log(self.r0)) /
-       (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
-        self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
+        # parameters 
+        self.q = 1.602e-19
+        self.epsilon = 8.85e-12
 
-        # Number of points to sample for observation loss
-        self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=self.r0, maxval=self.r1)
-        self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
-
-        #new  
+        # mappings  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
-        self.rho_pred_fn = vmap(self.rho_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
-    def analytical_potential(self, true_rho, r): # TODO: does this work for jnp arrays?
-        return self.C_1 + self.C_2 * jnp.log(r) - (true_rho * r**2) / (4 * self.eps)
-        
+        # Number of points to sample for observation loss
+        self.obs_x, self.obs_u =  get_observations(n_obs=1000)
+           
+
+        #new 
+        self.u_pred_fn = vmap(self.u_net, (None, 0))
+        self.n_pred_fn = vmap(self.n_net, (None, 0))
+        self.r_pred_fn = vmap(self.r_net, (None, 0))
         
     def neural_net(self, params, r):
         # params = weights for NN 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         y = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         u = y[0] # first output of the neural network
-        rho = y[1] # second output of the neural network
-        return u, rho
-        #return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
+        n = y[1] # second output of the neural network
+        return u, n
+        
+    def u_net(self, params, x):
+        u, _ = self.neural_net(params, x)
+        return (self.x1-x)/(self.x1-self.x0) + (x-self.x0)*(self.x1 - x)*u # Hard boundary
     
-    def u_net(self, params, r):
-        u, _ = self.neural_net(params, r)
-        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u # Soft boundary
+    def n_net(self, params, x):
+        _, n = self.neural_net(params, x)
+        return n
+
+    def r_net(self, params, x):        
+        du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
+        n = self.n_net(params, x) * self.n_scale
+        return du_xx + self.q * n / self.epsilon
     
-    def rho_net(self, params, r):
-        _, rho = self.neural_net(params, r)
-        return rho
-
-    def r_net(self, params, r):        
-        du_r = grad(self.u_net, argnums=1)(params, r)
-        du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        rho = self.rho_net(params, r)
-        return r * du_rr + du_r + (1e-10 * rho/self.eps) * r # TODO: check if this is correct  
-
+    def heaviside(self, x, k=25, a=0.5):
+        # https://en.wikipedia.org/wiki/Heaviside_step_function
+        # larger k -> steeper step
+        # larger a -> larger positive translation
+        return 1 - 1 / (1 + jnp.exp(-2 * k * (x - a)))
+    
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called
         raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
@@ -73,11 +75,11 @@ class InversePoisson(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):    #TODO: Implement loss for observed synthetic data.
         # inner boundary condition 
-        u_pred = self.u_net(params, self.r0)
+        u_pred = self.u_net(params, self.x0)
         inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
 
         # outer boundary condition 
-        u_pred = self.u_net(params, self.r1)
+        u_pred = self.u_net(params, self.x1)
         outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
 
         # Residual loss
@@ -89,9 +91,8 @@ class InversePoisson(ForwardIVP):
             res_loss = jnp.mean((r_pred) ** 2)
 
         # Observation loss
-        obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_r)
+        obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_x)
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
-        #        n_pred = vmap(self.n_net, (None, None, 0))(params, self.t0, self.x_star)
 
         loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss, "observ": obs_loss}
         return loss_dict
@@ -120,12 +121,12 @@ class InversePoisson(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        u_pred = self.u_pred_fn(params, self.r_star)
+        u_pred = self.u_pred_fn(params, self.x_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
 
-class LaplaceEvaluator(BaseEvaluator):
+class InversePoissonEvaluator(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 

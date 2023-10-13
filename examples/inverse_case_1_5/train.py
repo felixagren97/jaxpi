@@ -50,31 +50,28 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    r_0 = 0.005  # inner radius
-    r_1 = 0.5      # outer radius
-    n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
-
-    true_rho = 0.5e-10 
+    n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    n_scale = 5e13
 
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 =  1 #u_ref[0]
-    u1 = 0 #u_ref[-1] # need to add to loss as well? 
+    u0 = 1e6
+    u1 = 0 
 
     # Define domain
-    r0 = r_star[0]
-    r1 = r_star[-1]
+    x0 = x_star[0]
+    x1 = x_star[-1]
 
-    dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
+    dom = jnp.array([x0, x1]) 
 
     # Initialize model
-    model = models.InversePoisson(config, u0, u1, r_star, true_rho)
+    model = models.InversePoisson(config, u0, u1, x_star, n_scale)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.LaplaceEvaluator(config, model)
+    evaluator = models.InversePoissonEvaluator(config, model)
 
     # jit warm up
     print("Waiting for JIT...")
