@@ -5,6 +5,7 @@ import ml_collections
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
+import numpy as np
 
 from jaxpi.utils import restore_checkpoint
 import models
@@ -35,8 +36,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_values = n_inj * jax.vmap(model.heaviside)(x_star)
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
     
-    # TODO: Save predictions to file for later use
-        
+    # Saving predictions for inverse case 1.5
+    input_data = x_star
+    predictions = u_pred
+
+    in_dat = jax.device_get(input_data)
+    pred_dat = jax.device_get(predictions)
+
+    data = np.column_stack((in_dat, pred_dat))
+    
+    output_file_path = 'obs.dat'
+    np.savetxt(output_file_path, data, delimiter=' ')
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
