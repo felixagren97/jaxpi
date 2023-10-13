@@ -11,7 +11,7 @@ import models
 from utils import get_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
      # Problem setup
     n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
@@ -117,5 +117,5 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
+    fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)

@@ -26,7 +26,7 @@ def get_config():
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
 
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.fourier_emb = None #ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
