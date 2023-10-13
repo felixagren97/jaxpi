@@ -34,6 +34,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_pred = model.u_pred_fn(params, model.x_star)
     n_values = n_inj * jax.vmap(model.heaviside)(x_star)
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
+    
+    # TODO: Save predictions to file for later use
+        
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
