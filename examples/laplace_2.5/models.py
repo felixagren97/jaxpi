@@ -42,15 +42,10 @@ class Laplace(ForwardIVP):
         # larger a -> larger positive translation
         return 1 - 1 / (1 + jnp.exp(-2 * k * (x - a)))
     
-    def step_fun(self, x):
-        # return 1 if x <= 0.5 and 0 otherwise
-        return 1 - jnp.heaviside(x-0.5, 1) 
 
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        
-        n = self.n_inj * self.step_fun(x) # True step function
-        #n = self.n_inj * self.heaviside(x=x) # Heaviside step function
+        n = self.n_inj * self.heaviside(x=x) # Heaviside step function
         return du_xx + self.q * n / self.epsilon
 
     @partial(jit, static_argnums=(0,))
