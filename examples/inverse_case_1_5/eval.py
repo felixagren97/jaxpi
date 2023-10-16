@@ -40,6 +40,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     print("L2 error: {:.3e}".format(l2_error))
 
     u_pred = model.u_pred_fn(params, model.x_star)
+    u_pred *= u0
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     n_pred = model.n_pred_fn(params, model.x_star)
@@ -48,6 +49,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
+    e_pred *= u0
     
     # Convert them to NumPy arrays for Matplotlib
     x_star_np = jnp.array(x_star)

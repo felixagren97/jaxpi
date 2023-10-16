@@ -16,8 +16,9 @@ class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, x_star, n_scale):
         super().__init__(config)
 
-        self.u0 = u0
-        self.u1 = u1
+        self.u_scale = u0
+        self.u0 = u0 / self.u_scale
+        self.u1 = u1 / self.u_scale
         self.x_star = x_star
         self.n_scale = n_scale
 
@@ -51,7 +52,7 @@ class InversePoisson(ForwardIVP):
         
     def u_net(self, params, x):
         u, _ = self.neural_net(params, x)
-        return (self.x1-x)/(self.x1-self.x0)*self.u0 + (x-self.x0)*(self.x1 - x)*u # Hard boundary
+        return (self.x1-x)/(self.x1-self.x0) + (x-self.x0)*(self.x1 - x)*u # Hard boundary
     
     def n_net(self, params, x):
         _, n = self.neural_net(params, x)
@@ -60,7 +61,7 @@ class InversePoisson(ForwardIVP):
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
         n = self.n_net(params, x) * self.n_scale
-        return du_xx + self.q * n / self.epsilon
+        return du_xx * self.u_scale + self.q * n / self.epsilon
     
     def heaviside(self, x, k=25, a=0.5):
         # https://en.wikipedia.org/wiki/Heaviside_step_function
@@ -92,7 +93,7 @@ class InversePoisson(ForwardIVP):
 
         # Observation loss
         obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_x)
-        obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
+        obs_loss = jnp.mean((self.obs_u - self.u_scale * obs_u_pred) ** 2)
 
         loss_dict = {"res": res_loss, "observ": obs_loss}
         return loss_dict
