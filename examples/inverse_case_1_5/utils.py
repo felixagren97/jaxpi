@@ -14,7 +14,7 @@ def get_dataset(n_x):
 
 def get_observations(n_obs, obs_file):
    # open numpy array from file called obs.dat
-   obs = np.loadtxt()
+   obs = np.loadtxt(obs_file)
    obs = jnp.array(obs)
 
    obs_x = obs[:,0]
