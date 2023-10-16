@@ -12,9 +12,9 @@ def get_dataset(n_x):
     
     return u_exact, x_star
 
-def get_observations(n_obs):
+def get_observations(n_obs, obs_file):
    # open numpy array from file called obs.dat
-   obs = np.loadtxt('obs.dat')
+   obs = np.loadtxt()
    obs = jnp.array(obs)
 
    obs_x = obs[:,0]

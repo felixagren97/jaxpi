@@ -33,8 +33,12 @@ class InversePoisson(ForwardIVP):
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
+        # Observations
+        n_obs = config.setting.n_obs
+        obs_file=config.setting.obs_file
+
         # Number of points to sample for observation loss
-        self.obs_x, self.obs_u =  get_observations(n_obs=1000)
+        self.obs_x, self.obs_u =  get_observations(n_obs, obs_file)
            
 
         #new 

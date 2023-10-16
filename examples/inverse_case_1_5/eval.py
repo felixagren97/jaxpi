@@ -14,15 +14,15 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
      # Problem setup
-    n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
-    n_scale = 5e13
+    n_x = config.setting.n_x    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    n_scale = config.setting.n_scale
 
     # Get  dataset
     u_ref, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = 1e6
-    u1 = 0 
+    u0 = config.setting.u0
+    u1 = config.setting.u1
 
     # Define domain
     x0 = x_star[0]

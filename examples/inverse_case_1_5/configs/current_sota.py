@@ -8,6 +8,14 @@ def get_config():
     config = ml_collections.ConfigDict()
 
     config.mode = "train"
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.obs_file = "obs_1e10.dat"
+    setting.n_scale = 1e10
+    setting.n_x = 12800
+    setting.n_obs = 1000
+    setting.u0 = 1e6
+    setting.u1 = 0
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
