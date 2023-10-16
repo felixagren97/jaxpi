@@ -24,7 +24,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = 1e6
     u1 = 0 # need to add to loss as well? 
-    n_inj = 5e13
+    n_inj = 1e10
 
     # Restore model
     model = models.Laplace(config, u0, u1, x_star, n_inj)
