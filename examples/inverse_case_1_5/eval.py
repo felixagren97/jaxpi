@@ -51,7 +51,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     e_pred = e_pred_fn(params, model.x_star)
     e_pred *= u0
     
-    n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+    n_values = n_scale * jax.vmap(model.heaviside)(x_star, config.setting.k, a = 0.5)
 
     r_pred = model.r_pred_fn(params, model.x_star)**2
 
