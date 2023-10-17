@@ -39,6 +39,8 @@ class InversePoisson(ForwardIVP):
 
         # Number of points to sample for observation loss
         self.obs_x, self.obs_u =  get_observations(n_obs, obs_file)
+
+        self.k = config.setting.k
            
 
         #new 
@@ -67,10 +69,12 @@ class InversePoisson(ForwardIVP):
         n = self.n_net(params, x) * self.n_scale
         return du_xx * self.u_scale + self.q * n / self.epsilon
     
-    def heaviside(self, x, k=25, a=0.5):
+    def heaviside(self, x, k, a):
         # https://en.wikipedia.org/wiki/Heaviside_step_function
         # larger k -> steeper step
         # larger a -> larger positive translation
+        k = self.k
+        a = 0.5
         return 1 - 1 / (1 + jnp.exp(-2 * k * (x - a)))
     
     @partial(jit, static_argnums=(0,))

@@ -51,10 +51,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     e_pred = e_pred_fn(params, model.x_star)
     e_pred *= u0
     
-    # Convert them to NumPy arrays for Matplotlib
-    x_star_np = jnp.array(x_star)
-    u_pred_np = jnp.array(u_pred)
-    u_ref_np = jnp.array(u_ref)
     n_values = n_scale * jax.vmap(model.heaviside)(x_star)
 
     r_pred = model.r_pred_fn(params, model.x_star)**2
