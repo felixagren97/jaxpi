@@ -69,7 +69,7 @@ class InversePoisson(ForwardIVP):
         n = self.n_net(params, x) * self.n_scale
         return du_xx * self.u_scale + self.q * n / self.epsilon
     
-    def heaviside(self, x, k, a):
+    def heaviside(self, x):
         # https://en.wikipedia.org/wiki/Heaviside_step_function
         # larger k -> steeper step
         # larger a -> larger positive translation
