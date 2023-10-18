@@ -19,8 +19,8 @@ def get_config():
     setting.u0 = 1
     setting.u1 = 0
 
-    setting.true_rho = 0.5e-10 
-    setting.rho_scale = 1e-10   
+    setting.true_rho = 1e-5
+    setting.rho_scale = 1e-6
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
@@ -39,7 +39,7 @@ def get_config():
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
 
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
