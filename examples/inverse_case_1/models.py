@@ -51,7 +51,7 @@ class InversePoisson(ForwardIVP):
         # params = weights for NN 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
-        return (self.r1-r)/(self.r1-self.r0) + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
+        return (self.r1-r)/(self.r1-self.r0) * self.u0 + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
     
 
     def r_net(self, params, r):
