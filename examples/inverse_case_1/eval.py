@@ -22,12 +22,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     r_0 = config.setting.r_0  # inner radius
     r_1 = config.setting.r_1  # outer radius
     n_r = 10_000
-    
-    # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho, u0)
 
     u0 = config.setting.u0 
     u1 = config.setting.u1
+    
+    # Get  dataset
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho, u0)
     
     ln = jnp.log(r_0 / r_1)
     C_2 = u0 / ln - true_rho * (r_1**2 - r_0**2) / (4 * eps * ln)
