@@ -57,12 +57,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     true_rho = config.setting.true_rho
     rho_scale = config.setting.rho_scale
 
-    # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u0 = config.setting.u0 
+    u1 = config.setting.u1
 
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 =  1 #u_ref[0]
-    u1 = 0 #u_ref[-1] # need to add to loss as well? 
+    # Get  dataset
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho, u0)
+
 
     # Define domain
     r0 = r_star[0]

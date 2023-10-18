@@ -26,14 +26,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
 
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = 1 #u_ref[0]
-    u1 = 0 #u_ref[-1]
+    u0 = config.setting.u0 
+    u1 = config.setting.u1
     
-    C_1 = ((4*eps*jnp.log(r_1) + true_rho * r_0**2 * jnp.log(r_1) - true_rho * r_1**2 * jnp.log(r_0)) /
-       (4 * eps * (-jnp.log(r_0) + jnp.log(r_1))))
-    
-    C_2 = (-4 * eps - true_rho*r_0**2 + true_rho * r_1**2) / (4 * eps * (-jnp.log(r_0) + jnp.log(r_1)))
+    ln = jnp.log(r_0 / r_1)
+    C_2 = u0 / ln - true_rho * (r_1**2 - r_0**2) / (4 * eps * ln)
+    C_1 = true_rho * r_1**2 / (4 * eps) - C_2 * jnp.log(r_1)
 
     # Restore model
     model = models.InversePoisson(config, u0, u1, r_star, true_rho, rho_scale)

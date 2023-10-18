@@ -16,6 +16,9 @@ def get_config():
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
 
+    setting.u0 = 1
+    setting.u1 = 0
+
     setting.true_rho = 0.5e-10 
     setting.rho_scale = 1e-10   
 

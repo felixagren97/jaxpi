@@ -26,10 +26,14 @@ class InversePoisson(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
-        # TODO: Do we need to define these constants here? A bit ugly imo.
-        self.C_1 = ((4*self.eps*jnp.log(self.r1) + self.true_rho * self.r0**2 * jnp.log(self.r1) - self.true_rho * self.r1**2 * jnp.log(self.r0)) /
-       (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
-        self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
+        
+        #self.C_1 = ((4*self.eps*jnp.log(self.r1) + self.true_rho * self.r0**2 * jnp.log(self.r1) - self.true_rho * self.r1**2 * jnp.log(self.r0)) /
+        # (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
+        #self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
+
+        self.ln = jnp.log(self.r0 / self.r1)
+        self.C_2 = self.u0 / self.ln - self.true_rho * (self.r1**2 - self.r0**2) / (4 * self.eps * self.ln)
+        self.C_1 = self.true_rho * self.r1**2 / (4 * self.eps) - self.C_2 * jnp.log(self.r1)
 
         # Number of points to sample for observation loss
         self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=self.r0, maxval=self.r1)
