@@ -24,7 +24,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_r = 10_000
     
     # Get  dataset
-    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho)
+    u_ref, r_star = get_dataset(r_0, r_1, n_r, true_rho, u0)
 
     u0 = config.setting.u0 
     u1 = config.setting.u1
