@@ -162,6 +162,8 @@ class InverseCoupledCase(ForwardIVP):
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
             print('Calculating loss for observations')
+            print('shape obs_t: ', self.obs_t.shape)
+            print('shape obs_x: ', self.obs_x.shape)
             start = time.time()
             obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
             obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
