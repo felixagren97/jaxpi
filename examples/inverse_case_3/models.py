@@ -8,20 +8,22 @@ from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 
 from matplotlib import pyplot as plt
+from utils import get_observations
 
 
-class CoupledCase(ForwardIVP):
+class InverseCoupledCase(ForwardIVP):
     def __init__(self, config, n_inj, n_0, u_0, u_1, t_star, x_star):
         super().__init__(config)
 
         # constants
-        self.mu_n = 2e-4
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
         #self.W = self.mu_n * self.E_ext
-        self.Diff = self.mu_n * self.kb * self.Temp/self.q 
+        
         self.epsilon = 8.85e-12
+
+        self.true_mu = config.setting.true_mu
 
         # Scale factor for charge density to speed up training. 
         self.n_scale = n_inj
@@ -41,9 +43,11 @@ class CoupledCase(ForwardIVP):
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
 
-
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
+
+        #Observation data 
+        self.obs_x, self.obs_u, self.obs_n, self.obs_t = get_observations(config.setting.n_obs, config.setting.obs_file)
 
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
@@ -80,11 +84,16 @@ class CoupledCase(ForwardIVP):
         dn_x = grad(self.n_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.n_net, argnums=2), argnums=2)(params, t, x)
 
+        # Extracting current state of trainable parameter Mu
+        mu = jnp.exp(params['params']['mu_param'])
+
         E = -grad(self.u_net, argnums=2)(params, t, x)
-        W = self.mu_n * E
+        W = mu * E
         source = (self.q / self.epsilon * n) * self.n_scale # scale back with n_inj  # TODO: makes sense?
         
-        rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
+
+        Diff = mu * self.kb * self.Temp/self.q 
+        rn = 1/W*dn_t + dn_x - Diff/W*dn_xx
         ru = du_xx + source
         return ru, rn
 
@@ -138,16 +147,26 @@ class CoupledCase(ForwardIVP):
         #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
         #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
 
+        
+
         # Residual loss
         if self.config.weighting.use_causal == True:
             ru_l, rn_l, gamma = self.res_and_w(params, batch)
             ru_loss = jnp.mean(ru_l * gamma)
             rn_loss = jnp.mean(rn_l * gamma)
+            raise NotImplementedError('Not ready for this yet brother')
         else:
             ru_pred, rn_pred = self.r_pred_fn(params, batch[:, 0], batch[:, 1])
             # Compute loss
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
+
+            obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
+            obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
+            obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
+            obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
+            
+
 
         loss_dict = {
             "ics": ics_loss,
@@ -155,7 +174,9 @@ class CoupledCase(ForwardIVP):
             #"bcs_inner": bcs_inner, Hard boundary
             #"bcs_outer": bcs_outer, Hard boundary
             "ru": ru_loss,
-            "rn": rn_loss
+            "rn": rn_loss,
+            "obs_u": obs_u_loss,
+            "obs_n": obs_n_loss 
         }
         return loss_dict
 
@@ -232,7 +253,7 @@ class CoupledCase(ForwardIVP):
         return u_error, n_error
 
 
-class CoupledCaseEvalutor(BaseEvaluator):
+class InverseCoupledCaseEvalutor(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 

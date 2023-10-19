@@ -10,6 +10,8 @@ from jaxpi.utils import restore_checkpoint
 from jax import grad, vmap
 import models
 from utils import get_dataset
+import jax 
+import numpy as np
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):

@@ -9,6 +9,19 @@ def get_config():
 
     config.mode = "train"
 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_0 = 0.1
+    setting.n_inj = 1e9
+    setting.u_0 = 1e6
+    setting.u_1 = 0
+    setting.n_t = 200  # number of time steps TODO: Increase?
+    setting.n_x = 128 
+
+    setting.true_mu = 2e-4
+
+    setting.obs_file = 'case3_obs.dat'
+    setting.n_obs = 1000
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Coupled-case"
@@ -17,7 +30,7 @@ def get_config():
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "Mlp"
+    arch.arch_name = "InverseMlpMu"
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 2
@@ -53,7 +66,10 @@ def get_config():
             #"bcs_inner": 1.0, Hard boundary
             #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
-            "rn": 1.0
+            "rn": 1.0,
+            "obs_u": 1.0,
+            "obs_n": 1.0
+
         })
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000

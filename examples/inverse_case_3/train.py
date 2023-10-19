@@ -24,12 +24,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    n_0 = 0.1
-    n_inj = 1e10
-    u_0 = 1e6
-    u_1 = 0
-    n_t = 200  # number of time steps TODO: Increase?
-    n_x = 128  # number of spatial points
+    n_0 = config.setting.n_0
+    n_inj = config.setting.n_inj
+    u_0 = config.setting.u_0
+    u_1 = config.setting.u_1
+    n_t = config.setting.n_t  # number of time steps
+    n_x = config.setting.n_x  # number of space steps
 
     # Get  dataset
     u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
@@ -44,11 +44,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize model
-    model = models.CoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
+    model = models.InverseCoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.CoupledCaseEvalutor(config, model)
+    evaluator = models.InverseCoupledCaseEvalutor(config, model)
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):

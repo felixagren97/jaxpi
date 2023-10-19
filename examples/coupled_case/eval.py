@@ -10,6 +10,8 @@ from jaxpi.utils import restore_checkpoint
 from jax import grad, vmap
 import models
 from utils import get_dataset
+import jax
+import numpy as np
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -116,4 +118,32 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     fig_path = os.path.join(save_dir, "coupled_case.pdf")
     fig.savefig(fig_path, bbox_inches="tight", dpi=300)
  
+    # Saving data 
+    n_t = 200
+    n_x = 200
+    u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
+
+    u_pred = model.u_pred_fn(params, t_star, x_star) 
+    n_pred = model.n_pred_fn(params, t_star, x_star)
+    
+    TT, XX = jnp.meshgrid(t_star, x_star, indexing='ij')
+
+    u_pred = jax.device_get(u_pred)
+    n_pred = jax.device_get(n_pred)
+
+    TT = jax.device_get(TT)
+    XX = jax.device_get(XX)
+
+    u_pred = u_pred.reshape(-1)
+    print(u_pred[:5])
+    n_pred = n_pred.reshape(-1)
+    print(n_pred[:5])
+    TT = TT.reshape(-1)
+    print(TT[:5])
+    XX = XX.reshape(-1)
+    print(XX[:5])
+    data = np.column_stack((TT, XX, u_pred, n_pred))
+
+    output_file_path = 'case3_obs.dat'
+    np.savetxt(output_file_path, data, delimiter=' ')
 
