@@ -48,7 +48,7 @@ class InverseCoupledCase(ForwardIVP):
         self.t1 = t_star[-1]
 
         #Observation data 
-        self.obs_x, self.obs_u, self.obs_n, self.obs_t = get_observations(config.setting.n_obs, config.setting.obs_file)
+        #self.obs_x, self.obs_u, self.obs_n, self.obs_t = get_observations(config.setting.n_obs, config.setting.obs_file)
 
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
@@ -161,17 +161,17 @@ class InverseCoupledCase(ForwardIVP):
             # Compute loss
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
-            print('Calculating loss for observations')
-            print('shape obs_t: ', self.obs_t.shape)
-            print('shape obs_x: ', self.obs_x.shape)
-            start = time.time()
-            obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
-            obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
-            obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
-            obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
-            end = time.time()
-            print('Done Calculating loss for observations')
-            print('Time (s) for loss calculation: ', end-start)
+            #print('Calculating loss for observations')
+            #print('shape obs_t: ', self.obs_t.shape)
+            #print('shape obs_x: ', self.obs_x.shape)
+            #start = time.time()
+            #obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
+            #obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
+            #obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
+            #obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
+            #end = time.time()
+            #print('Done Calculating loss for observations')
+            #print('Time (s) for loss calculation: ', end-start)
 
 
         loss_dict = {
@@ -181,8 +181,8 @@ class InverseCoupledCase(ForwardIVP):
             #"bcs_outer": bcs_outer, Hard boundary
             "ru": ru_loss,
             "rn": rn_loss,
-            "obs_u": obs_u_loss,
-            "obs_n": obs_n_loss 
+            #"obs_u": obs_u_loss,
+            #"obs_n": obs_n_loss 
         }
         return loss_dict
 
