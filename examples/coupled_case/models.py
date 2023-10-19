@@ -48,7 +48,7 @@ class CoupledCase(ForwardIVP):
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
-        self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
+        self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
 
     def neural_net(self, params, t, x):
