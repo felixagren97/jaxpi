@@ -9,6 +9,7 @@ from jaxpi.utils import ntk_fn, flatten_pytree
 
 from matplotlib import pyplot as plt
 from utils import get_observations
+import time
 
 
 class InverseCoupledCase(ForwardIVP):
@@ -160,12 +161,15 @@ class InverseCoupledCase(ForwardIVP):
             # Compute loss
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
-
+            print('Calculating loss for observations')
+            start = time.time()
             obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
             obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
             obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
             obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
-            
+            end = time.time()
+            print('Done Calculating loss for observations')
+            print('Time (s) for loss calculation: ', end-start)
 
 
         loss_dict = {

@@ -24,7 +24,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Coupled-case"
+    wandb.project = "PINN-Inverse-Coupled-case"
     wandb.name = "default"
     wandb.tag = None
 
