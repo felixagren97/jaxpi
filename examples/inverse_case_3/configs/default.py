@@ -74,7 +74,7 @@ def get_config():
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = True
+    weighting.use_causal = False
     weighting.causal_tol = 1.0
     weighting.num_chunks = 32
 
