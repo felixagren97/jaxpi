@@ -65,8 +65,8 @@ def get_config():
             "bcs_n": 1.0, 
             "ru": 1.0,
             "rn": 1.0,
-            "obs_u": 1.0,
-            "obs_n": 1.0
+            #"obs_u": 1.0,
+            #"obs_n": 1.0
 
         })
     weighting.momentum = 0.9
