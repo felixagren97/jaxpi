@@ -37,6 +37,11 @@ def get_observations(n_obs, obs_file):
     obs_u = obs_u[idx]
     obs_n = obs_n[idx]
     obs_t = obs_t[idx]
+    print('Shape obs_x: ', obs_x.shape)
+    print('Shape obs_u: ', obs_u.shape)
+    print('Shape obs_n: ', obs_n.shape)
+    print('Shape obs_t: ', obs_t.shape)
+    
 
     return obs_x, obs_u, obs_n, obs_t   
     
