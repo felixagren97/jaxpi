@@ -48,7 +48,7 @@ class InverseCoupledCase(ForwardIVP):
         self.t1 = t_star[-1]
 
         #Observation data 
-        #self.obs_x, self.obs_u, self.obs_n, self.obs_t = get_observations(config.setting.n_obs, config.setting.obs_file)
+        self.obs_x, self.obs_u, self.obs_n, self.obs_t = get_observations(config.setting.n_obs, config.setting.obs_file)
 
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
@@ -59,9 +59,6 @@ class InverseCoupledCase(ForwardIVP):
     def neural_net(self, params, t, x):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
-        #print('Shape output in neural_net: ', outputs.shape)
-        #print('Shape u (output[0]) in neural_net: ', outputs[0].shape)
-        #print('Shape n (output[1]) in neural_net: ', outputs[1].shape)
         u = outputs[0]
         n = outputs[1]
         return u, n
@@ -139,15 +136,6 @@ class InverseCoupledCase(ForwardIVP):
         n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
         bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
 
-        # Boundary loss: U(x=0)=U_0
-        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
-        #bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
-
-        # Boundary loss: U(x=0)=U_0
-        x_1 = 1
-        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
-        #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
-
         
 
         # Residual loss
@@ -161,28 +149,20 @@ class InverseCoupledCase(ForwardIVP):
             # Compute loss
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
-            #print('Calculating loss for observations')
-            #print('shape obs_t: ', self.obs_t.shape)
-            #print('shape obs_x: ', self.obs_x.shape)
-            #start = time.time()
-            #obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
-            #obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
-            #obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
-            #obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
-            #end = time.time()
-            #print('Done Calculating loss for observations')
-            #print('Time (s) for loss calculation: ', end-start)
-
+            
+            obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
+            obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
+            obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
+            obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
+            
 
         loss_dict = {
             "ics": ics_loss,
             "bcs_n": bcs_n, 
-            #"bcs_inner": bcs_inner, Hard boundary
-            #"bcs_outer": bcs_outer, Hard boundary
             "ru": ru_loss,
             "rn": rn_loss,
-            #"obs_u": obs_u_loss,
-            #"obs_n": obs_n_loss 
+            "obs_u": obs_u_loss,
+            "obs_n": obs_n_loss 
         }
         return loss_dict
 

@@ -20,7 +20,7 @@ def get_config():
     setting.true_mu = 2e-4
 
     setting.obs_file = 'case3_obs_mu_2e-4_n_1e9.dat'
-    setting.n_obs = 1000
+    setting.n_obs = 30
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
@@ -59,14 +59,14 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None #"grad_norm"
+    weighting.scheme = None 
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
             "ru": 1.0,
             "rn": 1.0,
-            #"obs_u": 1.0,
-            #"obs_n": 1.0
+            "obs_u": 1.0,
+            "obs_n": 1.0
 
         })
     weighting.momentum = 0.9
