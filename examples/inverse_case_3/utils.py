@@ -41,7 +41,7 @@ def get_observations(n_obs, obs_file):
     print('Shape obs_u: ', obs_u.shape)
     print('Shape obs_n: ', obs_n.shape)
     print('Shape obs_t: ', obs_t.shape)
-    
+    del obs
 
     return obs_x, obs_u, obs_n, obs_t   
     
