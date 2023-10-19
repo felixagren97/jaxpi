@@ -150,8 +150,10 @@ class InverseCoupledCase(ForwardIVP):
             ru_loss = jnp.mean(ru_pred**2)
             rn_loss = jnp.mean(rn_pred**2)
             
-            obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
-            obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
+            obs_u_pred = self.u_net(self.obs_t, self.obs_x)
+            obs_n_pred = self.n_net(self.obs_t, self.obs_x)
+            #obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x)
+            #obs_n_pred = self.n_pred_fn(params, self.obs_t, self.obs_x)
             obs_u_loss = jnp.mean((self.obs_u - obs_u_pred)**2)
             obs_n_loss = jnp.mean((self.obs_n - obs_n_pred)**2)
             
