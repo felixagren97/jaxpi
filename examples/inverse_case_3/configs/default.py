@@ -63,8 +63,6 @@ def get_config():
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
-            #"bcs_inner": 1.0, Hard boundary
-            #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
             "rn": 1.0,
             "obs_u": 1.0,
@@ -81,7 +79,7 @@ def get_config():
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
     logging.log_every_steps = 100
-    logging.log_errors = True
+    logging.log_errors = False
     logging.log_losses = True
     logging.log_weights = True
     logging.log_grads = False

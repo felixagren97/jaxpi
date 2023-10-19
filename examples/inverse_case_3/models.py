@@ -264,9 +264,10 @@ class InverseCoupledCaseEvalutor(BaseEvaluator):
         super().__init__(config, model)
 
     def log_errors(self, params, u_ref, n_ref):
-        u_error, n_error = self.model.compute_l2_error(params, u_ref, n_ref)
-        self.log_dict["u_error"] = u_error
-        self.log_dict["n_error"] = n_error
+        #u_error, n_error = self.model.compute_l2_error(params, u_ref, n_ref)
+        #self.log_dict["u_error"] = u_error
+        #self.log_dict["n_error"] = n_error
+        pass
 
     def log_preds(self, params):
         pass
