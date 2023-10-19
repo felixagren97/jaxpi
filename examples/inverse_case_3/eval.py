@@ -18,19 +18,19 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
    
     # Problem Setup
 
-    n_0 = 0.1   # Initial condition for n, charge density before injection.
-    n_inj = 1e10 # Boundary condition for n, charge density at x=0. 
-    u_0 = 1e6   # Boundary condition for u, Potential at inner electrode
-    u_1 = 0     # Boundary condition for u, Potential at outer electrode
-    n_t = 200   # Number of time steps TODO: Increase?
-    n_x = 10_000   # Number of spatial points TODO: Increase?
+    n_0 = config.setting.n_0
+    n_inj = config.setting.n_inj
+    u_0 = config.setting.u_0
+    u_1 = config.setting.u_1
+    n_t = 3   # Dummy, overwrite later
+    n_x = 10_000   
 
     # Get  dataset
     u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
     t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore model
-    model = models.CoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
+    model = models.InverseCoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
