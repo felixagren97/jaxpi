@@ -19,7 +19,7 @@ def get_config():
 
     setting.true_mu = 2e-4
 
-    setting.obs_file = 'case3_obs.dat'
+    setting.obs_file = 'case3_obs_mu_2e-4_n_1e9.dat'
     setting.n_obs = 1000
 
     # Weights & Biases
