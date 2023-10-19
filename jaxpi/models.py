@@ -56,6 +56,9 @@ def _create_arch(config):
 
     elif config.arch_name == "InverseMlpRho":
         arch = archs.InverseMlpRho(**config)
+    
+    elif config.arch_name == "InverseMlpMu":
+        arch = archs.InverseMlpMu(**config)
 
     else:
         raise NotImplementedError(f"Arch {config.arch_name} not supported yet!")
