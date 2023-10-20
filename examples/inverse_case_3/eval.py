@@ -35,11 +35,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star) # TODO: Ensure rescaled
     n_pred = model.n_pred_fn(params, model.t_star, model.x_star)
-    
-
 
     print('Max predicted n:' , jnp.max(n_pred))
     print('Min predicted n:' , jnp.min(n_pred))
@@ -50,7 +47,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Plot results
     fig = plt.figure(figsize=(10, 8))
     plt.subplot(3, 1, 1)
-    idx_step = int(n_t/10)
     plt.plot(x_star, n_pred[0,:], label='t=0.000')
     plt.plot(x_star, n_pred[1,:], label='t=0.001')
     plt.plot(x_star, n_pred[2,:], label='t=0.002')
