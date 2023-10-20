@@ -26,7 +26,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_x = 10_000   
 
     # Get  dataset
-    u_ref, n_ref, t_star, x_star = get_dataset(n_t, n_x)
+    _, _, t_star, x_star = get_dataset(n_t, n_x)
     t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore model
@@ -35,13 +35,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    # Compute L2 error [Cannot do with small]
-    #u_error, n_error = model.compute_l2_error(params, u_ref, n_ref)
+
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star) # TODO: Ensure rescaled
     n_pred = model.n_pred_fn(params, model.t_star, model.x_star)
     
-    #print("L2 error u: {:.3e}".format(u_error))
-    #print("L2 error n: {:.3e}".format(n_error))
+
 
     print('Max predicted n:' , jnp.max(n_pred))
     print('Min predicted n:' , jnp.min(n_pred))
@@ -74,7 +72,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # plot Potential field
     plt.subplot(3, 1, 2)
-    idx_step = int(n_t/10)
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
@@ -92,7 +89,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # plot electrical field
     plt.subplot(3, 1, 3)
-    idx_step = int(n_t/10)
     plt.plot(x_star, e_pred[0,:], label='t=0.000')
     plt.plot(x_star, e_pred[1,:], label='t=0.001')
     plt.plot(x_star, e_pred[2,:], label='t=0.002')
@@ -108,14 +104,27 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.tight_layout()
     plt.xlim(x_star[0], x_star[-1])
 
-    
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "coupled_case.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+    fig_path = os.path.join(save_dir, "Inverse_coupled_case.pdf")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    fig_path = os.path.join(save_dir, "Inverse_coupled_case.png")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+    # --- final result prints ---
+    print('\n--------- SUMMARY ---------\n') 
+    # print the predicted & final rho values
+    mu_pred = jnp.exp(model.state.params['params']['mu_param'][0]) 
+    mu_ref = config.setting.true_mu
+    rel_error = (mu_pred-mu_ref)/mu_ref
+
+    print(f'Predicted Mu:   {mu_pred}')
+    print(f'True Mu:        {mu_ref}')
+    print(f'Relative error: {rel_error:.1%}\n')
+    print('---------------------------\n')
  
 
