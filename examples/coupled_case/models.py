@@ -74,7 +74,7 @@ class CoupledCase(ForwardIVP):
 
     def n_net(self, params, t, x):
         _, n = self.neural_net(params, t, x)
-        return n
+        return n * t + (self.heaviside(x) / self.heaviside(0)) * (1- self.n_0) + self.n_0 
     
     def scaled_n_net(self, params, t, x):
         return self.n_scale*self.n_net(params, t, x)
@@ -129,7 +129,7 @@ class CoupledCase(ForwardIVP):
         # Initial loss 
         n_pred = vmap(self.n_net, (None, None, 0))(params, self.t0, self.x_star)
         ics_loss = jnp.mean((self.n_0s[1:] - n_pred[1:]) ** 2) # slicing to exclude x = 0
-
+        
         # Boundary loss: n(x=0)=n_inj
         x_0 = 0
         n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
