@@ -55,8 +55,8 @@ class InverseCoupledCase(ForwardIVP):
         self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
-        self.u_pred_fn_2 = vmap(vmap(self.u_net, (None, 0, 0)))
-        self.n_pred_fn_2 = vmap(vmap(self.scaled_n_net, (None, 0, 0)))
+        self.u_pred_fn_2 = vmap(self.u_net, (None, 0, 0))
+        self.n_pred_fn_2 = vmap(self.scaled_n_net, (None, 0, 0))
 
 
     def neural_net(self, params, t, x):
