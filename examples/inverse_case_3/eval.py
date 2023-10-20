@@ -48,7 +48,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print('Min predicted u:' , jnp.min(u_pred))
     
     # Plot results
-    fig = plt.figure(figsize=(18, 12))
+    fig = plt.figure(figsize=(10, 8))
     plt.subplot(3, 1, 1)
     idx_step = int(n_t/10)
     plt.plot(x_star, n_pred[0,:], label='t=0.000')
