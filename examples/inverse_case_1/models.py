@@ -25,11 +25,6 @@ class InversePoisson(ForwardIVP):
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
 
-        
-        #self.C_1 = ((4*self.eps*jnp.log(self.r1) + self.true_rho * self.r0**2 * jnp.log(self.r1) - self.true_rho * self.r1**2 * jnp.log(self.r0)) /
-        # (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
-        #self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
-
         ln = jnp.log(self.r0 / self.r1)
         self.C_2 = self.u0 / ln - self.true_rho * (self.r1**2 - self.r0**2) / (4 * self.eps * ln)
         self.C_1 = self.true_rho * self.r1**2 / (4 * self.eps) - self.C_2 * jnp.log(self.r1)
@@ -40,12 +35,11 @@ class InversePoisson(ForwardIVP):
             self.obs_u = self.add_noise_to_data(self.true_rho, self.obs_r) 
         else:
             self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
-
-        #new  
+  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
-    def analytical_potential(self, true_rho, r): # TODO: does this work for jnp arrays?
+    def analytical_potential(self, true_rho, r): 
         return self.C_1 + self.C_2 * jnp.log(r) - (true_rho * r**2) / (4 * self.eps)
     
     def add_noise_to_data(self, true_rho, r):
