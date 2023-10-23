@@ -50,10 +50,10 @@ class InversePoisson(ForwardIVP):
     
     def add_noise_to_data(self, true_rho, r):
         relative_noise = self.config.setting.guassian_noise_perc
-        """ Gaussian noise of {relative_noise} %"""
         clean_data = self.analytical_potential(true_rho, r)
         noise_std = clean_data * relative_noise  # Calculate noise standard deviation
-        noise = jax.random.normal(scale=noise_std, size=r.shape)  # Generate Gaussian noise
+        key = jax.random.PRNGKey(self.config.seed)
+        noise = noise_std * jax.random.normal(key, shape=r.shape)  # Generate Gaussian noise
         noisy_data = clean_data + noise
         return noisy_data
         
