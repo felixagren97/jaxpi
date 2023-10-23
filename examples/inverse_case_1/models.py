@@ -6,7 +6,6 @@ from jax import lax, jit, grad, vmap
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
-
 from matplotlib import pyplot as plt
 
 
@@ -54,7 +53,7 @@ class InversePoisson(ForwardIVP):
         """ Gaussian noise of {relative_noise} %"""
         clean_data = self.analytical_potential(true_rho, r)
         noise_std = clean_data * relative_noise  # Calculate noise standard deviation
-        noise = jnp.random.normal(scale=noise_std, size=r.shape)  # Generate Gaussian noise
+        noise = jax.random.normal(scale=noise_std, size=r.shape)  # Generate Gaussian noise
         noisy_data = clean_data + noise
         return noisy_data
         
