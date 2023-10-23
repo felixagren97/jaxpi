@@ -30,8 +30,8 @@ class InversePoisson(ForwardIVP):
         # (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1))))
         #self.C_2 = (-4 * self.eps - self.true_rho*self.r0**2 + self.true_rho * self.r1**2) / (4 * self.eps * (-jnp.log(self.r0) + jnp.log(self.r1)))
 
-        self.ln = jnp.log(self.r0 / self.r1)
-        self.C_2 = self.u0 / self.ln - self.true_rho * (self.r1**2 - self.r0**2) / (4 * self.eps * self.ln)
+        ln = jnp.log(self.r0 / self.r1)
+        self.C_2 = self.u0 / ln - self.true_rho * (self.r1**2 - self.r0**2) / (4 * self.eps * ln)
         self.C_1 = self.true_rho * self.r1**2 / (4 * self.eps) - self.C_2 * jnp.log(self.r1)
 
         # Number of points to sample for observation loss
