@@ -37,7 +37,10 @@ class InversePoisson(ForwardIVP):
 
         # Number of points to sample for observation loss
         self.obs_r = jax.random.uniform(jax.random.PRNGKey(0), (self.n_obs,), minval=self.r0, maxval=self.r1)
-        self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
+        if config.setting.guassian_noise_perc is not None:
+            self.obs_u = self.add_noise_to_data(self.true_rho, self.obs_r) 
+        else:
+            self.obs_u = self.analytical_potential(self.true_rho, self.obs_r) 
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
@@ -45,6 +48,15 @@ class InversePoisson(ForwardIVP):
 
     def analytical_potential(self, true_rho, r): # TODO: does this work for jnp arrays?
         return self.C_1 + self.C_2 * jnp.log(r) - (true_rho * r**2) / (4 * self.eps)
+    
+    def add_noise_to_data(self, true_rho, r):
+        relative_noise = self.config.setting.guassian_noise_perc
+        """ Gaussian noise of {relative_noise} %"""
+        clean_data = self.analytical_potential(true_rho, r)
+        noise_std = clean_data * relative_noise  # Calculate noise standard deviation
+        noise = jnp.random.normal(scale=noise_std, size=r.shape)  # Generate Gaussian noise
+        noisy_data = clean_data + noise
+        return noisy_data
         
         
     def u_net(self, params, r):
