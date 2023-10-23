@@ -10,7 +10,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler
+from jaxpi.samplers import BaseSampler, UniformSampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -46,43 +46,6 @@ class OneDimensionalUniformSampler(BaseSampler):
 
         return batch
 
-############################## Sampling with RAR ##################################################
-
-class OneDimensionalUniformSamplerRAR(BaseSampler):
-    def __init__(self, dom, batch_size, model, num_residual_points, rng_key=random.PRNGKey(1234)):
-        super().__init__(batch_size, rng_key)
-        self.dim = 1
-        self.dom = dom
-        self.batch_size = batch_size
-        self.model = model
-        self.num_residual_points = num_residual_points
-        self.rng_key = rng_key
-
-    @partial(pmap, static_broadcasted_argnums=(0,))
-    def data_generation(self):
-        key = random.split(self.rng_key, self.batch_size)
-        batch = random.uniform(
-            key,
-            shape=(self.batch_size, self.dim),
-            minval=self.dom[0],
-            maxval=self.dom[1],
-        )
-
-        return batch
-
-    def sample_with_rar(self):
-        initial_data = self.data_generation()
-        residual = self.model.r_pred_fn(self.model.params, initial_data)
-        
-        # Identify high residual data points
-        high_residual_indices = np.argsort(np.abs(residual), axis=0)[-self.num_residual_points:]
-        initial_data[:self.num_residual_points] = initial_data[high_residual_indices]
-        
-        return initial_data
-
-
-
-################################################################################
 
 
 def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -110,10 +73,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize model
     model = models.InversePoisson(config, u0, u1, x_star, n_scale)
-    # Initialize residual sampler
-    #res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
-
-    res_sampler = iter(OneDimensionalUniformSamplerRAR(dom, config.training.batch_size_per_device, model, config.setting.num_residual_points))
+    
+    # Initialize sampler
+    res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
     evaluator = models.InversePoissonEvaluator(config, model)
 
