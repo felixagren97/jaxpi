@@ -29,7 +29,11 @@ class InverseDriftDiffusion(ForwardIVP):
         # functions
         self.obs_t = jax.random.uniform(jax.random.PRNGKey(0), (self.n_t_obs,), minval=t_star[0], maxval=t_star[-1])
         self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_x_obs,), minval=x_star[0], maxval=x_star[-1])
-        self.obs_u = u_exact_fn(self.obs_t, self.obs_x)
+        
+        if config.noise_level is not None:
+            self.obs_u = self.add_noise_to_data(u_exact_fn(self.obs_t, self.obs_x), config.noise_level)
+        else:
+            self.obs_u = u_exact_fn(self.obs_t, self.obs_x)
 
         # initial conditions
         self.n_injs = jnp.full_like(t_star, n_inj)
@@ -45,6 +49,11 @@ class InverseDriftDiffusion(ForwardIVP):
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
+
+    def add_noise_to_data(self, u_exact):
+        noise_level = self.config.setting.noise_level
+        u_exact = u_exact + noise_level * jax.random.normal(jax.random.PRNGKey(0), u_exact.shape)
+        return u_exact
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])

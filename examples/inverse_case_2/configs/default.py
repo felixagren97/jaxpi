@@ -12,6 +12,7 @@ def get_config():
     # Setting
     config.setting = setting = ml_collections.ConfigDict()
     setting.true_mu = 2e-4
+    setting.noise_level = 0.01
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
