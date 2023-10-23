@@ -18,6 +18,7 @@ def get_config():
     setting.u0 = 1e6
     setting.u1 = 0
     setting.k = 25
+    setting.num_residual_points = 50
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()

@@ -49,10 +49,11 @@ class OneDimensionalUniformSampler(BaseSampler):
 ############################## Sampling with RAR ##################################################
 
 class OneDimensionalUniformSamplerRAR:
-    def __init__(self, dom, batch_size, model, rng_key=random.PRNGKey(1234)):
+    def __init__(self, dom, batch_size, model, num_residual_points, rng_key=random.PRNGKey(1234)):
         self.dom = dom
         self.batch_size = batch_size
         self.model = model
+        self.num_residual_points = num_residual_points
         self.rng_key = rng_key
 
     def data_generation(self):
@@ -109,7 +110,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Initialize residual sampler
     #res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
-    res_sampler = iter(OneDimensionalUniformSamplerRAR(dom, config.training.batch_size_per_device, model))
+    res_sampler = iter(OneDimensionalUniformSamplerRAR(dom, config.training.batch_size_per_device, model, config.training.num_residual_points))
 
     evaluator = models.InversePoissonEvaluator(config, model)
 
