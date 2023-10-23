@@ -8,7 +8,6 @@ from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 from matplotlib import pyplot as plt
 
-
 class InversePoisson(ForwardIVP):
     def __init__(self, config, u0, u1, r_star, true_rho, rho_scale):
         super().__init__(config)
@@ -51,14 +50,12 @@ class InversePoisson(ForwardIVP):
         noisy_data = clean_data + noise
         return noisy_data
         
-        
     def u_net(self, params, r):
         # params = weights for NN 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return (self.r1-r)/(self.r1-self.r0) * self.u0 + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
     
-
     def r_net(self, params, r):
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
@@ -105,7 +102,6 @@ class InversePoisson(ForwardIVP):
         #)
         inner_bcs_ntk = self.u_net(params, self.r0)
         outer_bcs_ntk = self.u_net(params, self.r1)
-
 
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
