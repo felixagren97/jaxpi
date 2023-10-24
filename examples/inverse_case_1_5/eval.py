@@ -125,7 +125,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         plt.ylabel('Potential V')
         plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
         plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
-        plt.plot(obs_x, obs_u, label='Analytical Solution', color='red')
+        plt.scatter(obs_x, obs_u, label='Analytical Solution', color='red')
         plt.grid()
         plt.xlim(x_star[0], x_star[-1])
         plt.legend()
