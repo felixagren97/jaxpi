@@ -138,7 +138,24 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print(f'Predicted Rho:  {rho_pred}')
     print(f'True Rho:       {rho_ref}')
     print(f'Relative error: {rel_error:.1%}\n')
+    if config.setting.guassian_noise_perc is not None:
+        print(f'Noise level:    {config.setting.guassian_noise_perc}')
     print('---------------------------\n')
+
+    # plot observations
+    if config.setting.guassian_noise_perc is not None:
+        fig = plt.figure(figsize=(8, 6))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('Potential V')
+        plt.title('Noisy observation data')
+        plt.scatter(model.obs_r, model.obs_u , label='Observations', color='blue')
+        plt.plot(r_star_np, u_ref_np, label='Analytical Solution', color='red')
+        plt.grid()
+        plt.xlim(r_star_np[0], r_star_np[-1])
+        plt.tight_layout()
+
+        fig_path = os.path.join(save_dir, "Observations.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
 
     
