@@ -116,5 +116,21 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.pdf")
+    fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+    # plot observations
+    if config.setting.guassian_noise_perc is not None and step == "":
+        fig = plt.figure(figsize=(8, 6))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('Potential V')
+        plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
+        plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
+        plt.plot(x_star, u_ref, label='Analytical Solution', color='red')
+        plt.grid()
+        plt.xlim(x_star[0], x_star[-1])
+        plt.legend()
+        plt.tight_layout()
+
+        fig_path = os.path.join(save_dir, "Observations.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
