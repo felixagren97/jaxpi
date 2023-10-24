@@ -36,7 +36,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     obs_t_test = jnp.linspace(0, 0.006, 7)
     obs_x_test = jax.random.uniform(jax.random.PRNGKey(0), (100,), minval=x_star[0], maxval=x_star[-1])
-    obs_u = model.add_noise_to_data(model.u_exact_fn(obs_t_test, obs_x_test), config.noise_level)
+    obs_u_exact = u_exact_fn(obs_t_test, obs_x_test)
+    obs_u = model.add_noise_to_data(obs_u_exact)
 
 
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
@@ -50,8 +51,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print('shape t_star:', t_star.shape)
     
     # Plot results
-    fig = plt.figure(figsize=(8, 10))
-    plt.scatter(obs_x_test, obs_u[0,:], cmap="jet", label='Observations')
+    fig = plt.figure(figsize=(12, 8))
+    plt.scatter(obs_x_test, obs_u[0,:], c="blue", label='Observations')
+    plt.scatter(obs_x_test, obs_u[1,:], c="orange", label='Observations')
+    plt.scatter(obs_x_test, obs_u[2,:], c="green", label='Observations')
+    plt.scatter(obs_x_test, obs_u[3,:], c="red", label='Observations')
+    plt.scatter(obs_x_test, obs_u[4,:], c="purple", label='Observations')
+    plt.scatter(obs_x_test, obs_u[5,:], c="brown", label='Observations')
+    plt.scatter(obs_x_test, obs_u[6,:], c="pink", label='Observations')
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
