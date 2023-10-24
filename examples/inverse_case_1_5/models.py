@@ -7,7 +7,7 @@ from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 
-from utils import get_dataset, get_observations
+from utils import get_dataset, get_observations, get_noisy_observations
 
 from matplotlib import pyplot as plt
 
@@ -38,10 +38,12 @@ class InversePoisson(ForwardIVP):
         obs_file=config.setting.obs_file
 
         # Number of points to sample for observation loss
-        self.obs_x, self.obs_u =  get_observations(n_obs, obs_file)
+        if config.setting.guassian_noise_perc is not None:
+            self.obs_x, self.obs_u =  get_noisy_observations(config)
+        else:    
+            self.obs_x, self.obs_u =  get_observations(config)
 
-        self.k = config.setting.k
-           
+        self.k = config.setting.k   
 
         #new 
         self.u_pred_fn = vmap(self.u_net, (None, 0))
