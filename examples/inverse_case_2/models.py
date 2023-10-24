@@ -2,7 +2,6 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
-
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree

@@ -3,7 +3,7 @@ import os
 import ml_collections
 
 import jax.numpy as jnp
-
+import jax
 import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
@@ -34,6 +34,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
+    obs_t_test = jnp.linspace(0, 0.006, 7)
+    obs_x_test = jax.random.uniform(jax.random.PRNGKey(0), (100,), minval=x_star[0], maxval=x_star[-1])
+    obs_u = model.add_noise_to_data(model.u_exact_fn(obs_t_test, obs_x_test), config.noise_level)
+
 
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
     #TT, XX = jnp.meshgrid(t_star, x_star, indexing="ij")
@@ -46,7 +50,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print('shape t_star:', t_star.shape)
     
     # Plot results
-    fig = plt.figure(figsize=(5, 5))
+    fig = plt.figure(figsize=(8, 10))
+    plt.scatter(obs_x_test, obs_u[0,:], cmap="jet", label='Observations')
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
