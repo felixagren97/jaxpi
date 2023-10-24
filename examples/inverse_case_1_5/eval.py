@@ -53,7 +53,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
 
     # Create a Matplotlib figure and axis
-    fig = plt.figure(figsize=(18, 14))
+    fig = plt.figure(figsize=(8, 14))
     plt.subplot(4,1,1)
     plt.xlabel('Distance [m]')
     plt.ylabel('Charge density n(x)')
