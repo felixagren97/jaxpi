@@ -21,6 +21,7 @@ class InversePoisson(ForwardIVP):
         self.u1 = u1 / self.u_scale
         self.x_star = x_star
         self.n_scale = n_scale
+        self.loss_scale = config.setting.loss_scale
 
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
@@ -97,13 +98,13 @@ class InversePoisson(ForwardIVP):
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         else:
-            r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
-            
+            r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0])
+            r_pred *= self.loss_scale 
             res_loss = jnp.mean((r_pred) ** 2)
 
         # Observation loss
         obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_x)
-        obs_loss = jnp.mean((self.obs_u - self.u_scale * obs_u_pred) ** 2)
+        obs_loss = jnp.mean((self.loss_scale * (self.obs_u - self.u_scale * obs_u_pred)) ** 2)
 
         loss_dict = {"res": res_loss, "observ": obs_loss}
         return loss_dict
