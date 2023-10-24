@@ -147,11 +147,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
         fig = plt.figure(figsize=(8, 6))
         plt.xlabel('Radius [m]')
         plt.ylabel('Potential V')
-        plt.title('Noisy observation data')
+        plt.title(f'Noisy observation data (Noise level {100*config.setting.guassian_noise_perc}%)')
         plt.scatter(model.obs_r, model.obs_u , label='Observations', color='blue')
         plt.plot(r_star_np, u_ref_np, label='Analytical Solution', color='red')
         plt.grid()
         plt.xlim(r_star_np[0], r_star_np[-1])
+        plt.legend()
         plt.tight_layout()
 
         fig_path = os.path.join(save_dir, "Observations.png")
