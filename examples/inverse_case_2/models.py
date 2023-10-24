@@ -30,7 +30,7 @@ class InverseDriftDiffusion(ForwardIVP):
         self.obs_x = jax.random.uniform(jax.random.PRNGKey(0), (self.n_x_obs,), minval=x_star[0], maxval=x_star[-1])
         
         if config.setting.noise_level is not None:
-            exact_points = self.u_exact_fn(self.obs_t, self.obs_x)
+            exact_points = u_exact_fn(self.obs_t, self.obs_x)
             self.obs_u = self.add_noise_to_data(exact_points)
         else:
             self.obs_u = u_exact_fn(self.obs_t, self.obs_x)

@@ -72,7 +72,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
                 log_dict = evaluator(state, batch, u_ref)
                 mu = state.params['params']['mu_param'][0]
-                log_dict['mu_param'] = mu
+                log_dict['mu_param'] = jnp.exp(mu)
 
                 wandb.log(log_dict, step)
                 end_time = time.time()
