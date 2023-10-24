@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
 import models
-from utils import get_dataset
+from utils import get_dataset, get_observations
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
@@ -18,7 +18,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     n_scale = config.setting.n_scale
 
     # Get  dataset
-    u_ref, x_star = get_dataset(n_x=n_x)
+    _, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = config.setting.u0
@@ -34,10 +34,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
-
-    # Compute L2 error
-    l2_error = model.compute_l2_error(params, u_ref)
-    print("L2 error: {:.3e}".format(l2_error))
 
     u_pred = model.u_pred_fn(params, model.x_star)
     u_pred *= u0
@@ -121,12 +117,15 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
     # plot observations
     if config.setting.guassian_noise_perc is not None and step == "":
+        # get clean data
+        obs_x, obs_u = get_observations(config)
+
         fig = plt.figure(figsize=(8, 6))
         plt.xlabel('Radius [m]')
         plt.ylabel('Potential V')
         plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
         plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
-        plt.plot(x_star, u_ref, label='Analytical Solution', color='red')
+        plt.plot(obs_x, obs_u, label='Analytical Solution', color='red')
         plt.grid()
         plt.xlim(x_star[0], x_star[-1])
         plt.legend()
