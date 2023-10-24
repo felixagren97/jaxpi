@@ -17,7 +17,7 @@ def get_config():
     setting.n_r = 12_800    # number of spatial points 
     
     setting.guassian_noise_perc = 0.01
-    setting.loss_scale = 1e-5
+    setting.loss_scale = 1
 
     setting.u0 = 1
     setting.u1 = 0
