@@ -15,8 +15,8 @@ class InverseDriftDiffusion(ForwardIVP):
     def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star, u_exact_fn):
         super().__init__(config)
         # param
-        self.n_t_obs = 100
-        self.n_x_obs = 64
+        self.n_t_obs = config.setting.n_t_obs #100
+        self.n_x_obs = config.setting.n_x_obs
 
         # constants
         self.E_ext = E_ext
