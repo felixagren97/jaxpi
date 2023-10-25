@@ -260,7 +260,7 @@ class UModelEvalutor(BaseEvaluator):
             self.log_dict["cas_weight"] = causal_weight.min()
 
         if self.config.logging.log_errors:
-            self.log_errors(state.params, u_ref)
+            self.log_errors(state.params, u_ref, n_ref)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
@@ -286,7 +286,7 @@ class NModelEvalutor(BaseEvaluator):
             self.log_dict["cas_weight"] = causal_weight.min()
 
         if self.config.logging.log_errors:
-            self.log_errors(state.params, n_ref)
+            self.log_errors(state.params, u_ref, n_ref)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
