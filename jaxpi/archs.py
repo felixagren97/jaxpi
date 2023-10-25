@@ -102,10 +102,6 @@ class Dense(nn.Module):
 
     @nn.compact
     def __call__(self, x):
-        print('INSIDE DENSE')
-        print('x.shape', x.shape)
-        print('self.features', self.features)
-        
         if self.reparam is None:
             kernel = self.param(
                 "kernel", self.kernel_init, (x.shape[-1], self.features)
