@@ -59,7 +59,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             "bcs_n": 1.0, 
             #"bcs_inner": 1.0, Hard boundary
             #"bcs_outer": 1.0, Hard boundary 
-            "ru": 1.0,
             "rn": 1.0
         })
     
