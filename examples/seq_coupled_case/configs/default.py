@@ -9,6 +9,13 @@ def get_config():
 
     config.mode = "train"
 
+    # Setting
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.u_0 = 1e6
+    setting.u_1 = 0
+    setting.n_0 = 0.1
+    setting.n_inj = 1e10
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Coupled-case"

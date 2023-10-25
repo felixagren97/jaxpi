@@ -45,7 +45,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize models
     # Config for u_model
-    config.weighting.init_weigths = ml_collections.ConfigDict({ 
+    config.weighting.init_weights = ml_collections.ConfigDict({ 
             #"bcs_inner": 1.0, Hard boundary
             #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
@@ -54,7 +54,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_evaluator = models.UModelEvalutor(config, u_model)
     
     # Config for u_model
-    config.weighting.init_weigths = ml_collections.ConfigDict({
+    config.weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
             #"bcs_inner": 1.0, Hard boundary

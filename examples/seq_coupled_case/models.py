@@ -18,8 +18,8 @@ class UModel(ForwardIVP):
         self.epsilon = 8.85e-12
 
         # initial conditions
-        self.u_0 = config.setting.u0
-        self.u_1 = config.setting.u1
+        self.u_0 = config.setting.u_0
+        self.u_1 = config.setting.u_1
 
         self.u_0s = jnp.full_like(t_star, self.u_0)
         self.u_1s = jnp.full_like(t_star, self.u_1)
