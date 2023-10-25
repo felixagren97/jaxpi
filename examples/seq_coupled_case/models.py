@@ -36,18 +36,18 @@ class UModel(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Reference to n model
-        self.n_model = None
+        self.n_model = n_model
 
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
-        self.n_pred_fn = None #vmap(self.n_model.n_net, (None, 0, 0))
+        #self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
 
         self.tag = "u_model"
 
-    def set_n_model(self, n_model):
-        self.n_model = n_model 
-        self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
+    #def set_n_model(self, n_model):
+    #    self.n_model = n_model 
+    #    self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
 
 
     def u_net(self, params, t, x):
