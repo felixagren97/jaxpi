@@ -176,12 +176,14 @@ class NModel(ForwardIVP):
         return self.n_scale*self.n_net(params, t, x)
 
     def r_net(self, params, t, x):
+        u_state = jax.device_get(tree_map(lambda x: x[0], self.u_model.state))
+        u_params = u_state.params
         
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
         dn_x = grad(self.n_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.n_net, argnums=2), argnums=2)(params, t, x)
 
-        E = -grad(self.u_model.u_net, argnums=2)(self.u_model.state.params, t, x)
+        E = -grad(self.u_model.u_net, argnums=2)(u_params, t, x)
         W = self.mu_n * E
         
         rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
