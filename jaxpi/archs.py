@@ -147,6 +147,7 @@ class Mlp(nn.Module):
         if self.periodicity:
             x = PeriodEmbs(**self.periodicity)(x)
         if self.fourier_emb:
+            print('x.shape in archs: ', x.shape)
             x = FourierEmbs(**self.fourier_emb)(x)
 
         for _ in range(self.num_layers):
