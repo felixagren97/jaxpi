@@ -41,6 +41,7 @@ class UModel(ForwardIVP):
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
+        self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
 
         self.tag = "u_model"
 
@@ -57,7 +58,7 @@ class UModel(ForwardIVP):
         n_params = self.n_model.state.params
 
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        source = (self.q / self.epsilon * self.n_pred_fn(n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
         
         ru = du_xx + source
         return ru

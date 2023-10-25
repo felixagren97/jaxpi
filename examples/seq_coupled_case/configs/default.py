@@ -27,7 +27,7 @@ def get_config():
     arch.arch_name = "Mlp"
     arch.num_layers = 4
     arch.layer_size = 256
-    arch.out_dim = 2
+    arch.out_dim = 1
     arch.activation = "tanh"
     arch.periodicity = False 
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})

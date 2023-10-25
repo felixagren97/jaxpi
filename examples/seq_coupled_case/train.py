@@ -82,7 +82,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         batch = next(res_sampler)
 
         # alternate current_model between u_model and n_model every 30000 steps
-        if step % 30_000 == 0:
+        if step % 30_000 == 0 and step != 0:
             other_model = current_model
             if current_model == u_model:
                 current_model = n_model
