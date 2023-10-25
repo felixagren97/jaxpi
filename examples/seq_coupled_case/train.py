@@ -64,8 +64,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         })
     
     n_model = models.NModel(config, t_star, x_star, u_model)
-    u_model.n_model = n_model
     n_evaluator = models.NModelEvalutor(config, n_model)
+
+    u_model.set_n_model(n_model)
 
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
