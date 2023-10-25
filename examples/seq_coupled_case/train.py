@@ -48,32 +48,49 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     u_model = models.UModel(config, t_star, x_star, None)
     n_model = models.NModel(config, t_star, x_star, u_model)
+    u_model.n_model = n_model
 
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
-    evaluator = models.CoupledCaseEvalutor(config, model)
+    u_evaluator = models.UModelEvalutor(config, u_model)
+    n_evaluator = models.NModelEvalutor(config, n_model)
+
+    # Start training u_model 
+    current_model = u_model
+    current_evaluator = u_evaluator
+    other_model = n_model
+
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
         start_time = time.time()
-
         batch = next(res_sampler)
 
-        model.state = model.step(model.state, batch)
+        # alternate current_model between u_model and n_model every 30000 steps
+        if step % 30000 == 0:
+            other_model = current_model
+            if current_model == u_model:
+                current_model = n_model
+                current_evaluator = n_evaluator
+            else:
+                current_model = u_model
+                current_evaluator = u_evaluator
+
+        current_model.state = current_model.step(current_model.state, batch)
 
         # Update weights
         if config.weighting.scheme in ["grad_norm", "ntk"]:
             if step % config.weighting.update_every_steps == 0:
-                model.state = model.update_weights(model.state, batch)
+                current_model.state = current_model.update_weights(current_model.state, batch)
 
         # Log training metrics, only use host 0 to record results
         if jax.process_index() == 0:
             if step % config.logging.log_every_steps == 0:
                 # Get the first replica of the state and batch
-                state = jax.device_get(tree_map(lambda x: x[0], model.state))
+                state = jax.device_get(tree_map(lambda x: x[0], current_model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
-                log_dict = evaluator(state, batch, u_ref, n_ref)
+                log_dict = current_evaluator(state, batch, u_ref, n_ref)
                 wandb.log(log_dict, step)
                 end_time = time.time()
 
@@ -84,7 +101,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             if (step + 1) % config.saving.save_every_steps == 0 or (
                 step + 1
             ) == config.training.max_steps:
-                path = os.path.join(workdir, "ckpt", config.wandb.name)
-                save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                # TODO: Verify that this works
+                path = os.path.join(workdir, "ckpt", config.wandb.name, current_model.tag)
+                save_checkpoint(current_model.state, path, keep=config.saving.num_keep_ckpts)
 
-    return model
+                path = os.path.join(workdir, "ckpt", config.wandb.name, other_model.tag)
+                save_checkpoint(other_model.state, path, keep=config.saving.num_keep_ckpts)
+                
+
+    return current_model, current_evaluator

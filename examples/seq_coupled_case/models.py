@@ -42,6 +42,8 @@ class UModel(ForwardIVP):
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
+        self.tag = "u_model"
+
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -153,6 +155,8 @@ class NModel(ForwardIVP):
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
         self.u_model = u_model
+
+        self.tag = "n_model"
     
     def n_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -229,15 +233,14 @@ class NModel(ForwardIVP):
     
 
 
-class CoupledCaseEvalutor(BaseEvaluator):
+class UModelEvalutor(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
     def log_errors(self, params, u_ref, n_ref):
-        u_error, n_error = self.model.compute_l2_error(params, u_ref, n_ref)
+        u_error = self.model.compute_l2_error(params, u_ref)
         self.log_dict["u_error"] = u_error
-        self.log_dict["n_error"] = n_error
-
+        
     def log_preds(self, params):
         pass
 
@@ -249,7 +252,33 @@ class CoupledCaseEvalutor(BaseEvaluator):
             self.log_dict["cas_weight"] = causal_weight.min()
 
         if self.config.logging.log_errors:
-            self.log_errors(state.params, u_ref, n_ref)
+            self.log_errors(state.params, u_ref)
+
+        if self.config.logging.log_preds:
+            self.log_preds(state.params)
+
+        return self.log_dict
+
+class NModelEvalutor(BaseEvaluator):
+    def __init__(self, config, model):
+        super().__init__(config, model)
+
+    def log_errors(self, params, u_ref, n_ref):
+        n_error = self.model.compute_l2_error(params, n_ref)
+        self.log_dict["n_error"] = n_error
+        
+    def log_preds(self, params):
+        pass
+
+    def __call__(self, state, batch, u_ref, n_ref):
+        self.log_dict = super().__call__(state, batch)
+
+        if self.config.weighting.use_causal:
+            _, _, causal_weight = self.model.res_and_w(state.params, batch)
+            self.log_dict["cas_weight"] = causal_weight.min()
+
+        if self.config.logging.log_errors:
+            self.log_errors(state.params, n_ref)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
