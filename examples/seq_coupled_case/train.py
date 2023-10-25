@@ -44,17 +44,31 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize models
-    #model = models.CoupledCase(config, n_inj, n_0, u_0, u_1, t_star, x_star)
-
+    # Config for u_model
+    config.weighting.init_weigths = ml_collections.ConfigDict({ 
+            #"bcs_inner": 1.0, Hard boundary
+            #"bcs_outer": 1.0, Hard boundary 
+            "ru": 1.0,
+        })
     u_model = models.UModel(config, t_star, x_star, None)
+    u_evaluator = models.UModelEvalutor(config, u_model)
+    
+    # Config for u_model
+    config.weighting.init_weigths = ml_collections.ConfigDict({
+            "ics": 1.0,
+            "bcs_n": 1.0, 
+            #"bcs_inner": 1.0, Hard boundary
+            #"bcs_outer": 1.0, Hard boundary 
+            "ru": 1.0,
+            "rn": 1.0
+        })
+    
     n_model = models.NModel(config, t_star, x_star, u_model)
     u_model.n_model = n_model
+    n_evaluator = models.NModelEvalutor(config, n_model)
 
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
-
-    u_evaluator = models.UModelEvalutor(config, u_model)
-    n_evaluator = models.NModelEvalutor(config, n_model)
 
     # Start training u_model 
     current_model = u_model
@@ -68,7 +82,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         batch = next(res_sampler)
 
         # alternate current_model between u_model and n_model every 30000 steps
-        if step % 30000 == 0:
+        if step % 30_000 == 0:
             other_model = current_model
             if current_model == u_model:
                 current_model = n_model
