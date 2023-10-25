@@ -1,7 +1,9 @@
 from functools import partial
 
+import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
+from jax.tree_util import tree_map
 
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
@@ -59,7 +61,8 @@ class UModel(ForwardIVP):
     
     def r_net(self, params, t, x):
         # parameters of the n model
-        n_params = self.n_model.state.params
+        n_state = jax.device_get(tree_map(lambda x: x[0], self.n_model.state))
+        n_params = n_state.params
 
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
         source = (self.q / self.epsilon * self.n_model.n_net(n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
