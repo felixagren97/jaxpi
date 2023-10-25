@@ -9,6 +9,109 @@ from jaxpi.utils import ntk_fn, flatten_pytree
 
 from matplotlib import pyplot as plt
 
+class UModel(ForwardIVP):
+    def __init__(self, config, t_star, x_star, n_model):
+        super().__init__(config)
+
+        # Constants
+        self.q = 1.602e-19
+        self.epsilon = 8.85e-12
+
+        # initial conditions
+        self.u_0 = config.setting.u0
+        self.u_1 = config.setting.u1
+
+        self.u_0s = jnp.full_like(t_star, self.u_0)
+        self.u_1s = jnp.full_like(t_star, self.u_1)
+        
+        
+        # domain
+        self.t_star = t_star
+        self.x_star = x_star
+        self.x0 = x_star[0]
+        self.x1 = x_star[-1]
+
+
+        self.t0 = t_star[0]
+        self.t1 = t_star[-1]
+
+        # Reference to n model
+        self.n_model = n_model
+
+        # Predictions over a grid
+        self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
+        self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
+
+
+    def u_net(self, params, t, x):
+        z = jnp.stack([t, x])
+        outputs = self.state.apply_fn(params, z)
+        u = outputs[0]
+        u = (self.x1-x)/(self.x1-self.x0) * self.u_0 + (x-self.x0)*(self.x1 - x) * u # hard boundary
+        return u
+    
+    def r_net(self, params, t, x):
+        # parameters of the n model
+        n_params = self.n_model.state.params
+
+        du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
+        source = (self.q / self.epsilon * self.n_model.n_net(n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        
+        ru = du_xx + source
+        return ru
+    
+    @partial(jit, static_argnums=(0,))
+    def res_and_w(self, params, batch):
+        # Sort temporal coordinates for computing temporal weights
+        t_sorted = batch[:, 0].sort()
+        # Compute residuals over the full domain
+        ru_pred = self.r_pred_fn(params, t_sorted, batch[:, 1])
+        # Split residuals into chunks
+        ru_pred = ru_pred.reshape(self.num_chunks, -1)
+        
+        ru_l = jnp.mean(ru_pred**2, axis=1)
+        # Compute temporal weights
+        w = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ ru_l)))
+    
+        return ru_l, w
+    
+    @partial(jit, static_argnums=(0,))
+    def losses(self, params, batch):
+        
+        # Boundary loss: U(x=0)=U_0
+        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
+        #bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
+
+        # Boundary loss: U(x=0)=U_0
+        #x_1 = 1
+        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
+        #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
+
+        # Residual loss
+        if self.config.weighting.use_causal == True:
+            ru_l, w = self.res_and_w(params, batch)
+            ru_loss = jnp.mean(ru_l * w)
+
+        else:
+            ru_pred = self.r_pred_fn(params, batch[:, 0], batch[:, 1])
+            # Compute loss
+            ru_loss = jnp.mean(ru_pred**2)
+            
+        loss_dict = {
+            #"bcs_inner": bcs_inner, Hard boundary
+            #"bcs_outer": bcs_outer, Hard boundary
+            "ru": ru_loss,
+        }
+        return loss_dict
+    
+    @partial(jit, static_argnums=(0,))
+    def compute_l2_error(self, params, u_ref, n_ref):
+        #TODO: Other methods have implemented for general t,x arrays, should we? 
+        u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
+        
+        u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
+        return u_error
+
 
 class CoupledCase(ForwardIVP):
     def __init__(self, config, n_inj, n_0, u_0, u_1, t_star, x_star):
