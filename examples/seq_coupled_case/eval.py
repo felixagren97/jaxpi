@@ -23,6 +23,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore u_model
+    config.weighting.init_weights = ml_collections.ConfigDict({"ru": 1.0})
     u_model = models.UModel(config, t_star, x_star, None)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name, u_model.tag)
     u_model.state = restore_checkpoint(u_model.state, ckpt_path)
@@ -30,6 +31,11 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_pred = u_model.u_pred_fn(u_params, t_star, x_star) 
 
     # restore n_model 
+    config.weighting.init_weights = ml_collections.ConfigDict({
+            "ics": 1.0,
+            "bcs_n": 1.0, 
+            "rn": 1.0
+        })
     n_model = models.NModel(config, t_star, x_star, u_model)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name, n_model.tag)
     n_model.state = restore_checkpoint(n_model.state, ckpt_path)
