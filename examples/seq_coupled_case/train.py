@@ -25,10 +25,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    n_0 = 0.1
-    n_inj = 1e10
-    u_0 = 1e6
-    u_1 = 0
     n_t = 200  # number of time steps TODO: Increase?
     n_x = 128  # number of spatial points
 
@@ -117,6 +113,5 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 save_sequential_checkpoints(config, workdir, current_model, other_model)
                 if config.saving.plot == True:
                     evaluate(config, workdir, step + 1)
-                
 
     return current_model, current_evaluator
