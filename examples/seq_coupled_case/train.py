@@ -12,7 +12,7 @@ import wandb
 
 from jaxpi.samplers import UniformSampler
 from jaxpi.logging import Logger
-from jaxpi.utils import save_checkpoint
+from jaxpi.utils import save_sequential_checkpoints
 
 import models
 from utils import get_dataset
@@ -83,7 +83,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         start_time = time.time()
         batch = next(res_sampler)
 
-        # alternate current_model between u_model and n_model every 30000 steps
+        # alternate current_model between u_model and n_model
         if step % config.setting.switch_every_step == 0 and step != 0:
             current_model, other_model = other_model, current_model
             current_evaluator, other_evaluator = other_evaluator, current_evaluator
@@ -113,12 +113,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             if (step + 1) % config.saving.save_every_steps == 0 or (
                 step + 1
             ) == config.training.max_steps:
+                save_sequential_checkpoints(config, workdir, current_model, other_model)
                 # TODO: Verify that this works
-                path = os.path.join(workdir, "ckpt", config.wandb.name, current_model.tag)
-                save_checkpoint(current_model.state, path, keep=config.saving.num_keep_ckpts)
+                #path = os.path.join(workdir, "ckpt", config.wandb.name, current_model.tag)
+                #save_checkpoint(current_model.state, path, keep=config.saving.num_keep_ckpts)
 
-                path = os.path.join(workdir, "ckpt", config.wandb.name, other_model.tag)
-                save_checkpoint(other_model.state, path, keep=config.saving.num_keep_ckpts)
+                #path = os.path.join(workdir, "ckpt", config.wandb.name, other_model.tag)
+                #save_checkpoint(other_model.state, path, keep=config.saving.num_keep_ckpts)
                 
 
     return current_model, current_evaluator
