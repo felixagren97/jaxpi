@@ -72,8 +72,10 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Start training u_model 
     current_model = u_model
+    current_model.update_params() # model being trained needs updated parameters from other moodel
     current_evaluator = u_evaluator
     other_model = n_model
+    other_evaluator = n_evaluator
 
     # jit warm up
     print("Waiting for JIT...")
@@ -83,13 +85,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         # alternate current_model between u_model and n_model every 30000 steps
         if step % 30_000 == 0 and step != 0:
-            other_model = current_model
-            if current_model == u_model:
-                current_model = n_model
-                current_evaluator = n_evaluator
-            else:
-                current_model = u_model
-                current_evaluator = u_evaluator
+            current_model, other_model = other_model, current_model
+            current_evaluator, other_evaluator = other_evaluator, current_evaluator
+            current_model.update_params() # get new weights from old model before training new
 
         current_model.state = current_model.step(current_model.state, batch)
 

@@ -43,14 +43,8 @@ class UModel(ForwardIVP):
         # Predictions over a grid
         self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
-        #self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
-
+        self.n_params = None
         self.tag = "u_model"
-
-    #def set_n_model(self, n_model):
-    #    self.n_model = n_model 
-    #    self.n_pred_fn = vmap(self.n_model.n_net, (None, 0, 0))
-
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -59,13 +53,14 @@ class UModel(ForwardIVP):
         u = (self.x1-x)/(self.x1-self.x0) * self.u_0 + (x-self.x0)*(self.x1 - x) * u # hard boundary
         return u
     
-    def r_net(self, params, t, x):
-        # parameters of the n model
+    def update_params(self):
+        """ Updates other model parameters """
         n_state = jax.device_get(tree_map(lambda x: x[0], self.n_model.state))
-        n_params = n_state.params
+        self.n_params = n_state.params
 
+    def r_net(self, params, t, x):
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
         
         ru = du_xx + source
         return ru
@@ -163,7 +158,7 @@ class NModel(ForwardIVP):
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
         self.u_model = u_model
-
+        self.u_params = None
         self.tag = "n_model"
     
     def n_net(self, params, t, x):
@@ -174,16 +169,18 @@ class NModel(ForwardIVP):
     
     def scaled_n_net(self, params, t, x):
         return self.n_scale*self.n_net(params, t, x)
+    
+    def update_params(self):
+        """ Updates other model parameters """
+        u_state = jax.device_get(tree_map(lambda x: x[0], self.u_model.state))
+        self.u_params = u_state.params
 
     def r_net(self, params, t, x):
-        u_state = jax.device_get(tree_map(lambda x: x[0], self.u_model.state))
-        u_params = u_state.params
-        
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
         dn_x = grad(self.n_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.n_net, argnums=2), argnums=2)(params, t, x)
 
-        E = -grad(self.u_model.u_net, argnums=2)(u_params, t, x)
+        E = -grad(self.u_model.u_net, argnums=2)(self.u_params, t, x)
         W = self.mu_n * E
         
         rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
