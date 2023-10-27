@@ -12,7 +12,7 @@ import models
 from utils import get_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
    
     # Problem Setup
     n_t = 200
@@ -111,9 +111,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "coupled_case.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-    fig_path = os.path.join(save_dir, "coupled_case.png")
+    #fig_path = os.path.join(save_dir, "coupled_case.pdf")
+    #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
  
 

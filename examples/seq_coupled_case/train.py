@@ -16,6 +16,7 @@ from jaxpi.utils import save_sequential_checkpoints
 
 import models
 from utils import get_dataset
+from eval import evaluate
 
 
 def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -114,12 +115,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 step + 1
             ) == config.training.max_steps:
                 save_sequential_checkpoints(config, workdir, current_model, other_model)
-                # TODO: Verify that this works
-                #path = os.path.join(workdir, "ckpt", config.wandb.name, current_model.tag)
-                #save_checkpoint(current_model.state, path, keep=config.saving.num_keep_ckpts)
-
-                #path = os.path.join(workdir, "ckpt", config.wandb.name, other_model.tag)
-                #save_checkpoint(other_model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step + 1)
                 
 
     return current_model, current_evaluator
