@@ -11,6 +11,7 @@ def get_config():
 
     # Setting
     config.setting = setting = ml_collections.ConfigDict()
+    setting.switch_every_step = 30_000
     setting.u_0 = 1e6
     setting.u_1 = 0
     setting.n_0 = 0.1

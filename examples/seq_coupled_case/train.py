@@ -84,7 +84,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         batch = next(res_sampler)
 
         # alternate current_model between u_model and n_model every 30000 steps
-        if step % 30_000 == 0 and step != 0:
+        if step % config.setting.switch_every_step == 0 and step != 0:
             current_model, other_model = other_model, current_model
             current_evaluator, other_evaluator = other_evaluator, current_evaluator
             current_model.update_params() # get new weights from old model before training new
