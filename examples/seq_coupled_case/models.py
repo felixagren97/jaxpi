@@ -143,13 +143,11 @@ class NModel(ForwardIVP):
         self.u_0s = jnp.full_like(t_star, self.u_0)
         self.u_1s = jnp.full_like(t_star, self.u_1)
         
-        
         # domain
         self.t_star = t_star
         self.x_star = x_star
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
-
 
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
