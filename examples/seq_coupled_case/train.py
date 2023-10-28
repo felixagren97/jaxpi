@@ -69,10 +69,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Start training u_model 
     current_model = u_model
-    current_model.update_params() # model being trained needs updated parameters from other moodel
     current_evaluator = u_evaluator
     other_model = n_model
     other_evaluator = n_evaluator
+
+    # Initalize other model parameters
+    current_model.update_params()
+    other_model.update_params()
 
     # jit warm up
     print("Waiting for JIT...")
@@ -96,13 +99,22 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         # Log training metrics, only use host 0 to record results
         if jax.process_index() == 0:
             if step % config.logging.log_every_steps == 0:
-                # Get the first replica of the state and batch
+                # Get log for current model 
                 state = jax.device_get(tree_map(lambda x: x[0], current_model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
-                log_dict = current_evaluator(state, batch, u_ref, n_ref)
-                wandb.log(log_dict, step)
-                end_time = time.time()
+                log_current = current_evaluator(state, batch, u_ref, n_ref)
 
+                # Get log for other model
+                state = jax.device_get(tree_map(lambda x: x[0], other_model.state))
+                log_other = other_evaluator(state, batch, u_ref, n_ref)
+
+                # Create joint log
+                log_dict = log_current | log_other
+                
+                # Log to wandb and log
+                wandb.log(log_dict, step)
+                
+                end_time = time.time()
                 logger.log_iter(step, start_time, end_time, log_dict)
 
         # Saving
