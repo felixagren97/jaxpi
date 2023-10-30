@@ -116,5 +116,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    plt.close(fig)
  
 
