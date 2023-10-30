@@ -15,7 +15,7 @@ def get_config():
     setting.u_0 = 1e6
     setting.u_1 = 0
     setting.n_0 = 0.1
-    setting.n_inj = 1e10
+    setting.n_inj = 5e13
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
