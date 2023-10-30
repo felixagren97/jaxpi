@@ -80,6 +80,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, u_pred[4,:], label='t=0.004')
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
+    plt.plot([x_star[0], x_star[-1]], [config.setting.u_0, config.setting.u_1], linestyle='--', color='black')
     plt.xlabel("x [m]")
     plt.ylabel("Potential [V]")
     plt.title("Predicted Potentials")
