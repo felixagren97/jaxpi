@@ -3,6 +3,8 @@ import os
 import ml_collections
 
 import jax.numpy as jnp
+import numpy as np
+import jax 
 
 import matplotlib.pyplot as plt
 import train
@@ -117,5 +119,22 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     plt.close(fig)
+
+    # Save observations
+    if step == "":
+        n_t = 250
+        n_x = 250
+        _, _, t_star, x_star = get_dataset(n_t, n_x)
+        u_pred = u_model.u_pred_fn(u_params, t_star, x_star)
+        
+        t_dat = jax.device_get(t_star)
+        x_dat = jax.device_get(x_star)
+        u_dat = jax.device_get(u_pred)
+
+
+        data = np.column_stack((t_dat, x_dat, u_dat))
+        output_file = "obs_case3"
+
+        np.savetxt(output_file, data, delimiter=" ")
  
 
