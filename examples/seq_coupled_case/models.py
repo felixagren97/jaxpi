@@ -26,13 +26,11 @@ class UModel(ForwardIVP):
         self.u_1s = jnp.full_like(t_star, self.u_1)
         self.loss_scale = config.setting.loss_scale
         
-        
         # domain
         self.t_star = t_star
         self.x_star = x_star
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
-
 
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
@@ -132,17 +130,11 @@ class NModel(ForwardIVP):
         self.n_scale = config.setting.n_inj
 
         # initial conditions
-        self.u_0 = config.setting.u_0
-        self.u_1 = config.setting.u_1
-        
         self.n_inj = self.n_scale / self.n_scale
         self.n_0 = config.setting.n_0 / self.n_scale
         
         self.n_injs = jnp.full_like(t_star, self.n_inj)
         self.n_0s = jnp.full_like(x_star, self.n_0)
-        
-        self.u_0s = jnp.full_like(t_star, self.u_0)
-        self.u_1s = jnp.full_like(t_star, self.u_1)
         
         # domain
         self.t_star = t_star
@@ -212,7 +204,6 @@ class NModel(ForwardIVP):
         x_0 = 0
         n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
         bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
-    
 
         # Residual loss
         if self.config.weighting.use_causal == True:
@@ -235,8 +226,7 @@ class NModel(ForwardIVP):
         #TODO: Other methods have implemented for general t,x arrays, should we? 
         n_pred = self.n_pred_fn(params, self.t_star, self.x_star)
         n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
-        return n_error
-    
+        return n_error    
 
 
 class UModelEvalutor(BaseEvaluator):
@@ -264,6 +254,7 @@ class UModelEvalutor(BaseEvaluator):
             self.log_preds(state.params)
 
         return self.log_dict
+
 
 class NModelEvalutor(BaseEvaluator):
     def __init__(self, config, model):
