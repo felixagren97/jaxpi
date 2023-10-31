@@ -71,7 +71,7 @@ class UModel(ForwardIVP):
         ru_pred = self.r_pred_fn(params, t_sorted, batch[:, 1])
         # Split residuals into chunks
         ru_pred = ru_pred.reshape(self.num_chunks, -1)
-        
+        ru_pred *= self.loss_scale
         ru_l = jnp.mean(ru_pred**2, axis=1)
         # Compute temporal weights
         w = lax.stop_gradient(jnp.exp(-self.tol * (self.M @ ru_l)))
