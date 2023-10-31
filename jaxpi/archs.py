@@ -163,7 +163,16 @@ class InverseMlpOffset(Mlp):
         super().setup()  # Call the setup method of the parent class
 
         # Additional setup for InverseMlp
-        self.offset_param = self.param('offset_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=jnp.log(1e-4), maxval=jnp.log(1e-1)))  
+        self.offset_param = self.param('offset_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=jnp.log(1e-4), maxval=jnp.log(1e-1)))
+
+class InverseMlpScale(Mlp):
+    arch_name: Optional[str] = "InverseMlpScale"
+
+    def setup(self):
+        super().setup()  # Call the setup method of the parent class
+
+        # Additional setup for InverseMlp
+        self.offset_param = self.param('scale_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=1, maxval=13))  
         
 class InverseMlpRho(Mlp):
     arch_name: Optional[str] = "InverseMlpRho"
