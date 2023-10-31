@@ -30,7 +30,7 @@ def get_observations(config):
     obs_u = obs[:,2]
 
     #selct n_obs random indices
-    key = jax.random.PRNGKey(42) 
+    key = jax.random.PRNGKey(config.seed) 
     idx = jax.random.randint(key, minval=0, maxval=len(obs_x), shape=(n_obs,))
     obs_t = obs_x[idx]
     obs_x = obs_x[idx]
