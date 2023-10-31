@@ -25,7 +25,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore u_model
-    config.weighting.init_weights = ml_collections.ConfigDict({"ru": 1.0})
+    config.weighting.init_weights = ml_collections.ConfigDict({
+        "ru": 1.0,
+        "obs": 1.0
+    })
     u_model = models.UModel(config, t_star, x_star, None)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name, u_model.tag)
     u_model.state = restore_checkpoint(u_model.state, ckpt_path)
@@ -34,8 +37,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     # restore n_model 
     config.weighting.init_weights = ml_collections.ConfigDict({
-            "ics": 1.0,
-            "bcs_n": 1.0, 
             "rn": 1.0
         })
     n_model = models.NModel(config, t_star, x_star, u_model)
@@ -74,7 +75,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     
     # plot Potential field
     plt.subplot(3, 1, 2)
-    idx_step = int(n_t/10)
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
@@ -93,7 +93,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     # plot electrical field
     plt.subplot(3, 1, 3)
-    idx_step = int(n_t/10)
     plt.plot(x_star, e_pred[0,:], label='t=0.000')
     plt.plot(x_star, e_pred[1,:], label='t=0.001')
     plt.plot(x_star, e_pred[2,:], label='t=0.002')
@@ -116,25 +115,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     #fig_path = os.path.join(save_dir, "coupled_case.pdf")
     #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-    fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
+    fig_path = os.path.join(save_dir, f"inverse_seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     plt.close(fig)
-
-    # Save observations
-    if step == "":
-        n_t = 250
-        n_x = 250
-        _, _, t_star, x_star = get_dataset(n_t, n_x)
-        u_pred = u_model.u_pred_fn(u_params, t_star, x_star)
-        
-        t_dat = jax.device_get(t_star)
-        x_dat = jax.device_get(x_star)
-        u_dat = jax.device_get(u_pred)
-
-
-        data = np.column_stack((t_dat, x_dat, u_dat))
-        output_file = "obs_case3"
-
-        np.savetxt(output_file, data, delimiter=" ")
  
 

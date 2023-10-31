@@ -141,7 +141,7 @@ class NModel(ForwardIVP):
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
 
-        self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
+        self.n_pred_fn = vmap(vmap(self.n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
         self.u_model = u_model
