@@ -24,6 +24,7 @@ class UModel(ForwardIVP):
 
         self.u_0s = jnp.full_like(t_star, self.u_0)
         self.u_1s = jnp.full_like(t_star, self.u_1)
+        self.loss_scale = config.setting.loss_scale
         
         
         # domain
@@ -99,6 +100,7 @@ class UModel(ForwardIVP):
         else:
             ru_pred = self.r_pred_fn(params, batch[:, 0], batch[:, 1])
             # Compute loss
+            ru_pred *= self.loss_scale # scale down loss before squaring to avoid NaN
             ru_loss = jnp.mean(ru_pred**2)
             
         loss_dict = {
