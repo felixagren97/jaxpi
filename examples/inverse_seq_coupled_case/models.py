@@ -152,7 +152,8 @@ class NModel(ForwardIVP):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
         n = outputs[0]
-        scale = params['params']['scale_param']
+        scale = params['params']['scale_param'][0]
+
         return n * (10 ** scale) # Scaling with unknown parameter inferred from data 
     
     def update_params(self):

@@ -18,7 +18,7 @@ def get_config():
     setting.n_inj = 5e13
     setting.n_obs = 1_000
 
-    setting.obs_file = 'obs.dat'
+    setting.obs_file = 'case3_obs_ninj_5e13.dat'
     setting.loss_scale = 1.0
 
     # Weights & Biases
