@@ -58,7 +58,7 @@ class UModel(ForwardIVP):
 
     def r_net(self, params, t, x):
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        source = self.q / self.epsilon * self.n_model.scaled_n_net(self.n_params, t, x)
         
         ru = du_xx + source
         return ru
@@ -159,7 +159,7 @@ class NModel(ForwardIVP):
         return n
     
     def scaled_n_net(self, params, t, x):
-        return self.n_scale*self.n_net(params, t, x)
+        return self.n_scale * self.n_net(params, t, x)
     
     def update_params(self):
         """ Updates other model parameters """
