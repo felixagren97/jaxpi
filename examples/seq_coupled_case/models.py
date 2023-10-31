@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 class UModel(ForwardIVP):
     def __init__(self, config, t_star, x_star, n_model):
         super().__init__(config)
-
         # Constants
         self.q = 1.602e-19
         self.epsilon = 8.85e-12
