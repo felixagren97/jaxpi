@@ -22,8 +22,8 @@ class UModel(ForwardIVP):
         self.u_0 = config.setting.u_0
         self.u_1 = config.setting.u_1
 
-        self.u_0s = jnp.full_like(t_star, self.u_0)
-        self.u_1s = jnp.full_like(t_star, self.u_1)
+        #self.u_0s = jnp.full_like(t_star, self.u_0)
+        #self.u_1s = jnp.full_like(t_star, self.u_1)
         
         # domain
         self.t_star = t_star
@@ -35,7 +35,7 @@ class UModel(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Observations
-        self.obs_t, self.obs_x, self.obs_u =  get_observations(config)
+        self.obs_t, self.obs_x, self.obs_u = get_observations(config)
 
         # Reference to n model
         self.n_model = n_model
@@ -205,7 +205,6 @@ class NModel(ForwardIVP):
         x_0 = 0
         n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
         bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
-    
 
         # Residual loss
         if self.config.weighting.use_causal == True:
