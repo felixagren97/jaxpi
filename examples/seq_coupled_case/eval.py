@@ -126,20 +126,23 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         n_x = 250
         _, _, t_star, x_star = get_dataset(n_t, n_x)
 
-        print('shape t_star', t_star.shape)
-        print('shape x_star', x_star.shape)
-
         u_pred = u_model.u_pred_fn(u_params, t_star, x_star)
         
-        print('shape u_pred', u_pred.shape)
-        t_dat = jax.device_get(t_star)
-        x_dat = jax.device_get(x_star)
-        u_dat = jax.device_get(u_pred)
+        TT, XX = jnp.meshgrid(t_star, x_star, indexing='ij')
 
+        u_pred = jax.device_get(u_pred)
 
-        data = np.column_stack((t_dat, x_dat, u_dat))
-        output_file = "obs_case3"
+        TT = jax.device_get(TT)
+        XX = jax.device_get(XX)
 
-        np.savetxt(output_file, data, delimiter=" ")
- 
+        u_pred = u_pred.reshape(-1)
+        print(u_pred[:5])
+        TT = TT.reshape(-1)
+        print(TT[:5])
+        XX = XX.reshape(-1)
+        print(XX[:5])
+        data = np.column_stack((TT, XX, u_pred))
+
+        output_file_path = 'case3_obs.dat'
+        np.savetxt(output_file_path, data, delimiter=' ') 
 
