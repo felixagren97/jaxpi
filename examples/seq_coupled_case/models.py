@@ -162,7 +162,7 @@ class NModel(ForwardIVP):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
         n = outputs[0]
-        return n
+        return n * 1e7 
     
     def scaled_n_net(self, params, t, x):
         return self.n_scale*self.n_net(params, t, x)
