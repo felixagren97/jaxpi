@@ -107,6 +107,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
                 # Create joint log
                 log_dict = log_current | log_other
+
+                scale = state.params['params']['scale_param'][0]
+                log_dict['scale_param'] = scale
                 
                 # Log to wandb and log
                 wandb.log(log_dict, step)
