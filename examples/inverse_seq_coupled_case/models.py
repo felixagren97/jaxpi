@@ -8,7 +8,7 @@ from jax.tree_util import tree_map
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
-
+from utils import get_observations
 from matplotlib import pyplot as plt
 
 class UModel(ForwardIVP):
@@ -25,16 +25,17 @@ class UModel(ForwardIVP):
         self.u_0s = jnp.full_like(t_star, self.u_0)
         self.u_1s = jnp.full_like(t_star, self.u_1)
         
-        
         # domain
         self.t_star = t_star
         self.x_star = x_star
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
 
-
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
+
+        # Observations
+        self.obs_t, self.obs_x, self.obs_u =  get_observations(config)
 
         # Reference to n model
         self.n_model = n_model
@@ -130,17 +131,11 @@ class NModel(ForwardIVP):
         self.n_scale = config.setting.n_inj
 
         # initial conditions
-        self.u_0 = config.setting.u_0
-        self.u_1 = config.setting.u_1
-        
         self.n_inj = self.n_scale / self.n_scale
         self.n_0 = config.setting.n_0 / self.n_scale
         
         self.n_injs = jnp.full_like(t_star, self.n_inj)
         self.n_0s = jnp.full_like(x_star, self.n_0)
-        
-        self.u_0s = jnp.full_like(t_star, self.u_0)
-        self.u_1s = jnp.full_like(t_star, self.u_1)
         
         # domain
         self.t_star = t_star
