@@ -154,7 +154,7 @@ class NModel(ForwardIVP):
         n = outputs[0]
         scale = params['params']['scale_param'][0]
 
-        return n * (10 ** scale) # Scaling with unknown parameter inferred from data 
+        return n * jnp.power([10], scale)#(10 ** scale) # Scaling with unknown parameter inferred from data 
     
     def update_params(self):
         """ Updates other model parameters """
