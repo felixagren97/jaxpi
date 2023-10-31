@@ -36,7 +36,7 @@ class UModel(ForwardIVP):
 
         # Observations
         self.obs_t, self.obs_x, self.obs_u = get_observations(config)
-
+        self.loss_scale = config.setting.loss_scale
         # Reference to n model
         self.n_model = n_model
 
@@ -60,7 +60,7 @@ class UModel(ForwardIVP):
 
     def r_net(self, params, t, x):
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) #* self.n_model.n_scale # scale back with n_inj 
         
         ru = du_xx + source
         return ru
@@ -91,6 +91,9 @@ class UModel(ForwardIVP):
         #x_1 = 1
         #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
         #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
+        # Observation loss
+        obs_u_pred = vmap(self.u_net, (None, 0, 0))(params, self.obs_t, self.obs_x)
+        obs_loss = jnp.mean((self.loss_scale * (self.obs_u - obs_u_pred)) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:
@@ -106,6 +109,7 @@ class UModel(ForwardIVP):
             #"bcs_inner": bcs_inner, Hard boundary
             #"bcs_outer": bcs_outer, Hard boundary
             "ru": ru_loss,
+            "obs": obs_loss
         }
         return loss_dict
     
