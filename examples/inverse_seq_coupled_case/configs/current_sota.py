@@ -16,6 +16,7 @@ def get_config():
     setting.u_1 = 0
     setting.n_0 = 0.1
     setting.n_inj = 5e13
+    config.setting.obs_file = 'obs.dat'
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
