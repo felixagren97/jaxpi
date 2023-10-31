@@ -125,8 +125,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         n_t = 250
         n_x = 250
         _, _, t_star, x_star = get_dataset(n_t, n_x)
+
+        print('shape t_star', t_star.shape)
+        print('shape x_star', x_star.shape)
+
         u_pred = u_model.u_pred_fn(u_params, t_star, x_star)
         
+        print('shape u_pred', u_pred.shape)
         t_dat = jax.device_get(t_star)
         x_dat = jax.device_get(x_star)
         u_dat = jax.device_get(u_pred)
