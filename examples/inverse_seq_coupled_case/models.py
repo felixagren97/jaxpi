@@ -116,11 +116,10 @@ class NModel(ForwardIVP):
     def __init__(self, config, t_star, x_star, u_model):
         super().__init__(config)
         
-        self.true_mu = config.setting.true_mu
+        # Constants 
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
-        
         self.epsilon = 8.85e-12
         
         # Scale factor = n_inj

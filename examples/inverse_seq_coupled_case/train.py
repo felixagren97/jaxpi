@@ -42,6 +42,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize models
     # Config for u_model
+    config.arch.arch_name = "Mlp"
     config.weighting.init_weights = ml_collections.ConfigDict({ 
             #"bcs_inner": 1.0, Hard boundary
             #"bcs_outer": 1.0, Hard boundary 
@@ -52,9 +53,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_evaluator = models.UModelEvalutor(config, u_model)
     
     # Config for n_model
-    config.weighting.init_weights = ml_collections.ConfigDict({
-            "rn": 1.0
-        })
+    config.arch.arch_name = "InverseMlpMu"
+    config.weighting.init_weights = ml_collections.ConfigDict(
+        {"rn": 1.0, 
+         "bcs_n": 1.0, 
+         "ics":1.0
+         })
+    
     
     n_model = models.NModel(config, t_star, x_star, u_model)
     n_evaluator = models.NModelEvalutor(config, n_model)
