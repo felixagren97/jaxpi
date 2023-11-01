@@ -112,9 +112,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
                 # Create joint log
                 log_dict = log_current | log_other
-
-                mu = jnp.exp(state.params['params']['mu_param'])
-                log_dict['mu_param'] = mu
                 
                 # Log to wandb and log
                 wandb.log(log_dict, step)

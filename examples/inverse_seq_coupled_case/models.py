@@ -59,7 +59,7 @@ class UModel(ForwardIVP):
 
     def r_net(self, params, t, x):
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
+        source = (self.q / self.epsilon * self.n_model.scaled_n_net(self.n_params, t, x)) # scale back with n_inj 
         
         ru = du_xx + source
         return ru
@@ -147,7 +147,7 @@ class NModel(ForwardIVP):
         self.t0 = t_star[0]
         self.t1 = t_star[-1]
 
-        self.n_pred_fn = vmap(vmap(self.n_net, (None, None, 0)), (None, 0, None))
+        self.n_pred_fn = vmap(vmap(self.scaled_n_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
 
         self.u_model = u_model
@@ -158,8 +158,10 @@ class NModel(ForwardIVP):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
         n = outputs[0]
-        
         return n 
+    
+    def scaled_n_net(self, params, t, x):
+        return self.n_scale*self.n_net(params, t, x)
     
     def update_params(self):
         """ Updates other model parameters """
@@ -283,6 +285,6 @@ class NModelEvalutor(BaseEvaluator):
         if self.config.logging.log_preds:
             self.log_preds(state.params)
         
-        mu = jnp.exp(state.params['params']['mu_param'])
+        mu = jnp.exp(state.params['params']['mu_param'][0])
         self.log_dict['mu_param'] = mu
         return self.log_dict
