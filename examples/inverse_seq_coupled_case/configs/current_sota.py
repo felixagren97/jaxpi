@@ -19,7 +19,7 @@ def get_config():
     setting.n_obs = 1_000
 
     setting.obs_file = 'case3_obs_ninj_5e13.dat'
-    setting.loss_scale = 1.0
+    setting.loss_scale = 1e-2
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()

@@ -94,7 +94,7 @@ class UModel(ForwardIVP):
         else:
             ru_pred = self.r_pred_fn(params, batch[:, 0], batch[:, 1])
             # Compute loss
-            ru_loss = jnp.mean(ru_pred**2)
+            ru_loss = jnp.mean((self.loss_scale * ru_pred)**2)
             
         loss_dict = {
             #"bcs_inner": bcs_inner, Hard boundary
