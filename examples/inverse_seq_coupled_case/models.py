@@ -18,16 +18,14 @@ class UModel(ForwardIVP):
         self.q = 1.602e-19
         self.epsilon = 8.85e-12
 
-        # initial conditions
+        # Boundary conditions
         self.u_0 = config.setting.u_0
         self.u_1 = config.setting.u_1
-
-        #self.u_0s = jnp.full_like(t_star, self.u_0)
-        #self.u_1s = jnp.full_like(t_star, self.u_1)
         
         # domain
         self.t_star = t_star
         self.x_star = x_star
+
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
 
@@ -37,6 +35,7 @@ class UModel(ForwardIVP):
         # Observations
         self.obs_t, self.obs_x, self.obs_u = get_observations(config)
         self.loss_scale = config.setting.loss_scale
+        
         # Reference to n model
         self.n_model = n_model
 
@@ -60,7 +59,7 @@ class UModel(ForwardIVP):
 
     def r_net(self, params, t, x):
         du_xx = grad(grad(self.u_net, argnums=2), argnums=2)(params, t, x)
-        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) #* self.n_model.n_scale # scale back with n_inj 
+        source = (self.q / self.epsilon * self.n_model.n_net(self.n_params, t, x)) * self.n_model.n_scale # scale back with n_inj 
         
         ru = du_xx + source
         return ru
@@ -83,14 +82,6 @@ class UModel(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
         
-        # Boundary loss: U(x=0)=U_0
-        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_0)
-        #bcs_inner = jnp.mean((self.u_0s - u_pred) ** 2)
-
-        # Boundary loss: U(x=0)=U_0
-        #x_1 = 1
-        #u_pred = vmap(self.u_net, (None, 0, None))(params, self.t_star, x_1)
-        #bcs_outer = jnp.mean((self.u_1s - u_pred) ** 2)
         # Observation loss
         obs_u_pred = vmap(self.u_net, (None, 0, 0))(params, self.obs_t, self.obs_x)
         obs_loss = jnp.mean((self.loss_scale * (self.obs_u - obs_u_pred)) ** 2)
@@ -124,13 +115,29 @@ class UModel(ForwardIVP):
 class NModel(ForwardIVP):
     def __init__(self, config, t_star, x_star, u_model):
         super().__init__(config)
-        self.mu_n = 2e-4
+        
+        self.true_mu = config.setting.true_mu
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
-        #self.W = self.mu_n * self.E_ext
-        self.Diff = self.mu_n * self.kb * self.Temp/self.q 
+        
         self.epsilon = 8.85e-12
+        
+        # Scale factor = n_inj
+        self.n_scale = config.setting.n_inj
+
+        # initial conditions
+        self.u_0 = config.setting.u_0
+        self.u_1 = config.setting.u_1
+        
+        self.n_inj = self.n_scale / self.n_scale
+        self.n_0 = config.setting.n_0 / self.n_scale
+        
+        self.n_injs = jnp.full_like(t_star, self.n_inj)
+        self.n_0s = jnp.full_like(x_star, self.n_0)
+        
+        self.u_0s = jnp.full_like(t_star, self.u_0)
+        self.u_1s = jnp.full_like(t_star, self.u_1)
         
         # domain
         self.t_star = t_star
@@ -152,9 +159,8 @@ class NModel(ForwardIVP):
         z = jnp.stack([t, x])
         outputs = self.state.apply_fn(params, z)
         n = outputs[0]
-        scale = params['params']['scale_param'][0]
-
-        return n * jnp.power([10], scale)#(10 ** scale) # Scaling with unknown parameter inferred from data 
+        
+        return n 
     
     def update_params(self):
         """ Updates other model parameters """
@@ -162,14 +168,17 @@ class NModel(ForwardIVP):
         self.u_params = u_state.params
 
     def r_net(self, params, t, x):
+        mu_n = jnp.exp(params['params']['mu_param'])
+        Diff = mu_n * self.kb * self.Temp/self.q 
+
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
         dn_x = grad(self.n_net, argnums=2)(params, t, x)
         dn_xx = grad(grad(self.n_net, argnums=2), argnums=2)(params, t, x)
 
         E = -grad(self.u_model.u_net, argnums=2)(self.u_params, t, x)
-        W = self.mu_n * E
+        W = mu_n * E
         
-        rn = 1/W*dn_t + dn_x - self.Diff/W*dn_xx
+        rn = 1/W*dn_t + dn_x - Diff/W*dn_xx
         
         return rn
     
@@ -191,6 +200,15 @@ class NModel(ForwardIVP):
     
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
+        # Initial loss: n(t=0)=n_0
+        n_pred = vmap(self.n_net, (None, None, 0))(params, self.t0, self.x_star)
+        ics_loss = jnp.mean((self.n_0s[1:] - n_pred[1:]) ** 2) # slicing to exclude x = 0
+
+        # Boundary loss: n(x=0)=n_inj
+        x_0 = 0
+        n_pred = vmap(self.n_net, (None, 0, None))(params, self.t_star, x_0)
+        bcs_n = jnp.mean((self.n_injs - n_pred) ** 2)
+
         # Residual loss
         if self.config.weighting.use_causal == True:
             rn_l, w = self.res_and_w(params, batch)
@@ -200,7 +218,11 @@ class NModel(ForwardIVP):
             # Compute loss
             rn_loss = jnp.mean(rn_pred**2)
 
-        loss_dict = {"rn": rn_loss}
+        loss_dict = {
+            "ics": ics_loss,
+            "bcs_n": bcs_n, 
+            "rn": rn_loss
+        }
         return loss_dict
     
     @partial(jit, static_argnums=(0,))
