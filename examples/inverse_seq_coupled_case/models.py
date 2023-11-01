@@ -282,5 +282,7 @@ class NModelEvalutor(BaseEvaluator):
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
-
+        
+        mu = jnp.exp(state.params['params']['mu_param'])
+        self.log_dict['mu_param'] = mu
         return self.log_dict
