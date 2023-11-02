@@ -16,7 +16,7 @@ def get_config():
     setting.u_1 = 0
     setting.n_0 = 0.1
     setting.n_inj = 5e13
-    setting.n_obs = 1_000
+    setting.n_obs = 10_000
 
     setting.obs_file = 'case3_obs_ninj_5e13.dat'
     setting.loss_scale = 1e-2
@@ -58,12 +58,10 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None #"grad_norm"
+    weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
-            #"bcs_inner": 1.0, Hard boundary
-            #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
             "rn": 1.0
         })
