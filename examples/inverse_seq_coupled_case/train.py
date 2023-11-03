@@ -80,7 +80,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     other_model.update_params()
 
     # jit warm up
-    print('mu param in train: ', current_model.state.params['params']['mu_param'])
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
         start_time = time.time()
