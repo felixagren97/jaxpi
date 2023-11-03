@@ -169,7 +169,7 @@ class NModel(ForwardIVP):
         self.u_params = u_state.params
 
     def r_net(self, params, t, x):
-        mu_n = jnp.exp(params['params']['mu_param'])
+        mu_n = jnp.abs(params['params']['mu_param'])
         Diff = mu_n * self.kb * self.Temp/self.q 
 
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
