@@ -183,6 +183,7 @@ class InverseMlpMu(Mlp):
 
         # Additional setup for InverseMlp
         self.offset_param = self.param('mu_param', lambda rng: jax.random.uniform(jax.random.PRNGKey(rng[0]), (1,), minval=2e-5, maxval=3e-5)) 
+        print('Mu param in Archs: ', self.offset_param)
           
 
 class ModifiedMlp(nn.Module):
