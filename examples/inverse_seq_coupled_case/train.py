@@ -54,6 +54,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Config for n_model
     config.arch.arch_name = "InverseMlpMu"
+    config.weighting.scheme = None
     config.weighting.init_weights = ml_collections.ConfigDict(
         {"rn": 1.0, 
          "bcs_n": 1.0, 
@@ -75,7 +76,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     other_model = n_model
     other_evaluator = n_evaluator
 
-    # Initalize other model parameters
+    # Initalize reference model parameters
     current_model.update_params()
     other_model.update_params()
 
@@ -94,7 +95,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         current_model.state = current_model.step(current_model.state, batch)
 
         # Update weights
-        if config.weighting.scheme in ["grad_norm", "ntk"]:
+        if current_model.config.weighting.scheme in ["grad_norm", "ntk"]:
             if step % config.weighting.update_every_steps == 0:
                 current_model.state = current_model.update_weights(current_model.state, batch)
 
