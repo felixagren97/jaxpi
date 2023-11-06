@@ -54,6 +54,7 @@ def restore_checkpoint(state, workdir, step=None):
     state = checkpoints.restore_checkpoint(workdir, state, step=step)
     return state
 
+# TODO: Add support for multiple models with different configs.
 def save_sequential_checkpoints(config, workdir, model_1, model_2):
     """ Adaption of save_checkpoints to sequential learning of two models """
     #Use legacy checkpointing in order to run in colab 

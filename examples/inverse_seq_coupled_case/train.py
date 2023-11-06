@@ -53,8 +53,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_evaluator = models.UModelEvalutor(config, u_model)
     
     # Config for n_model
-    config.arch.arch_name = "InverseMlpMu"
-    config.weighting.scheme = None
+    n_config = config.copy()
+    n_config.arch.arch_name = "InverseMlpMu"
+    n_config.weighting.scheme = None
     config.weighting.init_weights = ml_collections.ConfigDict(
         {"rn": 1.0, 
          "bcs_n": 1.0, 
@@ -62,8 +63,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
          })
     
     
-    n_model = models.NModel(config, t_star, x_star, u_model)
-    n_evaluator = models.NModelEvalutor(config, n_model)
+    n_model = models.NModel(n_config, t_star, x_star, u_model)
+    n_evaluator = models.NModelEvalutor(n_config, n_model)
 
     u_model.n_model = n_model
     
@@ -96,12 +97,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         # Update weights
         if current_model.config.weighting.scheme in ["grad_norm", "ntk"]:
-            if step % config.weighting.update_every_steps == 0:
+            if step % current_model.config.weighting.update_every_steps == 0:
                 current_model.state = current_model.update_weights(current_model.state, batch)
 
         # Log training metrics, only use host 0 to record results
         if jax.process_index() == 0:
-            if step % config.logging.log_every_steps == 0:
+            if step % current_model.config.logging.log_every_steps == 0:
                 # Get log for current model 
                 state = jax.device_get(tree_map(lambda x: x[0], current_model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
@@ -122,11 +123,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         # Saving
         if config.saving.save_every_steps is not None:
-            if (step + 1) % config.saving.save_every_steps == 0 or (
+            if (step + 1) % current_model.config.saving.save_every_steps == 0 or (
                 step + 1
-            ) == config.training.max_steps:
+            ) == current_model.config.training.max_steps:
                 save_sequential_checkpoints(config, workdir, current_model, other_model)
                 if config.saving.plot == True:
-                    evaluate(config, workdir, step + 1)
+                    evaluate(current_model.config, workdir, step + 1)
 
     return current_model, current_evaluator
