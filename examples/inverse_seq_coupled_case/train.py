@@ -1,5 +1,6 @@
 import os
 import time
+import copy
 
 import jax
 import jax.numpy as jnp
@@ -53,10 +54,10 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_evaluator = models.UModelEvalutor(config, u_model)
     
     # Config for n_model
-    n_config = config.copy()
+    n_config = copy.deepcopy(config)
     n_config.arch.arch_name = "InverseMlpMu"
     n_config.weighting.scheme = None
-    config.weighting.init_weights = ml_collections.ConfigDict(
+    n_config.weighting.init_weights = ml_collections.ConfigDict(
         {"rn": 1.0, 
          "bcs_n": 1.0, 
          "ics":1.0
