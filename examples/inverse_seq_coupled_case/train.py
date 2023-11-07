@@ -42,21 +42,23 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize models
-    # Config for u_model
+
+    # Specify config for u_model, will overwrite the common config file
     config.arch.arch_name = "Mlp"
+    # grad_norm activated
     config.weighting.init_weights = ml_collections.ConfigDict({ 
-            #"bcs_inner": 1.0, Hard boundary
-            #"bcs_outer": 1.0, Hard boundary 
             "ru": 1.0,
             "obs": 1.0
         })
+    
     u_model = models.UModel(config, t_star, x_star, None)
     u_evaluator = models.UModelEvalutor(config, u_model)
     
-    # Config for n_model
-    n_config = copy.deepcopy(config)
+    # Specify config for n_model, will overwrite the common config file
+    n_config = copy.deepcopy(config)   # Copy to avoid alising
     n_config.arch.arch_name = "InverseMlpMu"
     n_config.weighting.scheme = None
+    
     n_config.weighting.init_weights = ml_collections.ConfigDict(
         {"rn": 1.0, 
          "bcs_n": 1.0, 
