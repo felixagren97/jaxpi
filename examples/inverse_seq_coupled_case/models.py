@@ -174,7 +174,7 @@ class NModel(ForwardIVP):
         self.u_params = u_state.params
 
     def r_net(self, params, t, x):
-        mu_n = jnp.abs(params['params']['mu_param'])
+        mu_n = jnp.exp(params['params']['mu_param'])
         Diff = mu_n * self.kb * self.Temp/self.q 
 
         dn_t = grad(self.n_net, argnums=1)(params, t, x)
@@ -290,6 +290,6 @@ class NModelEvalutor(BaseEvaluator):
         if self.config.logging.log_preds:
             self.log_preds(state.params)
         
-        mu = state.params['params']['mu_param'][0]
+        mu = jnp.exp(state.params['params']['mu_param'][0])
         self.log_dict['mu_param'] = mu
         return self.log_dict
