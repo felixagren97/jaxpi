@@ -45,6 +45,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Specify config for u_model, will overwrite the common config file
     config.arch.arch_name = "Mlp"
+    config.arch.fourier_emb = False 
+
     # grad_norm activated
     config.weighting.init_weights = ml_collections.ConfigDict({ 
             "ru": 1.0,
@@ -57,6 +59,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Specify config for n_model, will overwrite the common config file
     n_config = copy.deepcopy(config)   # Copy to avoid alising
     n_config.arch.arch_name = "InverseMlpMu"
+    n_config.arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+
     n_config.weighting.scheme = None
     
     n_config.weighting.init_weights = ml_collections.ConfigDict(
