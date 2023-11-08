@@ -45,7 +45,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Specify config for u_model, will overwrite the common config file
     config.arch.arch_name = "Mlp"
-    config.arch.fourier_emb = False 
+    config.arch.fourier_emb = None  
 
     # grad_norm activated
     config.weighting.init_weights = ml_collections.ConfigDict({ 
