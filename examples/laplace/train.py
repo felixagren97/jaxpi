@@ -22,7 +22,7 @@ from functools import partial
 
 import jax.numpy as jnp
 from jax import random, pmap, local_device_count
-
+from eval import evaluate
 from torch.utils.data import Dataset
 
 class OneDimensionalUniformSampler(BaseSampler):
@@ -56,10 +56,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
-
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = u_ref[0]
-    u1 = u_ref[-1] # need to add to loss as well? 
 
     # Define domain
     r0 = r_star[0]
@@ -107,5 +103,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step)
+
 
     return model

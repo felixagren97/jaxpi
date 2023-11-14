@@ -5,29 +5,25 @@ import ml_collections
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
-
+import numpy as np
 from jaxpi.utils import restore_checkpoint
 import models
 from utils import get_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
     # Problem setup
-    r_0 = 0.001  # inner radius
-    r_1 = 1      # outer radius
-    n_r = 10000    # used to be 128, but increased and kept separate for unique points
+    r_0 = config.setting.r_0
+    r_1 = config.setting.r_1
+    n_r = config.setting.n_r
     C = 1/(jnp.log(r_0)-jnp.log(r_1))
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
 
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = u_ref[0]
-    u1 = u_ref[-1] # need to add to loss as well? 
-
     # Restore model
-    model = models.Laplace(config, u0, u1, r_star)
+    model = models.Laplace(config, r_star)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
@@ -46,6 +42,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     r_star_np = jnp.array(r_star)
     u_pred_np = jnp.array(u_pred)
     u_ref_np = jnp.array(u_ref)
+    e_pred_np = jnp.array(e_pred)
+    e_ref_np = jnp.array(e_ref)
 
     # Create a Matplotlib figure and axis
     fig = plt.figure(figsize=(18, 8))
@@ -82,7 +80,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     plt.xlabel('Radius [m]')
     plt.ylabel('Electric field [V/m]')
-    plt.title('Predicted and Analytical Electrical field')
+    plt.title('Predicted and Analytical Electrical Field')
 
     # Plot the prediction values as a solid line
     plt.plot(r_star_np, e_pred, label='Prediction', color='blue')
@@ -98,20 +96,27 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.subplot(2, 2, 4)
     plt.xlabel('Radius [m]')
     plt.ylabel('Electrical field [V/m]')
-    plt.title('Absolute Electrical field')
+    plt.title('Absolute Electrical Field Error')
 
     plt.plot(r_star_np, jnp.abs(e_pred - e_ref) , label='Absolute error', color='red')
     plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
-    
-
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+    fig_path = os.path.join(save_dir, "laplace_{step}.png")
+    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+    if step == "":
+        # save plot information as csv for later use
+        combined_array = np.column_stack((r_star_np, u_pred_np, u_ref_np, e_pred_np, e_ref_np))
+        csv_file_path = "laplace.csv"
+        header_names = ['r_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
+        np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
+
+
  
