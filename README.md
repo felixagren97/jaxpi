@@ -59,5 +59,13 @@ python main.py --config.mode=eval
 ```
 
 # Code structure
-The code corresponding to each problem is entered in a folder in the examples directory (e.g., examples/laplace/). Here follows an overview of the contents of each such file:
+The code corresponding to each problem is entered in a folder in the examples directory (e.g., examples/laplace/). Here is an overview of the contents of each such file:
+| Name                                   | Function                                                                                                                      |
+|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| configs                                | Folder containing all config files                                                                                            |
+| config file (e.g., configs/default.py) | Contains training-related configurations such as network architecture, batch size, iterations, and problem-specific variables |
+| model.py                               | Specifies the loss functions and core methods. Here is where most changes are done when adapting the code to a new PDE         |
+| train.py                               | Specifies the training process                                                                                                |
+| eval.py                                | Evaluates the model and creates plots                                                                                         |
+| main.py                                | Runs either train.py or eval.py depending on mode                                                                             |
 
