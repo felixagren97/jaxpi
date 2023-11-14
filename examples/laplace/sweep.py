@@ -37,7 +37,7 @@ def main(argv):
     }
 
     parameters_dict = {
-        "arch_name": {"values": ["Mlp", "ModifiedMlp"]},
+        "arch_name": {"values": ["Mlp"]},
         "layer_size": {"values": [256, 512]},
         "num_layers": {"values": [3, 4, 5]},
         "activation": {"values": ["tanh", "gelu"]},
@@ -47,8 +47,14 @@ def main(argv):
                 {"type": "weight_fact", "mean": 1.0, "stddev": 0.1},
             ]
         },
-        "weighting_scheme": {"values": ["grad_norm", "ntk"]},
-        "causal_tol": {"values": [1.0, 10.0]},
+        "weighting_scheme": {"values": ["grad_norm"]},
+        "fourier_emb": {
+            "values": [
+                {"embed_scale": 1, "embed_dim": 256},
+                {"embed_scale": 10, "embed_dim": 256},
+            ]
+        },
+
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -66,9 +72,9 @@ def main(argv):
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
         config.arch.reparam = sweep_config.arch_reparam
+        config.arch.fourier_emb = sweep_config.fourier_emb
 
         config.weighting.scheme = sweep_config.weighting_scheme
-        config.weighting.causal_tol = sweep_config.causal_tol
 
         train.train_and_evaluate(config, workdir)
 
