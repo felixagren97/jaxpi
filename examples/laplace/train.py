@@ -50,9 +50,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    r_0 = 0.001  # inner radius
-    r_1 = 1      # outer radius
-    n_r = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    r_0 = config.setting.r_0      # inner radius
+    r_1 = config.setting.r_1      # outer radius
+    n_r = config.setting.n_r    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r)
@@ -68,7 +68,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
 
     # Initialize model
-    model = models.Laplace(config, u0, u1, r_star)
+    model = models.Laplace(config, r_star)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
