@@ -19,7 +19,7 @@ Install JAX-PI with the following commands:
 
 ``` 
 git clone https://github.com/felixagren97/jaxpi.git
-cd JAX-PI
+cd jaxpi
 pip install .
 ```
 
@@ -33,7 +33,7 @@ To illustrate how to use our code, we will use the advection equation as an exam
 First, navigate to the advection directory within the `examples` folder:
 
 ``` 
-cd JAX-PI/examples/laplace
+cd jaxpi/examples/laplace
 ``` 
 To train the model, run the following command:
 ```
