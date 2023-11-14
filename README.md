@@ -58,7 +58,7 @@ To evaluate the model's performance, you can switch to evaluation mode with the 
 python main.py --config.mode=eval
 ```
 
-# Code structure
+## Code structure
 The code corresponding to each problem is entered in a folder in the examples directory (e.g., examples/laplace/). Here is an overview of the contents of each such file:
 | Name                                   | Function                                                                                                                      |
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
