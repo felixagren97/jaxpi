@@ -79,3 +79,18 @@ The file models.py contains the model describing the PDE and the related losses.
 | r_net     | Calculates the PDE residual for a given (t,x).                                                                                                                                                                               |
 | losses    | Computes the squared initial, boundary, residual, and observation loss (if applicable) across a sampled batch.                                                                                                                   |
 | res_and_w | Calculates weights for each sequential segment of the temporal domain if config.weighting.causal_tol = True (i.e., if using modified residual loss to avoid violating causality). Not applicable for non-time-dependent PDEs. |
+
+
+### configs
+The config files contain a larger number of training and problem-specific configurations, variables, and settings. Here is an overview of some of them: 
+| Config                | Purpose                                                                                                          |
+|-----------------------|------------------------------------------------------------------------------------------------------------------|
+| mode                  | `train` for training, `eval` for evaluation                                                                      |
+| num_layers            | Depth of NN                                                                                                      |
+| layer_size            | Width of NN                                                                                                      |
+| activation            | Activation function (e.g., 'tanh' or 'gelu')                                                                     |
+| fourier_emb           | Fourier embedding scale and dimension                                                                            |
+| reparam               | Random weight factorization                                                                                      |
+| max_steps             | Number of iterations before stopping                                                                             |
+| batch_size_per_device | Batch size when training (a smaller value than the default 4096 recommended)                                     |
+| use_causal            | Use modified PDE residual loss to avoid violating causality. Should be None or False for non-time-dependent PDEs |
