@@ -82,7 +82,7 @@ The file models.py contains the model describing the PDE and the related losses.
 
 
 ### configs
-The config files contain a larger number of training and problem-specific configurations, variables, and settings. Here is an overview of some of them: 
+The config files contain a larger number of training and problem-specific configurations, variables, and settings. Here is an overview of some of the most frequently modified: 
 | Config                | Purpose                                                                                                          |
 |-----------------------|------------------------------------------------------------------------------------------------------------------|
 | mode                  | `train` for training, `eval` for evaluation                                                                      |
