@@ -3,11 +3,11 @@
 This repository is an adaptation of the [JAX-PI repository from Predictive Intelligence Lab](https://github.com/PredictiveIntelligenceLab/jaxpi) for a master's thesis at the Department of Electrical Engineering at Chalmers University of Technology. It offers a comprehensive implementation of physics-informed neural networks (PINNs), seamlessly integrating several advanced network architectures, and training algorithms from [An Expert's Guide to Training Physics-informed Neural Networks
 ](https://arxiv.org/abs/2308.08468) and adapts these to the domain of discharge physics. 
 ## Demo 
-A demonstration notebook for running the code on Google Colab is available [here](https://colab.research.google.com/drive/1a33Zx5J9NJ3mn8uNzxFKQq_m0DLjST9Q?usp=sharing). The next sections will provide a more thorough description of how to use the repo. 
+A demonstration notebook for running the code on Google Colab is available [here](https://colab.research.google.com/drive/1a33Zx5J9NJ3mn8uNzxFKQq_m0DLjST9Q?usp=sharing). The next sections will provide a more thorough description of using the repo. 
 
 ## Installation
 
-Ensure that you have Python 3.8 or later installed on your system.
+Please ensure you have Python 3.8 or later installed on your system.
 Our code is GPU-only.
 We highly recommend using the most recent versions of JAX and JAX-lib, along with compatible CUDA and cuDNN versions.
 The code has been tested and confirmed to work with the following versions:
@@ -64,8 +64,18 @@ The code corresponding to each problem is entered in a folder in the examples di
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
 | configs                                | Folder containing all config files                                                                                            |
 | config file (e.g., configs/default.py) | Contains training-related configurations such as network architecture, batch size, iterations, and problem-specific variables |
-| model.py                               | Specifies the loss functions and core methods. Here is where most changes are done when adapting the code to a new PDE         |
+| models.py                               | Specifies the loss functions and core methods. Here is where most changes are done when adapting the code to a new PDE         |
 | train.py                               | Specifies the training process                                                                                                |
 | eval.py                                | Evaluates the model and creates plots                                                                                         |
 | main.py                                | Runs either train.py or eval.py depending on mode                                                                             |
 
+### models.py
+The file models.py contains the model describing the PDE and the related losses. The core functions are as follows: 
+
+
+| Function  | Purpose                                                                                                                                                                                                                      |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| u_net     | Performs a forward pass of the neural network and outputs a model prediction $u(t,x)$. Here is where hard boundary conditions should be introduced, if any.                                                                  |
+| r_net     | Calculates the PDE residual for a given (t,x).                                                                                                                                                                               |
+| losses    | Computes the squared initial, boundary, residual, and observation loss (if applicable) across a sampled batch.                                                                                                                   |
+| res_and_w | Calculates weights for each sequential segment of the temporal domain if config.weighting.causal_tol = True (i.e., if using modified residual loss to avoid violating causality). Not applicable for non-time-dependent PDEs. |
