@@ -1,6 +1,6 @@
-# JAX-PI
+# JAXPI
 
-This repository is an adaptation of the [JAXPI repository from Predictive Intelligence Lab](https://github.com/PredictiveIntelligenceLab/jaxpi) for a master's thesis at the Department of Electrical Engineering at Chalmers University of Technology. It offers a comprehensive implementation of physics-informed neural networks (PINNs), seamlessly integrating several advanced network architectures, and training algorithms from [An Expert's Guide to Training Physics-informed Neural Networks
+This repository is an adaptation of the [JAX-PI repository from Predictive Intelligence Lab](https://github.com/PredictiveIntelligenceLab/jaxpi) for a master's thesis at the Department of Electrical Engineering at Chalmers University of Technology. It offers a comprehensive implementation of physics-informed neural networks (PINNs), seamlessly integrating several advanced network architectures, and training algorithms from [An Expert's Guide to Training Physics-informed Neural Networks
 ](https://arxiv.org/abs/2308.08468) adapted to the domain of discharge physics. The implementation supports both **single** and **multi-GPU** training, while evaluation is currently limited to single-GPU setups.
 
 ## Demo 
