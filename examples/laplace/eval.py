@@ -108,7 +108,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace_{step}.png")
+    fig_path = os.path.join(save_dir, f"laplace_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     if step == "":
