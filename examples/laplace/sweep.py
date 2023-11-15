@@ -32,29 +32,14 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep",
+        "name": "sweep_laplace_forward",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
     parameters_dict = {
-        "arch_name": {"values": ["Mlp"]},
         "layer_size": {"values": [256, 512]},
-        "num_layers": {"values": [3, 4, 5]},
+        "num_layers": {"values": [4, 6]},
         "activation": {"values": ["tanh", "gelu"]},
-        "arch_reparam": {
-            "values": [
-                {"type": "weight_fact", "mean": 0.5, "stddev": 0.1},
-                {"type": "weight_fact", "mean": 1.0, "stddev": 0.1},
-            ]
-        },
-        "weighting_scheme": {"values": ["grad_norm"]},
-        "fourier_emb": {
-            "values": [
-                {"embed_scale": 1, "embed_dim": 256},
-                {"embed_scale": 10, "embed_dim": 256},
-            ]
-        },
-
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -67,14 +52,13 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.arch.arch_name = sweep_config.arch_name
+        #config.arch.arch_name = sweep_config.arch_name
         config.arch.layer_size = sweep_config.layer_size
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
-        config.arch.reparam = sweep_config.arch_reparam
-        config.arch.fourier_emb = sweep_config.fourier_emb
-
-        config.weighting.scheme = sweep_config.weighting_scheme
+        #config.arch.reparam = sweep_config.arch_reparam
+        #config.arch.fourier_emb = sweep_config.fourier_emb
+        #config.weighting.scheme = sweep_config.weighting_scheme
 
         train.train_and_evaluate(config, workdir)
 
