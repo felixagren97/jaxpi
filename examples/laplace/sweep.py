@@ -32,7 +32,7 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep_laplace_forward",
+        "name": "sweep_laplace_forward_1e-4",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
