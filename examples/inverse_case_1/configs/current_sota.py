@@ -23,8 +23,8 @@ def get_config():
     setting.u0 = 1
     setting.u1 = 0
 
-    setting.true_rho = 1e-5
-    setting.rho_scale = 1e-6
+    setting.true_rho = 1e-9
+    setting.rho_scale = 1e-10
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
