@@ -180,9 +180,18 @@ class InverseMlpMu(Mlp):
 
     def setup(self):
         super().setup()  # Call the setup method of the parent class
+        
+        def mu_init_fn(rng):
+            print(rng)
+            new_key, subkey = jax.random.split(rng)
+            print(new_key, subkey)
+            val = jax.random.uniform(subkey, (1,), minval=jnp.log(2e-5), maxval=jnp.log(3e-5))
+            print(val)
+            
+            return val
 
         # Additional setup for InverseMlp
-        self.offset_param = self.param('mu_param', lambda rng: jax.random.uniform(jax.random.key(rng[0,0]), (1,), minval=jnp.log(2e-5), maxval=jnp.log(3e-5))) 
+        self.offset_param = self.param('mu_param', mu_init_fn) 
           
 
 class ModifiedMlp(nn.Module):
