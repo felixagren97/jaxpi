@@ -16,6 +16,7 @@ def get_config():
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
     
+    setting.n_obs = 1_000
     setting.guassian_noise_perc = 0.01
     setting.loss_scale = 1.0
 
