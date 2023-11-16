@@ -6,7 +6,7 @@ def get_dataset(n_t, n_x, config):
     T = 0.007 # per case 2
     L = 1 # per case 2
     
-    mu = config.setting.mu 
+    mu = config.setting.mu_n 
     E_ext = config.setting.E_ext
     n_inj = config.setting.n_inj
     n_0 = config.setting.n_0
