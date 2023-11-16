@@ -55,7 +55,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     fig_path = os.path.join(save_dir, f"drift_diffusion_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
-    if step == "":
+    if step == '':
         # save plot information as csv for later use
         combined_array = np.column_stack((t_star, x_star, u_pred, u_ref))
         csv_file_path = "Drift Diffusion.csv"
