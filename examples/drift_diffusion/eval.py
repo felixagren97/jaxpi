@@ -42,6 +42,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
     plt.grid()
+    plt.title('Charge density predictions')
     plt.xlabel("Distance [m]")
     plt.ylabel("Charge density [#/m3]")
     plt.legend()
