@@ -28,8 +28,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     u_pred = model.u_pred_fn(params, model.t_star, model.x_star)
     
-    print(f'Max overshoot: {jnp.max(u_pred)}')
-    print(f'Min overshoot: {jnp.max(u_pred)}')
+    print(f'Max overshoot:  {jnp.max(u_pred)}')
+    print(f'Min undershoot: {jnp.min(u_pred)}')
 
     
     # Plot results
