@@ -69,7 +69,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         u_ref = u_ref.reshape(-1)
         TT = TT.reshape(-1)
         XX = XX.reshape(-1)
-        data = np.column_stack((TT, XX, u_pred))
         combined_array = np.column_stack((TT, XX, u_pred, u_ref))
         csv_file_path = "Drift Diffusion.csv"
         header_names = ['t_star', 'x_star', 'u_pred', 'u_ref']
