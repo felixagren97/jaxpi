@@ -13,14 +13,8 @@ from utils import get_dataset
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
-   
-    n_t = 10  # to be overwritten
-    n_x = 10_000  # number of spatial points
-
     # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t, n_x, config)
-    # Selected time steps to evaluate, every 0.001 seconds
-    t_star = jnp.linspace(0, 0.006, 7)
+    u_ref, t_star, x_star = get_dataset(n_t=7, n_x=10_000, config=config)
 
     # Restore model
     model = models.DriftDiffusion(config, t_star, x_star)
