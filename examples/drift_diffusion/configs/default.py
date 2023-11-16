@@ -9,6 +9,13 @@ def get_config():
 
     config.mode = "train"
 
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_inj = 1e9
+    setting.n_0 = 0.1
+    setting.E_ext = 1e6
+    setting.mu = 2e-4
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Drift-diffusion"
@@ -71,6 +78,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 5000
     saving.num_keep_ckpts = 10
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 2

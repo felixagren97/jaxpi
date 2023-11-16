@@ -13,7 +13,7 @@ import wandb
 from jaxpi.samplers import UniformSampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
-
+from eval import evaluate
 import models
 from utils import get_dataset
 
@@ -31,7 +31,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_x = 128  # number of spatial points
 
     # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t, n_x)
+    u_ref, t_star, x_star = get_dataset(n_t, n_x, config)
 
     # Define domain
     t0 = t_star[0]
@@ -43,7 +43,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize model
-    model = models.DriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star)
+    model = models.DriftDiffusion(config, t_star, x_star)
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
@@ -81,5 +81,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step)
 
     return model

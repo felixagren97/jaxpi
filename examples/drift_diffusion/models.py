@@ -11,12 +11,18 @@ from matplotlib import pyplot as plt
 
 
 class DriftDiffusion(ForwardIVP):
-    def __init__(self, config, n_inj, n_0, E_ext, t_star, x_star):
+    def __init__(self, config, t_star, x_star):
         super().__init__(config)
 
         # constants
-        self.E_ext = E_ext
-        self.mu_n = 2e-4
+        self.E_ext = config.setting.E_ext
+        self.mu_n = config.setting.mu_n
+        
+        #rescale n_inj and n0 to [0,1]
+        n_inj = 1
+        n_0 = self.n_0 / self.n_inj
+        self.n_inj_scale = self.n_inj
+
         self.Temp = 293
         self.q = 1.602e-19
         self.kb = 1.38e-23
@@ -35,13 +41,17 @@ class DriftDiffusion(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Predictions over a grid
-        self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
+        self.u_pred_fn = vmap(vmap(self.scaled_u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
         u = self.state.apply_fn(params, z)
         return u[0]
+
+    def scaled_u_net(self, params, t, x): 
+        # scale predictions back up from [0,1] to [0, n_inj]
+        return self.n_inj_scale * self.u_net(params, t, x)
 
     def r_net(self, params, t, x):
         dn_t = grad(self.u_net, argnums=1)(params, t, x)
@@ -115,7 +125,7 @@ class DriftDiffusion(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
+        u_pred = self.scaled_u_net(params, self.t_star, self.x_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
