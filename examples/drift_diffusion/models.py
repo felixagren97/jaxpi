@@ -19,9 +19,9 @@ class DriftDiffusion(ForwardIVP):
         self.mu_n = config.setting.mu_n
         
         #rescale n_inj and n0 to [0,1]
-        n_inj = 1
-        n_0 = self.n_0 / self.n_inj
-        self.n_inj_scale = self.n_inj
+        n_inj = 1.0
+        n_0 = config.setting.n_0 / config.setting.n_inj
+        self.n_inj_scale = config.setting.n_inj
 
         self.Temp = 293
         self.q = 1.602e-19
