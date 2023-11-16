@@ -125,7 +125,7 @@ class DriftDiffusion(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, u_test):
-        u_pred = self.scaled_u_net(params, self.t_star, self.x_star)
+        u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
 
