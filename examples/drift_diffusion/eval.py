@@ -5,7 +5,7 @@ import ml_collections
 import jax.numpy as jnp
 
 import matplotlib.pyplot as plt
-
+import jax
 from jaxpi.utils import restore_checkpoint
 import numpy as np
 import models
@@ -57,8 +57,20 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     if step == '':
-        # save plot information as csv for later use
-        combined_array = np.column_stack((t_star, x_star, u_pred, u_ref))
+        # save plot information as csv for later use        
+        TT, XX = jnp.meshgrid(t_star, x_star, indexing='ij')
+
+        u_pred = jax.device_get(u_pred)
+
+        TT = jax.device_get(TT)
+        XX = jax.device_get(XX)
+
+        u_pred = u_pred.reshape(-1)
+        u_ref = u_ref.reshape(-1)
+        TT = TT.reshape(-1)
+        XX = XX.reshape(-1)
+        data = np.column_stack((TT, XX, u_pred))
+        combined_array = np.column_stack((TT, XX, u_pred, u_ref))
         csv_file_path = "Drift Diffusion.csv"
         header_names = ['t_star', 'x_star', 'u_pred', 'u_ref']
         np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
