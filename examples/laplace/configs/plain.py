@@ -9,6 +9,13 @@ def get_config():
 
     config.mode = "train"
 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.r_0 = 0.0001
+    setting.r_1 = 0.5
+    setting.u_0 = 1
+    setting.u_1 = 0
+    config.setting.n_r = 12_000
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace"
@@ -21,7 +28,7 @@ def get_config():
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "tanh"
+    arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
@@ -47,7 +54,7 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = None
-    weighting.init_weights = ml_collections.ConfigDict({"inner_bcs": 1.0, "outer_bcs": 1.0, "res": 1.0})
+    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
@@ -71,7 +78,7 @@ def get_config():
     saving.num_keep_ckpts = 50
 
     # # Input shape for initializing Flax models
-    config.input_dim = 1 # TODO: changed from 2 to 1, verify if correct
+    config.input_dim = 1
 
     # Integer for PRNG random seed.
     config.seed = 42
