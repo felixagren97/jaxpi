@@ -47,8 +47,6 @@ def main(argv):
     def train_sweep():
         config = FLAGS.config
 
-        wandb.init(project=config.wandb.project, name=config.wandb.name)
-
         sweep_config = wandb.config
 
         # Update config with sweep parameters
@@ -56,6 +54,8 @@ def main(argv):
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
         config.wandb.name = f"{sweep_config.activation}_{sweep_config.num_layers}_{sweep_config.layer_size}"
+        
+        wandb.init(project=config.wandb.project, name=config.wandb.name)
         
         train.train_and_evaluate(config, workdir)
 
