@@ -25,7 +25,7 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 4
+    arch.num_layers = 6
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "gelu"
