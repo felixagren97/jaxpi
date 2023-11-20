@@ -9,9 +9,16 @@ def get_config():
 
     config.mode = "train"
 
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_inj = 1e9
+    setting.n_0 = 0.1
+    setting.E_ext = 1e6
+    setting.mu_n = 2e-4
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Advection"
+    wandb.project = "PINN-Drift-Diffusion"
     wandb.name = None
     wandb.tag = None
 
@@ -22,13 +29,9 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)}
-    )
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
-    arch.reparam = ml_collections.ConfigDict(
-        {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
-    )
+    arch.periodicity = False #ml_collections.ConfigDict({"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -53,7 +56,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = "grad_norm"
+    weighting.scheme = None #"grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0, "bcs": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
