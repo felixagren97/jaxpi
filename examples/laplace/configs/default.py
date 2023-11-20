@@ -14,7 +14,7 @@ def get_config():
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
-    config.setting.n_r = 12_000 #TODO: Reduce. 
+    config.setting.n_r = 12_000
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
@@ -28,14 +28,12 @@ def get_config():
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "tanh"
+    arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
-    arch.reparam = ml_collections.ConfigDict(
-        {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
-    )
+    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -55,12 +53,12 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = "grad_norm"
+    weighting.scheme = None
     weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = False # TODO: verify: was true, but changed to false as no temporal domain
+    weighting.use_causal = False
     weighting.causal_tol = 1.0
     weighting.num_chunks = 32
 
