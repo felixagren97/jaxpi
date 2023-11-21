@@ -14,7 +14,7 @@ from utils import get_dataset
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     # Get  dataset
-    u_ref, t_star, x_star = get_dataset(n_t=7, n_x=10_000, config=config)
+    u_ref, t_star, x_star = get_dataset(n_t=8, n_x=10_000, config=config)
 
     # Restore model
     model = models.DriftDiffusion(config, t_star, x_star)

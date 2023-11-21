@@ -9,10 +9,17 @@ def get_config():
 
     config.mode = "train"
 
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_inj = 1e9
+    setting.n_0 = 0.1
+    setting.E_ext = 1e6
+    setting.mu_n = 2e-4
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Drift-diffusion"
-    wandb.name = "no_grad_norm"
+    wandb.name = "default"
     wandb.tag = None
 
     # Arch
@@ -22,9 +29,8 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)}
-    )
+    arch.periodicity = False
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict(
         {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
     )
@@ -47,9 +53,8 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-
     weighting.scheme = None
-    weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0, "bcs": 1.0})
+    weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0, "bcs" : 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
@@ -63,14 +68,15 @@ def get_config():
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
-    logging.log_preds = False
     logging.log_grads = False
     logging.log_ntk = False
+    logging.log_preds = False
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None
-    saving.num_keep_ckpts = 10
+    saving.save_every_steps = 10_000
+    saving.num_keep_ckpts = 1
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 2
