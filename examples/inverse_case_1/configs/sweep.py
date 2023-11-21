@@ -1,8 +1,5 @@
 import ml_collections
 
-import jax.numpy as jnp
-
-
 def get_config():
     """Get the default hyperparameter configuration."""
     config = ml_collections.ConfigDict()
@@ -17,8 +14,8 @@ def get_config():
     setting.n_r = 12_800    # number of spatial points 
     
     setting.n_obs = 1_000
-    setting.guassian_noise_perc = 0.01
-    setting.loss_scale = 1.0
+    setting.guassian_noise_perc = None
+    setting.loss_scale = 1e-8
 
     setting.u0 = 1
     setting.u1 = 0
@@ -52,7 +49,7 @@ def get_config():
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
-    optim.learning_rate = 1e-3
+    optim.learning_rate = 5e-4
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
@@ -72,7 +69,7 @@ def get_config():
         "observ": 1.0
     })
     weighting.momentum = 0.9
-    weighting.update_every_steps = 1000
+    weighting.update_every_steps = 2000
 
     weighting.use_causal = False 
     weighting.causal_tol = 1.0
