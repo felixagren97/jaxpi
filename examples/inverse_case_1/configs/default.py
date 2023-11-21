@@ -12,8 +12,8 @@ def get_config():
     config.setting = setting = ml_collections.ConfigDict()
     setting.r_0 = 0.001
     setting.r_1 = 0.5
-    setting.u_0 = 1
-    setting.u_1 = 0
+    setting.u0 = 1
+    setting.u1 = 0
     config.setting.n_r = 12_000
 
     setting.n_obs = 1_000
