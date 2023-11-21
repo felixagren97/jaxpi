@@ -52,14 +52,9 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.arch.arch_name = sweep_config.arch_name
         config.arch.layer_size = sweep_config.layer_size
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
-        config.arch.reparam = sweep_config.arch_reparam
-
-        config.weighting.scheme = sweep_config.weighting_scheme
-        config.weighting.causal_tol = sweep_config.causal_tol
 
         train.train_and_evaluate(config, workdir)
 
