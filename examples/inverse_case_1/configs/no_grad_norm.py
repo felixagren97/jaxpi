@@ -26,7 +26,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Poisson-Ablation"
-    wandb.name = "plain"
+    wandb.name = "default"
     wandb.tag = None
 
     # Arch
@@ -39,8 +39,8 @@ def get_config():
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
-    arch.fourier_emb = None
-    arch.reparam = None
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -55,8 +55,8 @@ def get_config():
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 200000
-    training.batch_size_per_device = 4096
+    training.max_steps = 200_000
+    training.batch_size_per_device = 516
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
@@ -81,8 +81,8 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = 10000
-    saving.num_keep_ckpts = 50
+    saving.save_every_steps = 10_000
+    saving.num_keep_ckpts = 1
     saving.plot = True
 
     # # Input shape for initializing Flax models
