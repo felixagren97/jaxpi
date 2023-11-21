@@ -19,7 +19,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace"
-    wandb.name = "default"
+    wandb.name = "no_fourier_feature"
     wandb.tag = None
 
     # Arch
@@ -32,7 +32,7 @@ def get_config():
     arch.periodicity = ml_collections.ConfigDict(
         {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
     )
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.fourier_emb = None
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
