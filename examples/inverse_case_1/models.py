@@ -122,7 +122,14 @@ class InversePoisson(ForwardIVP):
         u_pred = self.u_pred_fn(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
-
+    
+    @partial(jit, static_argnums=(0,))
+    def compute_parameter_l2_error(self, params, config):
+        rho_pred = params['params']['rho_param'][0] * config.setting.rho_scale 
+        rho_ref = config.setting.true_rho
+        error = jnp.abs(rho_pred-rho_ref)/rho_ref
+        return error
+    
 
 class LaplaceEvaluator(BaseEvaluator):
     def __init__(self, config, model):
@@ -131,6 +138,10 @@ class LaplaceEvaluator(BaseEvaluator):
     def log_errors(self, params, u_ref):
         l2_error = self.model.compute_l2_error(params, u_ref)
         self.log_dict["l2_error"] = l2_error
+
+    def log_param_errors(self, params, config):
+        param_error = self.model.compute_parameter_l2_error(params, config)
+        self.log_dict["l2_param_error"] = param_error
 
     def log_preds(self, params):
         u_pred = self.model.u_pred_fn(params, self.model.r_star)
@@ -148,6 +159,7 @@ class LaplaceEvaluator(BaseEvaluator):
 
         if self.config.logging.log_errors:
             self.log_errors(state.params, u_ref)
+            self.log_param_errors(state.params, self.config)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
