@@ -18,10 +18,10 @@ def get_config():
 
     setting.n_obs = 1_000
     setting.guassian_noise_perc = None
-    setting.loss_scale = 1e-10
+    setting.loss_scale = 1e-8
 
-    setting.true_rho = 1e-2
-    setting.rho_scale = 1e-3
+    setting.true_rho = 1e-3
+    setting.rho_scale = 1e-4
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
@@ -48,7 +48,7 @@ def get_config():
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
-    optim.learning_rate = 1e-3
+    optim.learning_rate = 5e-4
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
@@ -63,7 +63,7 @@ def get_config():
     weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"res": 1.0, "observ": 1.0})
     weighting.momentum = 0.9
-    weighting.update_every_steps = 1000
+    weighting.update_every_steps = 2000
 
     weighting.use_causal = False
     weighting.causal_tol = 1.0
