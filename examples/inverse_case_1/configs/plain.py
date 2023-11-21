@@ -75,8 +75,8 @@ def get_config():
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
-    logging.log_grads = True
-    logging.log_ntk = True
+    logging.log_grads = False
+    logging.log_ntk = False
     logging.log_preds = False
 
     # Saving
