@@ -123,7 +123,6 @@ class InversePoisson(ForwardIVP):
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
     
-    @partial(jit, static_argnums=(0,))
     def compute_parameter_l2_error(self, params, config):
         rho_pred = params['params']['rho_param'][0] * config.setting.rho_scale 
         rho_ref = config.setting.true_rho
