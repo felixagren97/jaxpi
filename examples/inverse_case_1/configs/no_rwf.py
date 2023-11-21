@@ -10,15 +10,22 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0001
+    setting.r_0 = 0.001
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
     config.setting.n_r = 12_000
 
+    setting.n_obs = 1_000
+    setting.guassian_noise_perc = None
+    setting.loss_scale = 1e-10
+
+    setting.true_rho = 1e-2
+    setting.rho_scale = 1e-5
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
+    wandb.project = "PINN-Inverse-Poisson-Ablation"
     wandb.name = "no_rwf"
     wandb.tag = None
 
