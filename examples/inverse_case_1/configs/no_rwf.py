@@ -21,7 +21,7 @@ def get_config():
     setting.loss_scale = 1e-10
 
     setting.true_rho = 1e-2
-    setting.rho_scale = 1e-5
+    setting.rho_scale = 1e-4
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
