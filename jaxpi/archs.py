@@ -173,7 +173,7 @@ class InverseMlpRho(Mlp):
         super().setup()  # Call the setup method of the parent class
 
         # Additional setup for InverseMlp
-        self.rho_param = self.param('rho_param', lambda rng: jax.random.uniform(rng, (1,)))
+        self.rho_param = self.param('rho_param', lambda rng: jax.random.uniform(rng, (1,), minval=jnp.log(0.05), maxval=jnp.log(0.5)))
 
 
 class InverseMlpMu(Mlp):
