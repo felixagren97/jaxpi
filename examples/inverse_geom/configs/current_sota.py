@@ -79,6 +79,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 10_000
     saving.num_keep_ckpts = 2
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
