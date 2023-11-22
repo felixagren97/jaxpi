@@ -21,7 +21,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Geometry-Ablation"   
-    wandb.name = "current_sota"
+    wandb.name = "no_fourier_feature"
     wandb.tag = None
 
     # Arch
