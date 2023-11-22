@@ -11,6 +11,8 @@ def get_log_keys(log_dict):
             key_list.append(key)
         elif key.endswith("_param"):
             key_list.append(key)
+        elif key.endswith("_pred"):
+            key_list.append(key)
     return key_list
 
 
