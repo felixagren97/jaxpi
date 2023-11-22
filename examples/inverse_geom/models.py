@@ -98,7 +98,7 @@ class InversePoisson(ForwardIVP):
         return error
     
     def compute_parameter_l2_error(self, params, config):
-        r0_pred = jnp.exp(params['params']['offset_param'])
+        r0_pred = jnp.exp(params['params']['offset_param'][0])
         r0_ref = jnp.exp(config.setting.true_offset)
         error = jnp.abs(r0_pred-r0_ref)/r0_ref
         return error
