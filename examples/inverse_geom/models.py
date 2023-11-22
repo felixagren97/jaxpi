@@ -50,32 +50,23 @@ class InversePoisson(ForwardIVP):
         return (r+C) * du_rr + du_r + (self.rho/self.eps) * (r+C) 
     
     @partial(jit, static_argnums=(0,))
-    def res_and_w(self, params, batch): #TODO: think should never be called
+    def res_and_w(self, params, batch):
         raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
 
     @partial(jit, static_argnums=(0,))
-    def losses(self, params, batch):    #TODO: Implement loss for observed synthetic data.
-        # inner boundary condition 
-        u_pred = self.u_net(params, self.r0)
-        inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
-
-        # outer boundary condition 
-        u_pred = self.u_net(params, self.r1)
-        outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
-
+    def losses(self, params, batch):
         # Residual loss
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
         else:
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
-            
             res_loss = jnp.mean((r_pred) ** 2)
 
         # Observation loss
         obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_r)
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
 
-        loss_dict = {"inner_bcs": inner_bcs_loss, "outer_bcs": outer_bcs_loss, "res": res_loss, "observ": obs_loss}
+        loss_dict = {"res": res_loss, "observ": obs_loss}
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
@@ -105,6 +96,12 @@ class InversePoisson(ForwardIVP):
         u_pred = self.u_pred_fn(params, self.r_star)
         error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
         return error
+    
+    def compute_parameter_l2_error(self, params, config):
+        r0_pred = jnp.exp(params['params']['offset_param'])
+        r0_ref = jnp.exp(config.setting.true_offset)
+        error = jnp.abs(r0_pred-r0_ref)/r0_ref
+        return error
 
 
 class InversePoissonEvaluator(BaseEvaluator):
@@ -114,6 +111,10 @@ class InversePoissonEvaluator(BaseEvaluator):
     def log_errors(self, params, u_ref):
         l2_error = self.model.compute_l2_error(params, u_ref)
         self.log_dict["l2_error"] = l2_error
+
+    def log_param_errors(self, params, config):
+        param_error = self.model.compute_parameter_l2_error(params, config)
+        self.log_dict["l2_param_error"] = param_error
 
     def log_preds(self, params):
         u_pred = self.model.u_pred_fn(params, self.model.r_star)
@@ -131,6 +132,7 @@ class InversePoissonEvaluator(BaseEvaluator):
 
         if self.config.logging.log_errors:
             self.log_errors(state.params, u_ref)
+            self.log_param_errors(state.params, self.config)
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)

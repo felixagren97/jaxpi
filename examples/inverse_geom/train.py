@@ -4,7 +4,7 @@ import time
 import jax
 import jax.numpy as jnp
 from jax.tree_util import tree_map
-
+from eval import evaluate
 import ml_collections
 
 # from absl import logging
@@ -52,23 +52,20 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Problem setup
     r_0 = config.setting.r_0  # inner radius
     r_1 = config.setting.r_1  # outer radius
-    n_r = config.setting.n_r  # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    n_r = config.setting.n_r
+    u0 = 1
+    u1 = 0
 
     true_offset = config.setting.true_offset
-    
 
     # Get  dataset
     u_ref, r_star = get_dataset(r_0, r_1, n_r, true_offset)
-
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 =  1 #u_ref[0]
-    u1 = 0 #u_ref[-1] # need to add to loss as well? 
 
     # Define domain
     r0 = r_star[0]
     r1 = r_star[-1]
 
-    dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
+    dom = jnp.array([r0, r1])
 
     # Initialize model
     model = models.InversePoisson(config, u0, u1, r_star, true_offset)
@@ -100,8 +97,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
                 
                 log_dict = evaluator(state, batch, u_ref)
-                offset = state.params['params']['offset_param'][0]
-                log_dict['offset_param'] = offset
+                r0_pred = jnp.exp(state.params['params']['offset_param'])
+                log_dict['r0_pred'] = r0_pred
                 wandb.log(log_dict, step)
                 end_time = time.time()
 
@@ -115,5 +112,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step+1)
 
     return model

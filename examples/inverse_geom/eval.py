@@ -5,14 +5,14 @@ from math import floor, log
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
-
+import numpy as np
 from jaxpi.utils import restore_checkpoint
 import models
 from utils import get_dataset
 
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     
     eps = 8.85e-12
     rho = 5e-10
@@ -115,16 +115,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
 
-    
-    # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     # save as png for easy copy
-    fig_path = os.path.join(save_dir, "inverse_poisson.png")
+    fig_path = os.path.join(save_dir, f"inverse_poisson_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     # To view in colab, run, run: 
@@ -132,21 +128,30 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Image(filename='/content/jaxpi/examples/inverse_case_1/figures/current_sota/inverse_poisson.png')
 
     # --- final result prints ---
-    print('\n--------- SUMMARY ---------\n')
-    # print L2 error
-    l2_error = model.compute_l2_error(params, u_ref)
-    print("L2 error:       {:.3e}".format(l2_error))  
+    if step == '':
+        print('\n--------- SUMMARY ---------\n')
+        # print L2 error
+        l2_error = model.compute_l2_error(params, u_ref)
+        print("L2 error:       {:.3e}".format(l2_error))  
 
-    # print the predicted & final rho values
-    offset_pred = jnp.exp(model.state.params['params']['offset_param'][0]) 
-    offset_ref = config.setting.true_offset
-    rel_error = (offset_pred-offset_ref)/offset_ref
-    #pred_scale = abs(floor(log(rho_pred, 10)))
-    #rho_pred = round(rho_pred, pred_scale + 3)
-    print(f'Predicted Offset:  {offset_pred}')
-    print(f'True Offset:       {offset_ref}')
-    print(f'Relative error: {rel_error:.1%}\n')
-    print('---------------------------\n')
+        # print the predicted & final rho values
+        offset_pred = jnp.exp(model.state.params['params']['offset_param'][0]) 
+        offset_ref = config.setting.true_offset
+        rel_error = (offset_pred-offset_ref)/offset_ref
+        #pred_scale = abs(floor(log(rho_pred, 10)))
+        #rho_pred = round(rho_pred, pred_scale + 3)
+        print(f'Predicted Offset:  {offset_pred}')
+        print(f'True Offset:       {offset_ref}')
+        print(f'Relative error: {rel_error:.1%}\n')
+        print('---------------------------\n')
+
+        e_pred_np, e_ref_np = jnp.array(e_pred), jnp.array(e_ref_np)
+        combined_array = np.column_stack((r_star_np, u_pred_np, u_ref_np, e_pred_np, e_ref_np))
+        csv_file_path = "inverse_case_1_geom.csv"
+        header_names = ['r_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
+        np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
+
+
 
 
     
