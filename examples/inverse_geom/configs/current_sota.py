@@ -12,6 +12,7 @@ def get_config():
     # Setting 
     config.setting = setting = ml_collections.ConfigDict()
 
+    setting.n_obs = 1e3
     setting.r_0 = 0.0    # inner radius
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
