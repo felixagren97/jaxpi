@@ -39,7 +39,7 @@ def get_observations(r0, r1, true_offset, config):
    
    C_2 = (-4 * eps - 5e-10*true_r0**2 + 5e-10 * true_r1**2) / (4 * eps * (-jnp.log(true_r0) + jnp.log(true_r1)))
    
-   obs_r = jax.random.uniform(jax.random.PRNGKey(0), (n_obs,), minval=r0, maxval=r1)
+   obs_r = jax.random.uniform(jax.random.PRNGKey(config.seed), (n_obs,), minval=r0, maxval=r1)
    
    u_exact_fn = lambda r: C_1 + C_2 * jnp.log(r+true_offset) - (rho * (r+true_offset)**2) / (4 * eps)
    u_exact = vmap(u_exact_fn)(obs_r)
