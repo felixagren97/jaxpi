@@ -26,13 +26,13 @@ def get_dataset(r_0, r_1, n_r, true_offset):
     
     return u_exact, r_star
 
-def get_observations(r0, r1, true_offset):
+def get_observations(r0, r1, true_offset, config):
     
    true_r0 = r0 + true_offset
    true_r1 = r1 + true_offset
    eps = 8.85e-12
    rho = 5e-10
-   n_obs = 1_000
+   n_obs = config.setting.n_obs
    
    C_1 = ((4*eps*jnp.log(true_r1) + rho * true_r0**2 * jnp.log(true_r1) - rho * true_r1**2 * jnp.log(true_r0)) /
       (4 * eps * (-jnp.log(true_r0) + jnp.log(true_r1))))
