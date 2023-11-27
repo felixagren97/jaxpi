@@ -61,10 +61,11 @@ class InverseDriftDiffusion(ForwardIVP):
         return u[0]
 
     def r_net(self, params, t, x):
+        # Fetching current value of mu form the parameter set
         mu_n = jnp.exp(params['params']['mu_param'])
+        
         W = mu_n * self.E_ext
         Diff = mu_n * self.kb * self.Temp/self.q 
-
 
         dn_t = grad(self.u_net, argnums=1)(params, t, x)
         dn_x = grad(self.u_net, argnums=2)(params, t, x)

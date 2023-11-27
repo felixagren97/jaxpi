@@ -49,8 +49,10 @@ class InversePoisson(ForwardIVP):
         
     def neural_net(self, params, r):
         # params = weights for NN 
-        r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
-        y = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
+        # make it a 2d array with just one column to emulate jnp.stack()
+        r_reshape = jnp.reshape(r, (1, -1)) 
+        # gives r to the neural network's (self.state) forward pass (apply_fn)
+        y = self.state.apply_fn(params, r_reshape) 
         u = y[0] # first output of the neural network
         n = y[1] # second output of the neural network
         return u, n
@@ -85,7 +87,7 @@ class InversePoisson(ForwardIVP):
 
         # Residual loss
         if self.config.weighting.use_causal == True:
-            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
+            raise NotImplementedError(f"Casual weights not supported for 1D Laplace!")
         else:
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0])
             r_pred *= self.loss_scale 
@@ -109,7 +111,7 @@ class InversePoisson(ForwardIVP):
 
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
-            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
+            raise NotImplementedError(f"Casual weights not supported for 1D Laplace!")
 
         else:
             res_ntk = vmap(ntk_fn, (None, None, 0))(
