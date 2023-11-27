@@ -13,3 +13,11 @@ $$\begin{aligned}
         & t \in [0, 0.007]
     \end{cases}
 \end{aligned}$$
+for volume density of positive ions $n(t,x)$. The L2 error is calculated against the approximative solution for $E >> \frac{k_b T}{q}$
+
+$$
+n(t,x) \approx
+\begin{cases} 
+& n_{inj}, \quad x \leq \mu E t \\
+& n_0,  \quad \text{else}
+\end{cases}$$
