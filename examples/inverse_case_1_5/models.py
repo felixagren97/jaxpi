@@ -36,9 +36,9 @@ class InversePoisson(ForwardIVP):
 
         # Number of points to sample for observation loss
         if config.setting.guassian_noise_perc is not None:
-            self.obs_x, self.obs_u =  get_noisy_observations(config)
+            self.obs_x, self.obs_u = get_noisy_observations(config)
         else:    
-            self.obs_x, self.obs_u =  get_observations(config)
+            self.obs_x, self.obs_u = get_observations(config)
 
         self.k = config.setting.k   
 
