@@ -116,6 +116,7 @@ class UModel(ForwardIVP):
         u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
         return u_error
 
+
 class NModel(ForwardIVP):
     def __init__(self, config, t_star, x_star, u_model):
         super().__init__(config)
