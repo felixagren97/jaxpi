@@ -80,7 +80,7 @@ class InversePoisson(ForwardIVP):
     
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch):
-        raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
+        raise NotImplementedError(f"Casual weights not supported for 1D Laplace!")
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch): 
