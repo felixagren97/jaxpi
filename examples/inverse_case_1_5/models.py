@@ -34,10 +34,6 @@ class InversePoisson(ForwardIVP):
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
-        # Observations
-        n_obs = config.setting.n_obs
-        obs_file=config.setting.obs_file
-
         # Number of points to sample for observation loss
         if config.setting.guassian_noise_perc is not None:
             self.obs_x, self.obs_u =  get_noisy_observations(config)
@@ -81,18 +77,11 @@ class InversePoisson(ForwardIVP):
         return 1 - 1 / (1 + jnp.exp(-2 * k * (x - a)))
     
     @partial(jit, static_argnums=(0,))
-    def res_and_w(self, params, batch): #TODO: think should never be called
+    def res_and_w(self, params, batch):
         raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
 
     @partial(jit, static_argnums=(0,))
-    def losses(self, params, batch):    #TODO: Implement loss for observed synthetic data.
-        # inner boundary condition 
-        #u_pred = self.u_net(params, self.x0)
-        #inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
-
-        # outer boundary condition 
-        #u_pred = self.u_net(params, self.x1)
-        #outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
+    def losses(self, params, batch): 
 
         # Residual loss
         if self.config.weighting.use_causal == True:
