@@ -16,7 +16,7 @@ def get_config():
     setting.u1 = 0
     config.setting.n_r = 12_000
 
-    setting.n_obs = 1_000
+    setting.n_obs = 100
     setting.guassian_noise_perc = None
     setting.loss_scale = 1e-8
 
@@ -25,7 +25,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Poisson-Ablation"
+    wandb.project = "PINN-Inverse-Poisson-Ablation-100-obs"
     wandb.name = "plain"
     wandb.tag = None
 
