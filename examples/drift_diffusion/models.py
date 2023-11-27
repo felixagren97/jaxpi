@@ -45,6 +45,7 @@ class DriftDiffusion(ForwardIVP):
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
     def u_net(self, params, t, x):
+        # Forward pass through the network to obtain û(t,x)
         z = jnp.stack([t, x])
         u = self.state.apply_fn(params, z)
         return u[0]
@@ -74,6 +75,7 @@ class DriftDiffusion(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
+        
         # Initial loss 
         u_pred = vmap(self.u_net, (None, None, 0))(params, self.t0, self.x_star)
         ics_loss = jnp.mean((self.n_0s[1:] - u_pred[1:]) ** 2) # slicing to exclude x = 0

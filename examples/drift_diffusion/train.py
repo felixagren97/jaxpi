@@ -44,6 +44,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize model
     model = models.DriftDiffusion(config, t_star, x_star)
+    
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 

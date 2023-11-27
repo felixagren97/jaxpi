@@ -1,4 +1,4 @@
-# Advection equation
+# Drift-Diffusion equation
 
 ## Problem Setup
 
