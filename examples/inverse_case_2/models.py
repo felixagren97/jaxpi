@@ -106,9 +106,6 @@ class InverseDriftDiffusion(ForwardIVP):
 
         # Observation 
         obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x) 
-        print('obs_u_pred max:', jnp.max(obs_u_pred[0]))
-        print('obs_umax:', jnp.max(self.obs_u[0]))
-
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
 
         # Residual loss
