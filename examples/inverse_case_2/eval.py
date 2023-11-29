@@ -2,6 +2,7 @@ import os
 
 import ml_collections
 
+import numpy as np
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ import models
 from utils import get_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
    # Problem setup
     n_t = 200  # number of time steps
     n_x = 10_000  # number of spatial points
@@ -45,6 +46,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Scaling back with n_inj
     u_pred *= model.n_inj_scale
     obs_u *= model.n_inj_scale
+
     # Compute L2 error
     print('Max predicted n:' , jnp.max(u_pred))
     print('Min predicted n:' , jnp.min(u_pred))
@@ -79,9 +81,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "Inverse_drift_diffusion.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-    fig_path = os.path.join(save_dir, "Inverse_drift_diffusion.png")
+    fig_path = os.path.join(save_dir, f"Inverse_drift_diffusion_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     
     # --- final result prints ---
@@ -96,3 +96,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     print(f'Relative error: {rel_error:.1%}\n')
     print('---------------------------\n')
 
+    
+
+    #if step == "":
+        #x_star_np = jnp.array(x_star)
+        #t_pred_np = jnp.array(t_star)
+        #u_pred_np = jnp.array(u_pred)
+        #e_pred_np = jnp.array(e_pred)
+        #e_ref_np = jnp.array(e_ref)
+
+        # save plot information as csv for later use
+        #combined_array = np.column_stack((x_star_np, t_pred_np, u_pred_np, e_pred_np, e_ref_np))
+        #csv_file_path = "inverse_drift_diffusion.csv"
+        #header_names = ['x_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
+        #np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
