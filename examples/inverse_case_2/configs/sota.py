@@ -22,7 +22,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case-2"
-    wandb.name = "sigmoid"
+    wandb.name = "sota"
     wandb.tag = None
 
     # Arch
@@ -31,7 +31,7 @@ def get_config():
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "gelu"
+    arch.activation = "sigmoid"
     arch.periodicity = False # ml_collections.ConfigDict( {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict(

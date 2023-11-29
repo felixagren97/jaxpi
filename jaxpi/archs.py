@@ -155,6 +155,7 @@ class Mlp(nn.Module):
             x = self.activation_fn(x)
 
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
+        x = self.activation_fn(x)
         return x
 
 class InverseMlpOffset(Mlp):
