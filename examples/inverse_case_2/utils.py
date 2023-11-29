@@ -16,7 +16,6 @@ def get_dataset(n_t, n_x, true_mu, config):
         result = jnp.where(condition, n_inj, n_0)
         return result
 
-    
     # Vecorized format of analytical solution
     u_exact_fn = vmap(vmap(analytical_solution, (None, 0)), (0, None))
 
