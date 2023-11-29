@@ -39,7 +39,7 @@ def main(argv):
     parameters_dict = {
         "layer_size": {"values": [256, 512]},
         "num_layers": {"values": [4, 6]},
-        "activation": {"values": ["tanh", "sigmoid"]}
+        "activation": {"values": ["tanh", "sigmoid", "gelu"]}
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -55,7 +55,7 @@ def main(argv):
         config.arch.layer_size = sweep_config.layer_size
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
-        config.wandb.name = f"{sweep_config.activation}_{sweep_config.num_layers}_{sweep_config.layer_size}"
+        #config.wandb.name = f"{sweep_config.activation}_{sweep_config.num_layers}_{sweep_config.layer_size}"
         
         
         
