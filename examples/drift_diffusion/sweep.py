@@ -39,7 +39,7 @@ def main(argv):
     parameters_dict = {
         "layer_size": {"values": [256, 512]},
         "num_layers": {"values": [4, 6]},
-        "activation": {"values": ["tanh", "gelu"]}
+        "activation": {"values": ["tanh", "sigmoid"]}
     }
 
     sweep_config["parameters"] = parameters_dict

@@ -24,7 +24,7 @@ def get_config():
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "Mlp"
+    arch.arch_name = "MlpDriftDiffusion"
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
@@ -46,8 +46,8 @@ def get_config():
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 400000
-    training.batch_size_per_device = 4096
+    training.max_steps = 200000
+    training.batch_size_per_device = 1024
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
