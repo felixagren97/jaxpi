@@ -51,7 +51,7 @@ class InverseDriftDiffusion(ForwardIVP):
         self.t1 = t_star[-1]
 
         # Predictions over a grid
-        self.u_pred_fn = vmap(vmap(self.scaled_u_net, (None, None, 0)), (None, 0, None))
+        self.u_pred_fn = vmap(vmap(self.u_net, (None, None, 0)), (None, 0, None))
         self.r_pred_fn = vmap(vmap(self.r_net, (None, None, 0)), (None, 0, None))
 
     def add_noise_to_data(self, u_exact):
@@ -64,9 +64,9 @@ class InverseDriftDiffusion(ForwardIVP):
         u = self.state.apply_fn(params, z)
         return u[0]
     
-    def scaled_u_net(self, params, t, x): 
-        # scale predictions back up from [0,1] to [0, n_inj]
-        return self.n_inj_scale * self.u_net(params, t, x)
+    #def scaled_u_net(self, params, t, x): 
+    #    # scale predictions back up from [0,1] to [0, n_inj]
+    #    return self.n_inj_scale * self.u_net(params, t, x)
 
     def r_net(self, params, t, x):
         # Fetching current value of mu form the parameter set
@@ -106,8 +106,8 @@ class InverseDriftDiffusion(ForwardIVP):
 
         # Observation 
         obs_u_pred = self.u_pred_fn(params, self.obs_t, self.obs_x) 
-        print('obs_u_pred max:', jnp.max(obs_u_pred))
-        print('obs_umax:', jnp.max(self.obs_u))
+        print('obs_u_pred max:', jnp.max(obs_u_pred[0]))
+        print('obs_umax:', jnp.max(self.obs_u[0]))
 
         obs_loss = jnp.mean((self.obs_u - obs_u_pred) ** 2)
 
