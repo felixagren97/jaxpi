@@ -31,7 +31,7 @@ def get_config():
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "sigmoid"
+    arch.activation = "gelu"
     arch.periodicity = False # ml_collections.ConfigDict( {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict(
@@ -52,7 +52,7 @@ def get_config():
     # Training
     config.training = training = ml_collections.ConfigDict()
     training.max_steps = 200000
-    training.batch_size_per_device = 4096
+    training.batch_size_per_device = 1024
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
