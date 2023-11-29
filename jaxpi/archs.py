@@ -155,7 +155,26 @@ class Mlp(nn.Module):
             x = self.activation_fn(x)
 
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
-        x = self.activation_fn(x)
+        return x
+
+class MlpDriftDiffusion(Mlp):
+
+    def setup(self):
+        super().setup()  # Call the setup method of the parent class
+
+    @nn.compact
+    def __call__(self, x):
+        if self.periodicity:
+            x = PeriodEmbs(**self.periodicity)(x)
+        if self.fourier_emb:
+            x = FourierEmbs(**self.fourier_emb)(x)
+
+        for _ in range(self.num_layers):
+            x = Dense(features=self.layer_size, reparam=self.reparam)(x)
+            x = self.activation_fn(x)
+
+        x = Dense(features=self.out_dim, reparam=self.reparam)(x)
+        x = nn.sigmoid(x)
         return x
 
 class InverseMlpOffset(Mlp):
@@ -177,7 +196,7 @@ class InverseMlpRho(Mlp):
         self.rho_param = self.param('rho_param', lambda rng: jax.random.uniform(rng, (1,)))
 
 
-class InverseMlpMu(Mlp):
+class InverseMlpMu(MlpDriftDiffusion):
     arch_name: Optional[str] = "InverseMlpMu"
 
     def setup(self):

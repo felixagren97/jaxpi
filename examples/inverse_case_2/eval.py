@@ -53,7 +53,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
    
     
     # Plot results
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure()
     if config.setting.noise_level is not None:
         plt.scatter(obs_x_test, obs_u[0,:], c="blue", label='Observations')
         plt.scatter(obs_x_test, obs_u[1,:], c="orange", label='Observations')
@@ -81,7 +81,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, f"Inverse_drift_diffusion_{step+1}.png")
+    fig_path = os.path.join(save_dir, f"Inverse_drift_diffusion_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     
     # --- final result prints ---
