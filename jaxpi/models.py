@@ -60,6 +60,9 @@ def _create_arch(config):
     elif config.arch_name == "InverseMlpMu":
         arch = archs.InverseMlpMu(**config)
 
+    elif config.arch_name == "MlpDriftDiffusion":
+        arch = archs.MlpDriftDiffusion(**config)
+
     else:
         raise NotImplementedError(f"Arch {config.arch_name} not supported yet!")
 

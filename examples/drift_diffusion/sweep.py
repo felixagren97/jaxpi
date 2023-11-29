@@ -55,7 +55,7 @@ def main(argv):
         config.arch.layer_size = sweep_config.layer_size
         config.arch.num_layers = sweep_config.num_layers
         config.arch.activation = sweep_config.activation
-        #config.wandb.name = f"{sweep_config.activation}_{sweep_config.num_layers}_{sweep_config.layer_size}"
+        config.wandb.name = f"{sweep_config.activation}_{sweep_config.num_layers}_{sweep_config.layer_size}"
         
         
         
