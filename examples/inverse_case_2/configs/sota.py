@@ -22,7 +22,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case-2"
-    wandb.name = "sota"
+    wandb.name = "sigmoid"
     wandb.tag = None
 
     # Arch
@@ -79,6 +79,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 10000
     saving.num_keep_ckpts = 10
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 2
