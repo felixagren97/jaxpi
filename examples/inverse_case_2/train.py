@@ -24,16 +24,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     wandb.init(project=wandb_config.project, name=wandb_config.name)
 
     # Problem setup
-    E_ext = 1e6
-    n_0 = 0.1/1e9
-    n_inj = 1
-    n_t = 200  # number of time steps TODO: Increase?
+    n_t = 200  # number of time steps 
     n_x = 128  # number of spatial points
 
     true_mu = config.setting.true_mu
 
     # Get  dataset
-    u_ref, t_star, x_star, u_exact_fn = get_dataset(n_t, n_x, true_mu, n_inj, n_0)
+    u_ref, t_star, x_star, u_exact_fn = get_dataset(n_t, n_x, true_mu, config)
 
     # Define domain
     t0 = t_star[0]
@@ -45,7 +42,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([[t0, t1], [x0, x1]])
 
     # Initialize model
-    model = models.InverseDriftDiffusion(config, n_inj, n_0, E_ext, t_star, x_star, u_exact_fn)
+    model = models.InverseDriftDiffusion(config, t_star, x_star, u_exact_fn)
     # Initialize residual sampler
     res_sampler = iter(UniformSampler(dom, config.training.batch_size_per_device))
 
