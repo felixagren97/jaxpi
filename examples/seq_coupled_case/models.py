@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
 from jax.tree_util import tree_map
-
+from utils import get_reference_dataset
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
@@ -43,6 +43,9 @@ class UModel(ForwardIVP):
         self.r_pred_fn = vmap(self.r_net, (None, 0, 0))
         self.n_params = None
         self.tag = "u_model"
+
+        # Evaluation
+        self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -109,10 +112,9 @@ class UModel(ForwardIVP):
         return loss_dict
     
     @partial(jit, static_argnums=(0,))
-    def compute_l2_error(self, params, u_ref):
-        #TODO: Other methods have implemented for general t,x arrays, should we? 
-        u_pred = self.u_pred_fn(params, self.t_star, self.x_star)
-        
+    def compute_l2_error(self, params, _):
+        u_ref = self.u_ref
+        u_pred = self.u_pred_fn(params, self.t_ref_star, self.x_ref_star)
         u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
         return u_error
 
@@ -152,6 +154,9 @@ class NModel(ForwardIVP):
         self.u_model = u_model
         self.u_params = None
         self.tag = "n_model"
+
+        # Evaluation
+        self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
     
     def n_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -223,9 +228,9 @@ class NModel(ForwardIVP):
         return loss_dict
     
     @partial(jit, static_argnums=(0,))
-    def compute_l2_error(self, params, n_ref):
-        #TODO: Other methods have implemented for general t,x arrays, should we? 
-        n_pred = self.n_pred_fn(params, self.t_star, self.x_star)
+    def compute_l2_error(self, params, _):
+        n_ref = self.n_ref
+        n_pred = self.n_pred_fn(params, self.t_ref_star, self.x_ref_star)
         n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
         return n_error    
 
