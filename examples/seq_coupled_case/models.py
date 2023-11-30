@@ -45,7 +45,10 @@ class UModel(ForwardIVP):
         self.tag = "u_model"
 
         # Evaluation
-        self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
+        if config.eval.potential_file_path is not None:
+            self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
+        else: 
+            config.logging.log_errors = False
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -115,6 +118,7 @@ class UModel(ForwardIVP):
     def compute_l2_error(self, params, _):
         u_ref = self.u_ref
         u_pred = self.u_pred_fn(params, self.t_ref_star, self.x_ref_star)
+
         u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
         return u_error
 
@@ -156,7 +160,10 @@ class NModel(ForwardIVP):
         self.tag = "n_model"
 
         # Evaluation
-        self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
+        if config.eval.ion_density_file_path is not None:
+            self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
+        else: 
+            config.logging.log_errors = False
     
     def n_net(self, params, t, x):
         z = jnp.stack([t, x])
