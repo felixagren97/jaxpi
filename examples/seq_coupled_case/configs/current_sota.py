@@ -20,9 +20,9 @@ def get_config():
 
     # Evaluate 
     config.eval = eval = ml_collections.ConfigDict()
-    eval.ion_density_file_path = '/work/Case3-ninj_all-Conc.txt'
-    eval.potential_file_path = '/work/Case3-ninj_all-Pot.txt'
-    eval.field_file_path = '/work/Case3-ninj_all-Field.txt'
+    eval.ion_density_file_path = 'Case3-ninj_all-Conc.txt'
+    eval.potential_file_path = 'Case3-ninj_all-Pot.txt'
+    eval.field_file_path = 'Case3-ninj_all-Field.txt'
 
 
     # Weights & Biases
@@ -81,7 +81,7 @@ def get_config():
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
     logging.log_every_steps = 100
-    logging.log_errors = False
+    logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
     logging.log_grads = False
