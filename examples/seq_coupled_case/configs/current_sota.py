@@ -18,6 +18,13 @@ def get_config():
     setting.n_inj = 5e13
     setting.loss_scale = 1.0 # rescale residual loss for u with this factor before squaring (low, positive value to avoid NaN)
 
+    # Evaluate 
+    config.eval = eval = ml_collections.ConfigDict()
+    eval.ion_density_file_path = '/work/Case3-ninj_all-Conc.txt'
+    eval.potential_file_path = '/work/Case3-ninj_all-Pot.txt'
+    eval.field_file_path = '/work/Case3-ninj_all-Field.txt'
+
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Sequential-Coupled-case"
