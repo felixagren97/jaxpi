@@ -49,6 +49,8 @@ class UModel(ForwardIVP):
             self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
         else: 
             config.logging.log_errors = False
+            self.n_model.config.logging.log_errors = False
+            print('Missing reference data: Setting log_errors to False')
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -164,6 +166,8 @@ class NModel(ForwardIVP):
             self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
         else: 
             config.logging.log_errors = False
+            self.u_model.config.logging.log_errors = False
+            print('Missing reference data: Setting log_errors to False')
     
     def n_net(self, params, t, x):
         z = jnp.stack([t, x])

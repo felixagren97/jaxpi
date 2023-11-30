@@ -11,7 +11,7 @@ import train
 from jaxpi.utils import restore_checkpoint
 from jax import grad, vmap
 import models
-from utils import get_dataset
+from utils import get_dataset, get_reference_dataset
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
@@ -21,7 +21,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     n_x = 10_000
 
     # Get  dataset
-    _, _, t_star, x_star = get_dataset(n_t, n_x)
+    _, _, t_star, x_star = get_reference_dataset(n_t, n_x)
     t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
     # Restore u_model
