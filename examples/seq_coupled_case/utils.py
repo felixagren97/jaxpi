@@ -29,7 +29,7 @@ def get_reference_dataset(config, file_path):
 
     # Find rows in the header that contain '5E13'
     matching_columns = ['x'] + [col for col in header_list if injection in col]
-    if len(matching_columns < 2):
+    if len(matching_columns) < 2:
         raise ValueError(f"Reference data is missing {injection}. Consider running w/o reference data.")
     filtered_data = data[matching_columns]
     filtered_data.columns =  filtered_data.columns.str.extract(r'(t=\d+\.\d+)', expand=False) # reformat as "t=0.00x"
