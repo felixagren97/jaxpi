@@ -1,12 +1,10 @@
 import jax.numpy as jnp
 from jax import vmap
 import pandas as pd
-import re
 
 
 def get_dataset(n_t=200, n_x=128):
-    # TODO: add real dataset 
-    T = 0.007 # Reduced to 0.007 for better fit of domain. 
+    T = 0.007 # Reduced to 0.007 frpom 0.01 for better fit of domain. 
     L = 1 # per case 2
     t_star = jnp.linspace(0, T, n_t)
     x_star = jnp.linspace(0, L, n_x)
