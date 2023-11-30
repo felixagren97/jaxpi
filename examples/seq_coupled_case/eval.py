@@ -15,14 +15,22 @@ from utils import get_dataset, get_reference_dataset
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
-   
-    # Problem Setup
-    n_t = 200
-    n_x = 10_000
 
     # Get  dataset
-    _, _, t_star, x_star = get_reference_dataset(n_t, n_x)
-    t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
+    file_paths = [config.eval.potential_file_path, config.eval.field_file_path, config.eval.ion_density_file_path]
+    has_ref_data = all(path is not None for path in file_paths)
+    if has_ref_data:
+        t_star, x_star, u_ref = get_reference_dataset(config, config.eval.potential_file_path)
+        _, _, e_ref = get_reference_dataset(config, config.eval.field_file_path)
+        _, _, n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
+    else: 
+        print('Missing reference data: Setting log_errors to False')
+        # Get  dataset
+        n_t = 200
+        n_x = 10_000
+        _, _, _, x_star = get_dataset(n_t, n_x)
+        t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
+
 
     # Restore u_model
     config.weighting.init_weights = ml_collections.ConfigDict({"ru": 1.0})
@@ -53,13 +61,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     # Plot results
     fig = plt.figure(figsize=(8, 12))
     plt.subplot(3, 1, 1)
-    plt.plot(x_star, n_pred[0,:], label='t=0.000')
-    plt.plot(x_star, n_pred[1,:], label='t=0.001')
-    plt.plot(x_star, n_pred[2,:], label='t=0.002')
-    plt.plot(x_star, n_pred[3,:], label='t=0.003')
-    plt.plot(x_star, n_pred[4,:], label='t=0.004')
-    plt.plot(x_star, n_pred[5,:], label='t=0.005')
-    plt.plot(x_star, n_pred[6,:], label='t=0.006')
+    plt.plot(x_star, n_pred[0,:], label='t=1E-6')
+    plt.plot(x_star, n_pred[1,:], label='t=1E-3')
+    plt.plot(x_star, n_pred[2,:], label='t=2E-3')
+    plt.plot(x_star, n_pred[3,:], label='t=3E-3')
+    plt.plot(x_star, n_pred[4,:], label='t=4E-3')
+    plt.plot(x_star, n_pred[5,:], label='t=5E-3')
+    plt.plot(x_star, n_pred[6,:], label='t=6E-3')
     plt.grid()
     plt.xlabel("x [m]")
     plt.ylabel("Charge density n(x) [#/m3]")
@@ -74,7 +82,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     
     # plot Potential field
     plt.subplot(3, 1, 2)
-    idx_step = int(n_t/10)
     plt.plot(x_star, u_pred[0,:], label='t=0.000')
     plt.plot(x_star, u_pred[1,:], label='t=0.001')
     plt.plot(x_star, u_pred[2,:], label='t=0.002')
@@ -93,7 +100,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     # plot electrical field
     plt.subplot(3, 1, 3)
-    idx_step = int(n_t/10)
     plt.plot(x_star, e_pred[0,:], label='t=0.000')
     plt.plot(x_star, e_pred[1,:], label='t=0.001')
     plt.plot(x_star, e_pred[2,:], label='t=0.002')
@@ -136,11 +142,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         XX = jax.device_get(XX)
 
         u_pred = u_pred.reshape(-1)
-        print(u_pred[:5])
         TT = TT.reshape(-1)
-        print(TT[:5])
         XX = XX.reshape(-1)
-        print(XX[:5])
         data = np.column_stack((TT, XX, u_pred))
 
         output_file_path = 'case3_obs.dat'
