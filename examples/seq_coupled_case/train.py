@@ -1,5 +1,6 @@
 import os
 import time
+import copy
 
 import jax
 import jax.numpy as jnp
@@ -54,16 +55,15 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     u_evaluator = models.UModelEvalutor(config, u_model)
     
     # Specific Config for n_model
-    config.weighting.init_weights = ml_collections.ConfigDict({
+    n_config = copy.deepcopy(config)   # Copy to avoid alising
+    n_config.arch.activation = "sigmoid"
+    n_config.arch.arch_name = "MlpDriftDiffusion"
+    n_config.weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0,
             "rn": 1.0
     })
-    
-    # Set arch for n_model
-    config.arch.activation = "sigmoid"
-    config.arch.arch_name = "MlpDriftDiffusion"
-    
+
     # u_model is passed to n_model as last argument
     n_model = models.NModel(config, t_star, x_star, u_model)
     n_evaluator = models.NModelEvalutor(config, n_model)
