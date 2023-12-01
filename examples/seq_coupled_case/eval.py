@@ -17,19 +17,10 @@ from utils import get_dataset, get_reference_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     # Get  dataset
-    file_paths = [config.eval.potential_file_path, config.eval.field_file_path, config.eval.ion_density_file_path]
-    has_ref_data = all(path is not None for path in file_paths)
-    if has_ref_data:
-        t_star, x_star, u_ref = get_reference_dataset(config, config.eval.potential_file_path)
-        _, _, e_ref = get_reference_dataset(config, config.eval.field_file_path)
-        _, _, n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
-    else: 
-        print('Missing reference data: Setting log_errors to False')
-        # Get  dataset
-        n_t = 200
-        n_x = 10_000
-        _, _, _, x_star = get_dataset(n_t, n_x)
-        t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
+    n_t = 200
+    n_x = 10_000
+    _, _, _, x_star = get_dataset(n_t, n_x)
+    t_star = jnp.linspace(0, 0.006, 7) # overwrite t b/c only need 7 values
 
 
     # Restore u_model
@@ -69,11 +60,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, n_pred[5,:], label='t=5E-3')
     plt.plot(x_star, n_pred[6,:], label='t=6E-3')
     plt.grid()
-    plt.xlabel("x [m]")
-    plt.ylabel("Charge density n(x) [#/m3]")
-    plt.title("Charge Density over x for different timesteps")
+    plt.xlabel("Distance [m]")
+    plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+    plt.title("Predicted charge density")
     plt.legend()
     plt.tight_layout()
+    plt.xlim(x_star[0], x_star[-1])
 
     ####### ELECTRIC FIELD ######
     du_x = lambda params, t, x: -grad(u_model.u_net, argnums=2)(params, t, x)
@@ -90,9 +82,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
     plt.plot([x_star[0], x_star[-1]], [config.setting.u_0, config.setting.u_1], linestyle='--', color='black')
-    plt.xlabel("x [m]")
+    plt.xlabel("Distance [m]")
     plt.ylabel("Potential [V]")
-    plt.title("Predicted Potentials")
+    plt.title("Predicted potential")
     plt.grid()
     plt.legend()
     plt.tight_layout()
@@ -107,9 +99,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, e_pred[4,:], label='t=0.004')
     plt.plot(x_star, e_pred[5,:], label='t=0.005')
     plt.plot(x_star, e_pred[6,:], label='t=0.006')
-    plt.xlabel("x [m]")
+    plt.xlabel("Distance [m]")
     plt.ylabel("Electric field [V/m]")
-    plt.title("Predicted Electrical field")
+    plt.title("Predicted electric field")
     plt.grid()
     plt.legend()
     plt.tight_layout()
@@ -125,6 +117,64 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     plt.close(fig)
+
+    # Save COMSOL comparison
+    file_paths = [config.eval.potential_file_path, config.eval.field_file_path, config.eval.ion_density_file_path]
+    has_ref_data = all(path is not None for path in file_paths)
+    if has_ref_data:
+        t_ref_star, x_ref_star, u_ref = get_reference_dataset(config, config.eval.potential_file_path)
+        _, _, e_ref = get_reference_dataset(config, config.eval.field_file_path)
+        _, _, n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
+
+        # get new pred data
+        u_ref_pred = u_model.u_pred_fn(u_params, t_ref_star, x_ref_star)
+        n_ref_pred = n_model.n_pred_fn(n_params, t_ref_star, x_ref_star)
+        e_ref_pred = e_pred_fn(u_params, t_ref_star, x_ref_star)
+        
+        # Plot n results
+        fig = plt.figure(figsize=(8, 12))
+        plt.subplot(3, 1, 1)
+        for i, t in enumerate(t_star): 
+            plt.plot(x_ref_star, n_ref_pred[i,:], label='PINN', color='blue')
+            plt.plot(x_ref_star, n_ref[i,:], label='COMSOL', color='red')
+        plt.grid()
+        plt.xlabel("Distance [m]")
+        plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+        plt.title("Charge density predictions using PINN and COMSOL")
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_star[0], x_star[-1])
+
+        # plot Potential field
+        plt.subplot(3, 1, 2)
+        for i, t in enumerate(t_star): 
+            plt.plot(x_ref_star, u_ref_pred[i,:], label='PINN', color='blue')
+            plt.plot(x_ref_star, u_ref[i,:], label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Potential [V]")
+        plt.title("Potential predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_star[0], x_star[-1])
+
+        # plot electrical field
+        plt.subplot(3, 1, 3)
+        for i, t in enumerate(t_star): 
+            plt.plot(x_ref_star, e_ref_pred[i,:], label='PINN', color='blue')
+            plt.plot(x_ref_star, e_ref[i,:], label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Electric field [V/m]")
+        plt.title("Electric field predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_star[0], x_star[-1])
+
+        fig_path = os.path.join(save_dir, f"comp_seq_coupled_case_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+        plt.close(fig)
+
 
     # Save observations
     if step == "":
