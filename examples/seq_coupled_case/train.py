@@ -49,6 +49,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     config.weighting.init_weights = ml_collections.ConfigDict({ 
             "ru": 1.0,
         })
+    
     u_model = models.UModel(config, t_star, x_star, None)
     u_evaluator = models.UModelEvalutor(config, u_model)
     
@@ -57,7 +58,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             "ics": 1.0,
             "bcs_n": 1.0,
             "rn": 1.0
-        })
+    })
+    
+    # Set arch for n_model
+    config.arch.activation = "sigmoid"
+    config.arch.arch_name = "MlpDriftDiffusion"
     
     # u_model is passed to n_model as last argument
     n_model = models.NModel(config, t_star, x_star, u_model)
