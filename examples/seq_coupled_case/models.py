@@ -49,7 +49,7 @@ class UModel(ForwardIVP):
         if config.eval.potential_file_path is not None and has_reference_injection:
             self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
         else:
-            if config.logging.log_errors == False:
+            if config.logging.log_errors == True:
                 print('Missing reference data: Setting log_errors to False')
                 config.logging.log_errors = False
                 self.n_model.config.logging.log_errors = False
@@ -168,7 +168,7 @@ class NModel(ForwardIVP):
         if config.eval.potential_file_path is not None and has_reference_injection:
             self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
         else:
-            if config.logging.log_errors == False:
+            if config.logging.log_errors == True:
                 print('Missing reference data: Setting log_errors to False')
                 config.logging.log_errors = False
                 self.u_model.config.logging.log_errors = False
