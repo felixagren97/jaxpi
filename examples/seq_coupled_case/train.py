@@ -57,7 +57,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Specific Config for n_model
     n_config = copy.deepcopy(config)   # Copy to avoid alising
-    n_config.arch.activation = n_config.setting.activation # Activation function on hidden layers
+    n_config.arch.activation = n_config.setting.n_model_activation # Activation function on hidden layers
     n_config.arch.arch_name = "MlpDriftDiffusion"
     n_config.weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
