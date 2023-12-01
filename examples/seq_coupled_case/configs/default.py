@@ -22,7 +22,7 @@ def get_config():
     # Evaluate 
     config.eval = eval = ml_collections.ConfigDict()
     # COMSOL reference solution files (set None if not available for the current n_inj)
-    eval.ion_density_file_path = 'Case3-ninj_all-Conc.txt.tzt'
+    eval.ion_density_file_path = 'Case3-ninj_all-Conc.txt.txt'
     eval.potential_file_path = 'Case3-ninj_all-Pot.txt.txt'
     eval.field_file_path = 'Case3-ninj_all-Field.txt.txt'
 
