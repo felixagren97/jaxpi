@@ -9,6 +9,15 @@ def get_config():
 
     config.mode = "train"
 
+     # Setting
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_0 = 0.1
+    setting.n_inj = 1e9
+    setting.true_mu = 2e-4
+    setting.noise_level = None #0.01
+    setting.n_t_obs = 100 
+    setting.n_x_obs = 64
+    
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case-2"
