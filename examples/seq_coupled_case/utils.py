@@ -17,32 +17,27 @@ def get_dataset(n_t=200, n_x=128):
     return u_exact, n_exact, t_star, x_star
 
 def get_reference_dataset(config, file_path):
-    injection = format(config.setting.n_inj, '.0e').replace('e+0', 'e').replace('e+', 'e').replace('e', 'E') # convert 5e9 to '5E9'
-
-    # read file
-    header = pd.read_csv(file_path, nrows=1, skiprows=7, header=None, delimiter=',\s*', engine='python')
+    # Load data
     data = pd.read_csv(file_path, skiprows=8, delim_whitespace=True, header=None)
-    data.columns = header.iloc[0, :-1] # remove last entry that is just injection
 
-    # bad 
-    header_list = data.columns.tolist()
+    # Assign hard coded header
+    part_header = ['t=2e-6'] + [f't={i}e-3' for i in range(1,8)]
+    header = ['x'] + part_header * 4
+    data.columns = header
 
-    # Find rows in the header that contain '5E13'
-    matching_columns = ['x'] + [col for col in header_list if injection in col]
-    if len(matching_columns) < 2:
-        raise ValueError(f"Reference data is missing {injection}. Consider running w/o reference data.")
-    filtered_data = data[matching_columns]
-    filtered_data.columns =  filtered_data.columns.str.extract(r'(t=\d+\.\d+)', expand=False) # reformat as "t=0.00x"
-    # rename two exception cases
-    filtered_data.columns.values[0] = 'x'
-    filtered_data.columns.values[-1] = 't=2E-6'
-    filtered_data.insert(1, 't=2E-6', filtered_data.pop('t=2E-6')) # move t=2E-6 to front
-
-    # Extract x_star and t_star
-    x_star = jnp.array(filtered_data['x'].values)
+    x_star = data['x'].values
     t_star = jnp.arange(0.001, 0.008, 0.001)
     t_star = jnp.insert(t_star,0, 1e-6)
 
-    # Imitate vmap
-    u_ref = jnp.array(filtered_data.values[:,1:].T) # transpose to get time as rows and space as columns, remove 0:th x column
+    # Filter out columns corresponding to current injection
+    col_range = list(range(1,9))
+    column_range = {
+        5e9 : col_range,
+        5e13 : [x +     len(col_range) for x in col_range],
+        1e14 : [x + 2 * len(col_range) for x in col_range],
+        5e15 : [x + 3 * len(col_range) for x in col_range]
+    }
+    data = data.iloc[:, column_range[config.setting.n_inj]]
+    u_ref = data.values.T # Transpose to get time as rows and space as columns
+    
     return t_star, x_star, u_ref
