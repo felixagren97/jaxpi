@@ -9,7 +9,7 @@ def get_config():
 
     config.mode = "train"
 
-     # Setting
+    # Setting
     config.setting = setting = ml_collections.ConfigDict()
     setting.n_0 = 0.1
     setting.n_inj = 1e9
@@ -32,9 +32,9 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "sigmoid"
-    arch.periodicity = False #ml_collections.ConfigDict({"period": (1.0,), "axis": (1,), "trainable": (False,)})
-    arch.fourier_emb = None
-    arch.reparam = None
+    arch.periodicity = False # ml_collections.ConfigDict( {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
+    arch.fourier_emb = None #ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = None #ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -54,7 +54,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None
+    weighting.scheme = None #"grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0, "bcs" : 1.0, "obs" : 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
@@ -69,14 +69,14 @@ def get_config():
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
-    logging.log_grads = True
-    logging.log_ntk = True
+    logging.log_grads = False
+    logging.log_ntk = False
     logging.log_preds = False
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = 10000
-    saving.num_keep_ckpts = 50
+    saving.num_keep_ckpts = 10
     saving.plot = True
 
     # # Input shape for initializing Flax models
