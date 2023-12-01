@@ -135,8 +135,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         fig = plt.figure(figsize=(8, 12))
         plt.subplot(3, 1, 1)
         for i, t in enumerate(t_star): 
-            plt.plot(x_ref_star, n_ref_pred[i,:], label='PINN', color='blue')
-            plt.plot(x_ref_star, n_ref[i,:], label='COMSOL', color='red')
+            plt.plot(x_ref_star, n_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
+            plt.plot(x_ref_star, n_ref[i,:], label='COMSOL' if i == 0 else '', color='red')
         plt.grid()
         plt.xlabel("Distance [m]")
         plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
@@ -148,8 +148,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         # plot Potential field
         plt.subplot(3, 1, 2)
         for i, t in enumerate(t_star): 
-            plt.plot(x_ref_star, u_ref_pred[i,:], label='PINN', color='blue')
-            plt.plot(x_ref_star, u_ref[i,:], label='COMSOL', color='red', linestyle='--')
+            plt.plot(x_ref_star, u_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
+            plt.plot(x_ref_star, u_ref[i,:], label='COMSOL' if i == 0 else '', color='red', linestyle='--')
         plt.xlabel("Distance [m]")
         plt.ylabel("Potential [V]")
         plt.title("Potential predictions using PINN and COMSOL")
@@ -161,8 +161,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         # plot electrical field
         plt.subplot(3, 1, 3)
         for i, t in enumerate(t_star): 
-            plt.plot(x_ref_star, e_ref_pred[i,:], label='PINN', color='blue')
-            plt.plot(x_ref_star, e_ref[i,:], label='COMSOL', color='red', linestyle='--')
+            plt.plot(x_ref_star, e_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
+            plt.plot(x_ref_star, e_ref[i,:], label='COMSOL' if i == 0 else '', color='red', linestyle='--')
         plt.xlabel("Distance [m]")
         plt.ylabel("Electric field [V/m]")
         plt.title("Electric field predictions using PINN and COMSOL")
