@@ -17,7 +17,8 @@ def get_config():
     setting.noise_level = None #0.01
     setting.n_t_obs = 100 
     setting.n_x_obs = 64
-    
+    setting.E_ext = 1e6
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case-2"
