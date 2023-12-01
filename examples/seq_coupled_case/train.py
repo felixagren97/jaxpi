@@ -47,12 +47,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # Currently, model-specific configs are overwritten in the following way: 
     
     # Config for u_model
-    config.weighting.init_weights = ml_collections.ConfigDict({ 
+    u_config = copy.deepcopy(config)
+    u_config.weighting.init_weights = ml_collections.ConfigDict({ 
             "ru": 1.0,
         })
     
-    u_model = models.UModel(config, t_star, x_star, None)
-    u_evaluator = models.UModelEvalutor(config, u_model)
+    u_model = models.UModel(u_config, t_star, x_star, None)
+    u_evaluator = models.UModelEvalutor(u_config, u_model)
     
     # Specific Config for n_model
     n_config = copy.deepcopy(config)   # Copy to avoid alising
@@ -130,6 +131,6 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == current_model.config.training.max_steps:
                 save_sequential_checkpoints(current_model.config, workdir, current_model, other_model)
                 if current_model.config.saving.plot == True:
-                    evaluate(current_model.config, workdir, step + 1)
+                    evaluate(u_config, n_config, workdir, step + 1)
 
     return current_model, current_evaluator

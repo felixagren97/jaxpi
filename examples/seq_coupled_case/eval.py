@@ -14,7 +14,7 @@ import models
 from utils import get_dataset, get_reference_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
+def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.ConfigDict, workdir: str, step=''):
 
     # Get  dataset
     n_t = 200
@@ -24,21 +24,15 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
 
     # Restore u_model
-    config.weighting.init_weights = ml_collections.ConfigDict({"ru": 1.0})
-    u_model = models.UModel(config, t_star, x_star, None)
-    ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name, u_model.tag)
+    u_model = models.UModel(u_config, t_star, x_star, None)
+    ckpt_path = os.path.join(workdir, "ckpt", u_config.wandb.name, u_model.tag)
     u_model.state = restore_checkpoint(u_model.state, ckpt_path)
     u_params = u_model.state.params
     u_pred = u_model.u_pred_fn(u_params, t_star, x_star) 
 
     # restore n_model 
-    config.weighting.init_weights = ml_collections.ConfigDict({
-            "ics": 1.0,
-            "bcs_n": 1.0, 
-            "rn": 1.0
-        })
-    n_model = models.NModel(config, t_star, x_star, u_model)
-    ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name, n_model.tag)
+    n_model = models.NModel(n_config, t_star, x_star, u_model)
+    ckpt_path = os.path.join(workdir, "ckpt", n_config.wandb.name, n_model.tag)
     n_model.state = restore_checkpoint(n_model.state, ckpt_path)
     n_params = n_model.state.params
     n_pred = n_model.n_pred_fn(n_params, t_star, x_star) 
@@ -81,7 +75,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, u_pred[4,:], label='t=0.004')
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
-    plt.plot([x_star[0], x_star[-1]], [config.setting.u_0, config.setting.u_1], linestyle='--', color='black')
+    plt.plot([x_star[0], x_star[-1]], [u_config.setting.u_0, u_config.setting.u_1], linestyle='--', color='black')
     plt.xlabel("Distance [m]")
     plt.ylabel("Potential [V]")
     plt.title("Predicted potential")
@@ -108,7 +102,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.xlim(x_star[0], x_star[-1])
 
     # Save the figure
-    save_dir = os.path.join(workdir, "figures", config.wandb.name)
+    save_dir = os.path.join(workdir, "figures", u_config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
@@ -117,13 +111,13 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.close(fig)
 
     # Save COMSOL comparison
-    file_paths = [config.eval.potential_file_path, config.eval.field_file_path, config.eval.ion_density_file_path]
+    file_paths = [u_config.eval.potential_file_path, u_config.eval.field_file_path, u_config.eval.ion_density_file_path]
     has_ref_data = all(path is not None for path in file_paths)
-    has_ref_inj = config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
+    has_ref_inj = u_config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
     if has_ref_data and has_ref_inj:
-        t_ref_star, x_ref_star, u_ref = get_reference_dataset(config, config.eval.potential_file_path)
-        _, _, e_ref = get_reference_dataset(config, config.eval.field_file_path)
-        _, _, n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
+        t_ref_star, x_ref_star, u_ref = get_reference_dataset(u_config, u_config.eval.potential_file_path)
+        _, _, e_ref = get_reference_dataset(u_config, u_config.eval.field_file_path)
+        _, _, n_ref = get_reference_dataset(u_config, u_config.eval.ion_density_file_path)
 
         # get new pred data
         u_ref_pred = u_model.u_pred_fn(u_params, t_ref_star, x_ref_star)
