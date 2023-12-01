@@ -41,10 +41,35 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     plt.plot(x_star, u_pred[4,:], label='t=0.004')
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
+    plt.plot(x_star, u_ref[1,:], label='test analytical')
     plt.grid()
     plt.title('Charge density predictions')
     plt.xlabel("Distance [m]")
-    plt.ylabel("Charge density [#/m3]")
+    plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+    plt.legend()
+    plt.tight_layout()
+
+     # Plot results
+    fig_2 = plt.figure()
+    plt.plot(x_star, u_pred[0,:], color='blue', label='Model Prediction')
+    plt.plot(x_star, u_pred[1,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_pred[2,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_pred[3,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_pred[4,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_pred[5,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_pred[6,:], color='blue', label='_no_legend')
+    plt.plot(x_star, u_ref[0,:], linestyle='dashed', color='red', label='Analytical Solution')
+    plt.plot(x_star, u_ref[1,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.plot(x_star, u_ref[2,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.plot(x_star, u_ref[3,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.plot(x_star, u_ref[4,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.plot(x_star, u_ref[5,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.plot(x_star, u_ref[6,:], linestyle='dashed', color='red', label='_no_legend')
+    plt.grid()
+    plt.title('Predicted and Analytical Charge Density')
+    plt.xlabel("Distance [m]")
+    plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+
     plt.legend()
     plt.tight_layout()
 
@@ -55,6 +80,9 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
 
     fig_path = os.path.join(save_dir, f"drift_diffusion_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+    fig_2_path = os.path.join(save_dir, "analytical.png")
+    fig_2.savefig(fig_2_path, bbox_inches="tight", dpi=800)
 
     if step == '':
         # save plot information as csv for later use        
