@@ -45,12 +45,14 @@ class UModel(ForwardIVP):
         self.tag = "u_model"
 
         # Evaluation
-        if config.eval.potential_file_path is not None:
+        has_reference_injection = config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
+        if config.eval.potential_file_path is not None and has_reference_injection:
             self.t_ref_star, self.x_ref_star, self.u_ref = get_reference_dataset(config, config.eval.potential_file_path)
-        else: 
-            config.logging.log_errors = False
-            self.n_model.config.logging.log_errors = False
-            print('Missing reference data: Setting log_errors to False')
+        else:
+            if config.logging.log_errors == False:
+                print('Missing reference data: Setting log_errors to False')
+                config.logging.log_errors = False
+                self.n_model.config.logging.log_errors = False
 
     def u_net(self, params, t, x):
         z = jnp.stack([t, x])
@@ -160,14 +162,16 @@ class NModel(ForwardIVP):
         self.u_model = u_model
         self.u_params = None
         self.tag = "n_model"
-
+        
         # Evaluation
-        if config.eval.ion_density_file_path is not None:
+        has_reference_injection = config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
+        if config.eval.potential_file_path is not None and has_reference_injection:
             self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
-        else: 
-            config.logging.log_errors = False
-            self.u_model.config.logging.log_errors = False
-            print('Missing reference data: Setting log_errors to False')
+        else:
+            if config.logging.log_errors == False:
+                print('Missing reference data: Setting log_errors to False')
+                config.logging.log_errors = False
+                self.u_model.config.logging.log_errors = False
     
     def n_net(self, params, t, x):
         z = jnp.stack([t, x])

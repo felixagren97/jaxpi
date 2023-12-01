@@ -112,8 +112,6 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    #fig_path = os.path.join(save_dir, "coupled_case.pdf")
-    #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     plt.close(fig)
@@ -121,7 +119,8 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
     # Save COMSOL comparison
     file_paths = [config.eval.potential_file_path, config.eval.field_file_path, config.eval.ion_density_file_path]
     has_ref_data = all(path is not None for path in file_paths)
-    if has_ref_data:
+    has_ref_inj = config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
+    if has_ref_data and has_ref_inj:
         t_ref_star, x_ref_star, u_ref = get_reference_dataset(config, config.eval.potential_file_path)
         _, _, e_ref = get_reference_dataset(config, config.eval.field_file_path)
         _, _, n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
@@ -171,6 +170,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         plt.tight_layout()
         plt.xlim(x_star[0], x_star[-1])
 
+        # save image
         fig_path = os.path.join(save_dir, f"comp_seq_coupled_case_{step}.png")
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
         plt.close(fig)
