@@ -17,6 +17,7 @@ def get_config():
     setting.n_0 = 0.1
     setting.n_inj = 5e13
     setting.loss_scale = 1.0 # rescale residual loss for u with this factor before squaring (low, positive value to avoid NaN)
+    setting.n_model_activation = 'sigmoid' # Activation funtion on hidden layers for n_model
 
     # Evaluate 
     config.eval = eval = ml_collections.ConfigDict()
