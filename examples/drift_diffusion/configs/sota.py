@@ -28,10 +28,10 @@ def get_config():
     arch.num_layers = 4
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "gelu"
+    arch.activation = "sigmoid"
     arch.periodicity = False
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
-    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
+    arch.fourier_emb = None #ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = None #ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -56,7 +56,7 @@ def get_config():
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = True
+    weighting.use_causal = False
     weighting.causal_tol = 1.0
     weighting.num_chunks = 32
 
