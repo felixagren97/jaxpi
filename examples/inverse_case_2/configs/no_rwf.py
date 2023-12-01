@@ -31,7 +31,7 @@ def get_config():
     arch.activation = "sigmoid"
     arch.periodicity = False # ml_collections.ConfigDict( {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
-    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
+    arch.reparam = None #ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
