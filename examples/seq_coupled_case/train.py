@@ -65,8 +65,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     })
 
     # u_model is passed to n_model as last argument
-    n_model = models.NModel(config, t_star, x_star, u_model)
-    n_evaluator = models.NModelEvalutor(config, n_model)
+    n_model = models.NModel(n_config, t_star, x_star, u_model)
+    n_evaluator = models.NModelEvalutor(n_config, n_model)
 
     u_model.n_model = n_model
     
@@ -90,7 +90,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         batch = next(res_sampler)
 
         # alternate current_model between u_model and n_model
-        if step % config.setting.switch_every_step == 0:
+        if step % current_model.config.setting.switch_every_step == 0:
             current_model, other_model = other_model, current_model
             current_evaluator, other_evaluator = other_evaluator, current_evaluator
             current_model.update_params() # get new weights from old model before training new
@@ -98,13 +98,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         current_model.state = current_model.step(current_model.state, batch)
 
         # Update weights
-        if config.weighting.scheme in ["grad_norm", "ntk"]:
-            if step % config.weighting.update_every_steps == 0:
+        if current_model.config.weighting.scheme in ["grad_norm", "ntk"]:
+            if step % current_model.config.weighting.update_every_steps == 0:
                 current_model.state = current_model.update_weights(current_model.state, batch)
 
         # Log training metrics, only use host 0 to record results
         if jax.process_index() == 0:
-            if step % config.logging.log_every_steps == 0:
+            if step % current_model.config.logging.log_every_steps == 0:
                 # Get log for current model 
                 state = jax.device_get(tree_map(lambda x: x[0], current_model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
@@ -124,12 +124,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 logger.log_iter(step, start_time, end_time, log_dict)
 
         # Saving
-        if config.saving.save_every_steps is not None:
-            if (step + 1) % config.saving.save_every_steps == 0 or (
+        if current_model.config.saving.save_every_steps is not None:
+            if (step + 1) % current_model.config.saving.save_every_steps == 0 or (
                 step + 1
-            ) == config.training.max_steps:
-                save_sequential_checkpoints(config, workdir, current_model, other_model)
-                if config.saving.plot == True:
-                    evaluate(config, workdir, step + 1)
+            ) == current_model.config.training.max_steps:
+                save_sequential_checkpoints(current_model.config, workdir, current_model, other_model)
+                if current_model.config.saving.plot == True:
+                    evaluate(current_model.config, workdir, step + 1)
 
     return current_model, current_evaluator
