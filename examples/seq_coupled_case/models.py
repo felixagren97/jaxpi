@@ -292,7 +292,7 @@ class NModelEvalutor(BaseEvaluator):
         self.log_dict["n_error"] = n_error
     
     def log_analytical_error(self, params, config):
-        n_error = self.model.compute_analytical_l2_error(self, params, config)
+        n_error = self.model.compute_analytical_l2_error(params, config)
         self.log_dict["n_analytic_error"] = n_error
         
     def log_preds(self, params):
