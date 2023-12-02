@@ -41,3 +41,16 @@ def get_reference_dataset(config, file_path):
     u_ref = data.values.T # Transpose to get time as rows and space as columns
     
     return t_star, x_star, u_ref
+
+
+def get_analytical_n_ref(config, t_star, x_star):
+    # Define variables
+    mu = 2e-4
+    E_ext = config.setting.u_0
+    n_inj = config.setting.n_inj
+    n_0 = config.setting.n_0
+    
+    # Make predictions
+    n_exact_fn = lambda t, x: jnp.where(x <= E_ext * mu * t, n_inj, n_0)
+    n_exact = vmap(vmap(n_exact_fn, (None, 0)), (0, None))(t_star, x_star)
+    return n_exact

@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
 from jax.tree_util import tree_map
-from utils import get_reference_dataset
+from utils import get_reference_dataset, get_analytical_n_ref
 from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
@@ -163,7 +163,7 @@ class NModel(ForwardIVP):
         self.u_params = None
         self.tag = "n_model"
         
-        # Evaluation
+        # COMSOL evaluation
         has_reference_injection = config.setting.n_inj in [5e9, 5e13, 1e14, 5e15]
         if config.eval.potential_file_path is not None and has_reference_injection:
             self.t_ref_star, self.x_ref_star, self.n_ref = get_reference_dataset(config, config.eval.ion_density_file_path)
@@ -247,7 +247,13 @@ class NModel(ForwardIVP):
         n_ref = self.n_ref
         n_pred = self.n_pred_fn(params, self.t_ref_star, self.x_ref_star)
         n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
-        return n_error    
+        return n_error
+
+    def compute_analytical_l2_error(self, params, config):
+        n_ref = get_analytical_n_ref(config, self.t_star, self.x_star)
+        n_pred = self.n_pred_fn(params, self.t_ref_star, self.x_ref_star)
+        n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
+        return n_error
 
 
 class UModelEvalutor(BaseEvaluator):
@@ -284,6 +290,10 @@ class NModelEvalutor(BaseEvaluator):
     def log_errors(self, params, u_ref, n_ref):
         n_error = self.model.compute_l2_error(params, n_ref)
         self.log_dict["n_error"] = n_error
+    
+    def log_analytical_error(self, params, config):
+        n_error = self.model.compute_analytical_l2_error(self, params, config)
+        self.log_dict["n_analytic_error"] = n_error
         
     def log_preds(self, params):
         pass
@@ -297,6 +307,7 @@ class NModelEvalutor(BaseEvaluator):
 
         if self.config.logging.log_errors:
             self.log_errors(state.params, u_ref, n_ref)
+            self.log_analytical_error(state.params, self.config) # TODO: Enable logging of analytical error w/o COMSOL data
 
         if self.config.logging.log_preds:
             self.log_preds(state.params)
