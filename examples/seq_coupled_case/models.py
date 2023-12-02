@@ -251,7 +251,7 @@ class NModel(ForwardIVP):
 
     def compute_analytical_l2_error(self, params, config):
         n_ref = get_analytical_n_ref(config, self.t_star, self.x_star)
-        n_pred = self.n_pred_fn(params, self.t_ref_star, self.x_ref_star)
+        n_pred = self.n_pred_fn(params, self.t_star, self.x_star)
         n_error = jnp.linalg.norm(n_pred - n_ref) / jnp.linalg.norm(n_ref)
         return n_error
 
