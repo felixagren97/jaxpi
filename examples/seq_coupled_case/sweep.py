@@ -37,10 +37,9 @@ def main(argv):
     }
 
     parameters_dict = {
-        "arch_name": {"values": ["Mlp", "ModifiedMlp"]},
         "layer_size": {"values": [256, 512]},
         "num_layers": {"values": [4, 6]},
-        "activation": {"values": ["tanh", "gelu"]},
+        "activation": {"values": ["gelu", "tanh"]},
         "n_model_activation": {"values": ["tanh", "sigmoid"]},
     }
 
