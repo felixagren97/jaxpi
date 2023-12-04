@@ -9,26 +9,37 @@ def get_config():
 
     config.mode = "train"
 
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_scale = 5e13
+    setting.n_x = 12800
+    setting.u0 = 1e6
+    setting.u1 = 0
+    setting.k = 100
+    setting.loss_scale = 1
+
+    # Evaluate 
+    config.eval = eval = ml_collections.ConfigDict()
+    # COMSOL reference solution files (set None if not available for the current n_inj
+    eval.potential_file_path = 'Case1p5_validation_data_U_vs_x_ninj5e13.txt(1).txt'
+    eval.field_file_path = 'Case1p5_validation_data_E_vs_x_ninj5e13.txt(1).txt'
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
-    wandb.name = None
+    wandb.project = "PINN-Laplace-2.5-sweep"
+    wandb.name = "sweep"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 4
+    arch.num_layers = 8
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)}
-    )
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
-    arch.reparam = ml_collections.ConfigDict(
-        {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
-    )
+    arch.activation = "gelu"
+    arch.periodicity = ml_collections.ConfigDict({"period": (1.0, ), "axis": (1,), "trainable": (False,)}) 
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -38,29 +49,24 @@ def get_config():
     optim.eps = 1e-8
     optim.learning_rate = 1e-3
     optim.decay_rate = 0.9
-    optim.decay_steps = 5000
+    optim.decay_steps = 2000
     optim.grad_accum_steps = 0
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 400000
-    training.batch_size_per_device = 4096
-
-    # Saving
-    config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None
-    saving.num_keep_ckpts = None
+    training.max_steps = 200_000
+    training.batch_size_per_device = 1024
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = "grad_norm"
-    weighting.init_weights = ml_collections.ConfigDict({"ics": 1.0, "res": 1.0})
+    weighting.scheme = None 
+    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = True
+    weighting.use_causal = False # TODO: verify: was true, but changed to false as no temporal domain
     weighting.causal_tol = 1.0
-    weighting.num_chunks = 16
+    weighting.num_chunks = 32
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
@@ -75,9 +81,11 @@ def get_config():
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = None
+    saving.num_keep_ckpts = 10
+    saving.plot = False
 
     # # Input shape for initializing Flax models
-    config.input_dim = 2
+    config.input_dim = 1
 
     # Integer for PRNG random seed.
     config.seed = 42

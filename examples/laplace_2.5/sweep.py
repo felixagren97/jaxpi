@@ -37,18 +37,9 @@ def main(argv):
     }
 
     parameters_dict = {
-        "arch_name": {"values": ["Mlp", "ModifiedMlp"]},
         "layer_size": {"values": [256, 512]},
-        "num_layers": {"values": [3, 4, 5]},
-        "activation": {"values": ["tanh", "gelu"]},
-        "arch_reparam": {
-            "values": [
-                {"type": "weight_fact", "mean": 0.5, "stddev": 0.1},
-                {"type": "weight_fact", "mean": 1.0, "stddev": 0.1},
-            ]
-        },
-        "weighting_scheme": {"values": ["grad_norm", "ntk"]},
-        "causal_tol": {"values": [1.0, 10.0]},
+        "num_layers": {"values": [4, 6]},
+        "activation": {"values": ["tanh", "gelu", "sigmoid"]},
     }
 
     sweep_config["parameters"] = parameters_dict
