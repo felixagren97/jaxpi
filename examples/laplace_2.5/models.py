@@ -57,7 +57,7 @@ class Laplace(ForwardIVP):
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
         n = self.n_inj * self.heaviside(x=x) # Heaviside step function
-        return du_xx + self.q * n / self.epsilon
+        return du_xx * self.u_scale + self.q * n / self.epsilon
 
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch): #TODO: think should never be called

@@ -52,7 +52,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Problem setup
     n_x = config.setting.n_x    # used to be 128, but increased and kept separate for unique points
-    n_inj = config.setting.n_scale
+    n_scale = config.setting.n_scale
 
     # Get  dataset
     _, x_star = get_dataset(n_x = n_x)
@@ -70,7 +70,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([x0, x1]) 
 
     # Initialize model
-    model = models.Laplace(config, u0, u1, x_star, n_inj)
+    model = models.Laplace(config, u0, u1, x_star, n_scale)
     # Initialize residual sampler
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
