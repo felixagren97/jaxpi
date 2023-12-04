@@ -15,16 +15,15 @@ from utils import get_dataset
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
     
     # Problem setup
-
-    n_x = 50_000    # used to be 128, but increased and kept separate for unique points
+    n_x = config.setting.n_x    # used to be 128, but increased and kept separate for unique points
 
     # Get  dataset
     _, x_star = get_dataset(n_x = n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = 1e6
-    u1 = 0 # need to add to loss as well? 
-    n_inj = 1e10
+    u0 = config.setting.u0
+    u1 = config.setting.u0
+    n_inj = config.setting.n_scale
 
     # Restore model
     model = models.Laplace(config, u0, u1, x_star, n_inj)

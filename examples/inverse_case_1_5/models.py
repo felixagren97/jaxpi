@@ -54,8 +54,7 @@ class InversePoisson(ForwardIVP):
             if config.logging.log_errors == True:
                 print('Missing reference data: Setting log_errors to False')
                 config.logging.log_errors = False
-                self.u_model.config.logging.log_errors = False
-        
+                
     def neural_net(self, params, x):
         # params = weights for NN 
         # make it a 2d array with just one column to emulate jnp.stack()

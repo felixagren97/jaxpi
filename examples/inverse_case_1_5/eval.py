@@ -13,8 +13,8 @@ from utils import get_dataset, get_observations, get_reference_dataset
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
-     # Problem setup
-    n_x = config.setting.n_x    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
+    # Problem setup
+    n_x = config.setting.n_x    # number of spatial points
     n_scale = config.setting.n_scale
 
     # Get  dataset

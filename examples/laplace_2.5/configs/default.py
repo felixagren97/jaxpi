@@ -9,6 +9,15 @@ def get_config():
 
     config.mode = "train"
 
+    # Problem setting 
+    config.setting = setting = ml_collections.ConfigDict()
+    setting.n_scale = 5e13
+    setting.n_x = 12800
+    setting.u0 = 1e6
+    setting.u1 = 0
+    setting.k = 25
+    setting.loss_scale = 1
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace-2.5"

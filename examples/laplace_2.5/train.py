@@ -15,7 +15,8 @@ from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
 import models
-from utils import get_dataset
+from utils import get_dataset, get_reference_dataset
+from eval import evaluate
 
 from abc import ABC, abstractmethod
 from functools import partial
@@ -48,23 +49,24 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     logger = Logger()
     wandb_config = config.wandb
     wandb.init(project=wandb_config.project, name=wandb_config.name)
-
+    
     # Problem setup
-    n_x = 12800    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
-    n_inj = 1e10
+    n_x = config.setting.n_x    # used to be 128, but increased and kept separate for unique points
 
     # Get  dataset
-    u_ref, x_star = get_dataset(n_x=n_x)
+    _, x_star = get_dataset(n_x = n_x)
+    x_ref, E_ref, u_ref = get_reference_dataset(config, x_star)
 
-    # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
-    u0 = 1e6
-    u1 = 0 
+    # Initial condition 
+    u0 = config.setting.u0
+    u1 = config.setting.u0
+    n_inj = config.setting.n_scale
 
     # Define domain
     x0 = x_star[0]
     x1 = x_star[-1]
 
-    dom = jnp.array([x0, x1]) # TODO: used to be 2d, check if creates issues? 
+    dom = jnp.array([x0, x1]) 
 
     # Initialize model
     model = models.Laplace(config, u0, u1, x_star, n_inj)
@@ -106,5 +108,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step + 1)
 
     return model

@@ -112,5 +112,5 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
                 if config.saving.plot == True:
-                    evaluate(config, workdir, step)
+                    evaluate(config, workdir, step + 1)
     return model
