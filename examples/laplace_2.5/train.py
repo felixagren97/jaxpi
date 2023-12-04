@@ -59,7 +59,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initial condition 
     u0 = config.setting.u0
-    u1 = config.setting.u0
+    u1 = config.setting.u1
     n_inj = config.setting.n_scale
 
     # Define domain

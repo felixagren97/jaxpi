@@ -33,12 +33,12 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 4
+    arch.num_layers = 8
     arch.layer_size = 256
     arch.out_dim = 1
-    arch.activation = "tanh"
-    arch.periodicity = ml_collections.ConfigDict({"period": (1.0, ), "axis": (1,), "trainable": (False,)}) # CANNOT BE NONE/False 
-    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 1.0, "embed_dim": 256})
+    arch.activation = "gelu"
+    arch.periodicity = ml_collections.ConfigDict({"period": (1.0, ), "axis": (1,), "trainable": (False,)}) 
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
