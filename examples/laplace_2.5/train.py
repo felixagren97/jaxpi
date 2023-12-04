@@ -55,7 +55,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Get  dataset
     _, x_star = get_dataset(n_x = n_x)
-    x_ref, E_ref, u_ref = get_reference_dataset(config, x_star)
+    x_ref, E_ref, u_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
 
     # Initial condition 
     u0 = config.setting.u0
