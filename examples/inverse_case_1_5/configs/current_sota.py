@@ -12,7 +12,7 @@ def get_config():
     # Problem setting 
     config.setting = setting = ml_collections.ConfigDict()
     setting.guassian_noise_perc = 0.01
-    setting.obs_file = "obs.dat"
+    setting.obs_file = "obs_k_100.dat"
     setting.n_scale = 5e13
     setting.n_x = 12800
     setting.n_obs = 1000

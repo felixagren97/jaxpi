@@ -132,9 +132,9 @@ class InversePoisson(ForwardIVP):
         return ntk_dict
 
     @partial(jit, static_argnums=(0,))
-    def compute_l2_error(self, params, u_ref):
+    def compute_l2_error(self, params, _):
         u_pred = self.u_pred_fn(params, self.x_ref)
-        u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
+        u_error = jnp.linalg.norm(u_pred - self.u_ref) / jnp.linalg.norm(self.u_ref)
         return u_error
 
 
