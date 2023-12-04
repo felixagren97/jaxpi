@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from jaxpi.utils import restore_checkpoint
 import models
-from utils import get_dataset, get_observations
+from utils import get_dataset, get_observations, get_reference_dataset
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
@@ -114,6 +114,69 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
     fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    
+    # Save COMSOL comparison
+    file_paths = [config.eval.potential_file_path, config.eval.field_file_path]
+    has_ref_data = all(path is not None for path in file_paths)
+    print()
+    if has_ref_data:
+        x_ref_star, e_ref, u_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
+        
+        # get new pred data
+        u_ref_pred = model.u_pred_fn(params, x_ref_star)
+        n_pred = model.n_pred_fn(params, x_ref_star)
+
+        e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
+
+        e_pred = e_pred_fn(params, model.x_star)
+        e_pred *= u0
+    
+        n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+        
+        # Plot n results
+        fig = plt.figure(figsize=(8, 12))
+        plt.subplot(3, 1, 1)
+        
+        plt.plot(x_ref_star, n_pred, label='PINN', color='blue')
+        plt.plot(x_ref_star, n_values, label='True', color='red')
+        plt.grid()
+        plt.xlabel("Distance [m]")
+        plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+        plt.title("Charge density predictions using PINN and COMSOL")
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # plot Potential field
+        plt.subplot(3, 1, 2)
+        
+        plt.plot(x_ref_star, u_ref_pred, label='PINN', color='blue')
+        plt.plot(x_ref_star, u_ref, label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Potential [V]")
+        plt.title("Potential predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # plot electrical field
+        plt.subplot(3, 1, 3) 
+        plt.plot(x_ref_star, e_pred, label='PINN', color='blue')
+        plt.plot(x_ref_star, e_ref, label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Electric field [V/m]")
+        plt.title("Electric field predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # save image
+        fig_path = os.path.join(save_dir, f"comp_inv_case_1_5_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+        plt.close(fig)
+
 
     # plot observations
     if config.setting.guassian_noise_perc is not None and step == "":
