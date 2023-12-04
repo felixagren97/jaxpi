@@ -7,7 +7,7 @@ from jaxpi.models import ForwardIVP
 from jaxpi.evaluator import BaseEvaluator
 from jaxpi.utils import ntk_fn, flatten_pytree
 
-from utils import get_dataset, get_observations, get_noisy_observations
+from utils import get_dataset, get_observations, get_noisy_observations, get_reference_dataset
 
 from matplotlib import pyplot as plt
 
@@ -46,13 +46,22 @@ class InversePoisson(ForwardIVP):
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.n_pred_fn = vmap(self.n_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
+
+        # Check so that the paths are passed in the config file, if None, not used. 
+        if config.eval.potential_file_path is not None and config.eval.field_file_path is not None:
+            self.x_ref, self.E_ref, self.U_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
+        else:
+            if config.logging.log_errors == True:
+                print('Missing reference data: Setting log_errors to False')
+                config.logging.log_errors = False
+                self.u_model.config.logging.log_errors = False
         
-    def neural_net(self, params, r):
+    def neural_net(self, params, x):
         # params = weights for NN 
         # make it a 2d array with just one column to emulate jnp.stack()
-        r_reshape = jnp.reshape(r, (1, -1)) 
+        x_reshape = jnp.reshape(x, (1, -1)) 
         # gives r to the neural network's (self.state) forward pass (apply_fn)
-        y = self.state.apply_fn(params, r_reshape) 
+        y = self.state.apply_fn(params, x_reshape) 
         u = y[0] # first output of the neural network
         n = y[1] # second output of the neural network
         return u, n
@@ -123,10 +132,10 @@ class InversePoisson(ForwardIVP):
         return ntk_dict
 
     @partial(jit, static_argnums=(0,))
-    def compute_l2_error(self, params, u_test):
-        u_pred = self.u_pred_fn(params, self.x_star)
-        error = jnp.linalg.norm(u_pred - u_test) / jnp.linalg.norm(u_test)
-        return error
+    def compute_l2_error(self, params, u_ref):
+        u_pred = self.u_pred_fn(params, self.x_ref)
+        u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
+        return u_error
 
 
 class InversePoissonEvaluator(BaseEvaluator):

@@ -41,7 +41,7 @@ def get_noisy_observations(config):
     noisy_data = clean_data + noise
     return obs_x, noisy_data
 
-def get_reference_dataset(config, file_path):
+def get_reference_dataset(config, e_path, u_path):
     # Load data
     # Read the file, skipping lines starting with "%"
     
