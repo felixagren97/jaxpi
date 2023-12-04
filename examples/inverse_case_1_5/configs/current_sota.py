@@ -21,6 +21,12 @@ def get_config():
     setting.k = 25
     setting.loss_scale = 1
 
+    # Evaluate 
+    config.eval = eval = ml_collections.ConfigDict()
+    # COMSOL reference solution files (set None if not available for the current n_inj
+    eval.potential_file_path = 'Case1p5_validation_data_U_vs_x_ninj5e13.txt(1).txt'
+    eval.field_file_path = 'Case1p5_validation_data_E_vs_x_ninj5e13.txt(1).txt'
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Poisson"   
