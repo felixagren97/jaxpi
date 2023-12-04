@@ -85,10 +85,6 @@ class Laplace(ForwardIVP):
     @partial(jit, static_argnums=(0,))
     def compute_diag_ntk(self, params, batch):
 
-        #inner_bcs_ntk = self.u_net(params, self.x0)
-        #outer_bcs_ntk = self.u_net(params, self.x1)
-
-
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")

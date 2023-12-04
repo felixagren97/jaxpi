@@ -23,7 +23,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step =""):
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u_scale = config.setting.u0
     u0 = config.setting.u0
-    u1 = config.setting.u0
+    u1 = config.setting.u1
     n_inj = config.setting.n_scale
 
     # Restore model
