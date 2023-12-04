@@ -46,7 +46,7 @@ def get_reference_dataset(config, e_path, u_path):
     # Read the file, skipping lines starting with "%"
     
     # Reading comsom data for E
-    with open('Case1p5_validation_data_E_vs_x_ninj5e13.txt(1).txt', 'r') as file:
+    with open(e_path, 'r') as file:
         lines = [line for line in file if not line.startswith('%')]
 
     # Use StringIO to create a virtual file-like object for pandas to read from
@@ -60,7 +60,7 @@ def get_reference_dataset(config, e_path, u_path):
 
 
     # Reading comsom data for U
-    with open('Case1p5_validation_data_U_vs_x_ninj5e13.txt(1).txt', 'r') as file:
+    with open(u_path, 'r') as file:
         lines = [line for line in file if not line.startswith('%')]
 
     # Use StringIO to create a virtual file-like object for pandas to read from

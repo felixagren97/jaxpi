@@ -15,7 +15,7 @@ from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
 import models
-from utils import get_dataset
+from utils import get_dataset, get_reference_dataset
 
 from abc import ABC, abstractmethod
 from functools import partial
@@ -58,7 +58,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     n_scale = config.setting.n_scale
 
     # Get  dataset
-    u_ref, x_star = get_dataset(n_x=n_x)
+    _, x_star = get_dataset(n_x=n_x)
+    _, _, u_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u0 = config.setting.u0
