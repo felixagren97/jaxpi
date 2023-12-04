@@ -15,9 +15,9 @@ from matplotlib import pyplot as plt
 class Laplace(ForwardIVP):
     def __init__(self, config, u0, u1, x_star, n_inj):
         super().__init__(config)
-
-        self.u0 = u0
-        self.u1 = u1
+        self.u_scale = u0
+        self.u0 = u0 / self.u_scale
+        self.u1 = u1 / self.u_scale
         self.x_star = x_star
         self.n_inj = n_inj
 
