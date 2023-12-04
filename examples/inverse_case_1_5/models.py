@@ -49,7 +49,7 @@ class InversePoisson(ForwardIVP):
 
         # Check so that the paths are passed in the config file, if None, not used. 
         if config.eval.potential_file_path is not None and config.eval.field_file_path is not None:
-            self.x_ref, self.E_ref, self.U_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
+            self.x_ref, self.E_ref, self.u_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
         else:
             if config.logging.log_errors == True:
                 print('Missing reference data: Setting log_errors to False')
@@ -133,8 +133,9 @@ class InversePoisson(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, _):
+        u_ref = self.u_ref
         u_pred = self.u_pred_fn(params, self.x_ref)
-        u_error = jnp.linalg.norm(u_pred - self.u_ref) / jnp.linalg.norm(self.u_ref)
+        u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
         return u_error
 
 
@@ -144,7 +145,7 @@ class InversePoissonEvaluator(BaseEvaluator):
 
     def log_errors(self, params, u_ref):
         l2_error = self.model.compute_l2_error(params, u_ref)
-        self.log_dict["l2_error"] = l2_error
+        self.log_dict["u_l2_error"] = l2_error
 
     def log_preds(self, params):
         u_pred = self.model.u_pred_fn(params, self.model.r_star)
