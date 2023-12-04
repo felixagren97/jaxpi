@@ -12,7 +12,7 @@ import models
 from utils import get_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step =""):
     
     # Problem setup
     n_x = config.setting.n_x    # used to be 128, but increased and kept separate for unique points
