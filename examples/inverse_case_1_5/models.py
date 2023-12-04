@@ -135,7 +135,7 @@ class InversePoisson(ForwardIVP):
     def compute_l2_error(self, params, _):
         u_ref = self.u_ref
         u_pred = self.u_pred_fn(params, self.x_ref)
-        jnp.array(u_pred)
+        u_pred *= self.u_scale
         u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
         return u_error
 
