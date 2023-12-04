@@ -21,6 +21,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     _, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
+    u_scale = config.setting.u0
     u0 = config.setting.u0
     u1 = config.setting.u1
 
@@ -36,7 +37,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     params = model.state.params
 
     u_pred = model.u_pred_fn(params, model.x_star)
-    u_pred *= u0
+    u_pred *= u_scale
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     n_pred = model.n_pred_fn(params, model.x_star)

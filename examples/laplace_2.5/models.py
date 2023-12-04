@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 class Laplace(ForwardIVP):
     def __init__(self, config, u0, u1, x_star, n_inj):
         super().__init__(config)
+        
         self.u_scale = u0
         self.u0 = u0 / self.u_scale
         self.u1 = u1 / self.u_scale
@@ -64,14 +65,7 @@ class Laplace(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):
-        # inner boundary condition 
-        #u_pred = self.u_net(params, self.x0) #Hard boundary
-        #inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2) #Hard boundary
-
-        # outer boundary condition 
-        #u_pred = self.u_net(params, self.x1) #Hard boundary
-        #outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2) #Hard boundary
-
+        
         # Residual loss
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")

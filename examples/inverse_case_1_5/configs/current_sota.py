@@ -18,7 +18,7 @@ def get_config():
     setting.n_obs = 1000
     setting.u0 = 1e6
     setting.u1 = 0
-    setting.k = 25
+    setting.k = 100
     setting.loss_scale = 1
 
     # Evaluate 
