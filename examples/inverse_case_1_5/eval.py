@@ -124,14 +124,17 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         
         # get new pred data
         u_ref_pred = model.u_pred_fn(params, x_ref_star)
+        u_ref_pred *= config.setting.u0
+
         n_pred = model.n_pred_fn(params, x_ref_star)
+        n_pred *= model.n_scale
 
         e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
-        e_pred = e_pred_fn(params, model.x_star)
-        e_pred *= u0
-    
-        n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+        e_pred = e_pred_fn(params, x_ref_star)
+        e_pred *= config.setting.u0
+
+        n_values = n_scale * jax.vmap(model.heaviside)(x_ref_star)
         
         # Plot n results
         fig = plt.figure(figsize=(8, 12))
