@@ -40,8 +40,10 @@ def get_config():
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = False 
-    arch.fourier_emb = None
-    arch.reparam = None
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
+    arch.reparam = ml_collections.ConfigDict(
+        {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
+    )
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -61,7 +63,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None#"grad_norm"
+    weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
@@ -71,7 +73,7 @@ def get_config():
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
-    weighting.use_causal = False
+    weighting.use_causal = True
     weighting.causal_tol = 1.0
     weighting.num_chunks = 32
 

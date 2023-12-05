@@ -40,7 +40,7 @@ def get_config():
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = False 
-    arch.fourier_emb = None
+    arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = None
 
     # Optim
@@ -61,7 +61,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None#"grad_norm"
+    weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 

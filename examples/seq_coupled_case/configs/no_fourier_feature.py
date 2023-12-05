@@ -41,7 +41,9 @@ def get_config():
     arch.activation = "gelu"
     arch.periodicity = False 
     arch.fourier_emb = None
-    arch.reparam = None
+    arch.reparam = ml_collections.ConfigDict(
+        {"type": "weight_fact", "mean": 1.0, "stddev": 0.1}
+    )
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
@@ -61,7 +63,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None#"grad_norm"
+    weighting.scheme = "grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({
             "ics": 1.0,
             "bcs_n": 1.0, 
