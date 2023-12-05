@@ -28,8 +28,8 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Sequential-Coupled-case"
-    wandb.name = "current_sota"
+    wandb.project = "Ablation-PINN-Sequential-Coupled-case-5e13"
+    wandb.name = "default"
     wandb.tag = None
 
     # Arch
