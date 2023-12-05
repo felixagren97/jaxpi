@@ -29,7 +29,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "Ablation-PINN-Sequential-Coupled-case-5e13"
-    wandb.name = "default"
+    wandb.name = "no_fourier_feature"
     wandb.tag = None
 
     # Arch
