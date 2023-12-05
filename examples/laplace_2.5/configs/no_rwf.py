@@ -33,7 +33,7 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 8
+    arch.num_layers = 6
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "gelu"
@@ -59,7 +59,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = None 
+    weighting.scheme = None
     weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
