@@ -30,7 +30,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Poisson"   
-    wandb.name = "default"
+    wandb.name = "no_grad_norm"
     wandb.tag = None
 
     # Arch
@@ -65,7 +65,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = "grad_norm"
+    weighting.scheme = None #"grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"res": 1.0, "observ": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
