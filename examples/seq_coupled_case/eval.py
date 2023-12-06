@@ -115,17 +115,17 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
 
         df = pd.DataFrame({'x_values': x_star})
         for i, t in enumerate(t_star):
-            df[f'e_pred_{i}'] = e_pred[i, :]
+            df[f'e_pred_{t}'] = e_pred[i, :]
         df.to_csv('field_data.csv', index=False)
 
         df = pd.DataFrame({'x_values': x_star})
         for i, t in enumerate(t_star):
-            df[f'u_pred_{i}'] = u_pred[i, :]
+            df[f'u_pred_{t}'] = u_pred[i, :]
         df.to_csv('potential_data.csv', index=False)
         
         df = pd.DataFrame({'x_values': x_star})
         for i, t in enumerate(t_star):
-            df[f'n_pred_{i}'] = n_pred[i, :]
+            df[f'n_pred_{t}'] = n_pred[i, :]
         df.to_csv('charge_density_data.csv', index=False)
 
     # Save COMSOL comparison
@@ -192,20 +192,20 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
 
             df = pd.DataFrame({'x_values': x_ref_star})
             for i, t in enumerate(t_star):
-                df[f'e_ref_pred_{i}'] = e_ref_pred[i, :]
-                df[f'e_ref_{i}'] = e_ref[i, :]
+                df[f'e_ref_pred_{t}'] = e_ref_pred[i, :]
+                df[f'e_ref_{t}'] = e_ref[i, :]
             df.to_csv('field_comparison_data.csv', index=False)
 
             df = pd.DataFrame({'x_values': x_ref_star})
             for i, t in enumerate(t_star):
-                df[f'u_ref_pred_{i}'] = u_ref_pred[i, :]
-                df[f'u_ref_{i}'] = u_ref[i, :]
+                df[f'u_ref_pred_{t}'] = u_ref_pred[i, :]
+                df[f'u_ref_{t}'] = u_ref[i, :]
             df.to_csv('potential_comparison_data.csv', index=False)
            
             df = pd.DataFrame({'x_values': x_ref_star})
             for i, t in enumerate(t_star):
-                df[f'n_ref_pred_{i}'] = n_ref_pred[i, :]
-                df[f'n_ref_{i}'] = n_ref[i, :]
+                df[f'n_ref_pred_{t}'] = n_ref_pred[i, :]
+                df[f'n_ref_{t}'] = n_ref[i, :]
             df.to_csv('charge_density_comparison_data.csv', index=False)
 
     # Save observations
