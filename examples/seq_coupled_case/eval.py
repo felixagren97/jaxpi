@@ -5,7 +5,7 @@ import ml_collections
 import jax.numpy as jnp
 import numpy as np
 import jax 
-
+import pandas as pd
 import matplotlib.pyplot as plt
 import train
 from jaxpi.utils import restore_checkpoint
@@ -44,20 +44,20 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
     print('Min predicted u:' , jnp.min(u_pred))
     
     # Plot results
-    fig = plt.figure(figsize=(8, 12))
+    fig = plt.figure(figsize=(7, 12))
     plt.subplot(3, 1, 1)
-    plt.plot(x_star, n_pred[0,:], label='t=1E-6')
-    plt.plot(x_star, n_pred[1,:], label='t=1E-3')
-    plt.plot(x_star, n_pred[2,:], label='t=2E-3')
-    plt.plot(x_star, n_pred[3,:], label='t=3E-3')
-    plt.plot(x_star, n_pred[4,:], label='t=4E-3')
-    plt.plot(x_star, n_pred[5,:], label='t=5E-3')
-    plt.plot(x_star, n_pred[6,:], label='t=6E-3')
+    plt.plot(x_star, n_pred[0,:], label='t=0.000')
+    plt.plot(x_star, n_pred[1,:], label='t=0.001')
+    plt.plot(x_star, n_pred[2,:], label='t=0.002')
+    plt.plot(x_star, n_pred[3,:], label='t=0.003')
+    plt.plot(x_star, n_pred[4,:], label='t=0.004')
+    plt.plot(x_star, n_pred[5,:], label='t=0.005')
+    plt.plot(x_star, n_pred[6,:], label='t=0.006')
     plt.grid()
-    plt.xlabel("Distance [m]")
-    plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
-    plt.title("Predicted charge density")
-    plt.legend()
+    plt.xlabel("Distance [m]", fontsize=14)
+    plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]', fontsize=14)
+    plt.title("Predicted charge density", fontsize=14)
+    plt.legend(fontsize=11)
     plt.tight_layout()
     plt.xlim(x_star[0], x_star[-1])
 
@@ -76,11 +76,11 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
     plt.plot(x_star, u_pred[5,:], label='t=0.005')
     plt.plot(x_star, u_pred[6,:], label='t=0.006')
     plt.plot([x_star[0], x_star[-1]], [u_config.setting.u_0, u_config.setting.u_1], linestyle='--', color='black')
-    plt.xlabel("Distance [m]")
-    plt.ylabel("Potential [V]")
-    plt.title("Predicted potential")
+    plt.xlabel("Distance [m]", fontsize=14)
+    plt.ylabel("Potential [V]", fontsize=14)
+    plt.title("Predicted potential", fontsize=14)
     plt.grid()
-    plt.legend()
+    plt.legend(fontsize=11)
     plt.tight_layout()
     plt.xlim(x_star[0], x_star[-1])
 
@@ -93,11 +93,11 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
     plt.plot(x_star, e_pred[4,:], label='t=0.004')
     plt.plot(x_star, e_pred[5,:], label='t=0.005')
     plt.plot(x_star, e_pred[6,:], label='t=0.006')
-    plt.xlabel("Distance [m]")
-    plt.ylabel("Electric field [V/m]")
-    plt.title("Predicted electric field")
+    plt.xlabel("Distance [m]", fontsize=14)
+    plt.ylabel("Electric field [V/m]", fontsize=14)
+    plt.title("Predicted electric field", fontsize=14)
     plt.grid()
-    plt.legend()
+    plt.legend(fontsize=11)
     plt.tight_layout()
     plt.xlim(x_star[0], x_star[-1])
 
@@ -109,6 +109,24 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
     fig_path = os.path.join(save_dir, f"seq_coupled_case_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     plt.close(fig)
+
+    # save image data to csv
+    if step == u_config.training.max_steps:
+
+        df = pd.DataFrame({'x_values': x_star})
+        for i, t in enumerate(t_star):
+            df[f'e_pred_{i}'] = e_pred[i, :]
+        df.to_csv('field_data.csv', index=False)
+
+        df = pd.DataFrame({'x_values': x_star})
+        for i, t in enumerate(t_star):
+            df[f'u_pred_{i}'] = u_pred[i, :]
+        df.to_csv('potential_data.csv', index=False)
+        
+        df = pd.DataFrame({'x_values': x_star})
+        for i, t in enumerate(t_star):
+            df[f'n_pred_{i}'] = n_pred[i, :]
+        df.to_csv('charge_density_data.csv', index=False)
 
     # Save COMSOL comparison
     file_paths = [u_config.eval.potential_file_path, u_config.eval.field_file_path, u_config.eval.ion_density_file_path]
@@ -131,10 +149,10 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
             plt.plot(x_ref_star, n_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
             plt.plot(x_ref_star, n_ref[i,:], label='COMSOL' if i == 0 else '', color='red')
         plt.grid()
-        plt.xlabel("Distance [m]")
-        plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
-        plt.title("Charge density predictions using PINN and COMSOL")
-        plt.legend()
+        plt.xlabel("Distance [m]", fontsize=14)
+        plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]', fontsize=14)
+        plt.title("Charge density predictions using PINN and COMSOL", fontsize=14)
+        plt.legend(fontsize=11)
         plt.tight_layout()
         plt.xlim(x_star[0], x_star[-1])
 
@@ -143,11 +161,11 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
         for i, t in enumerate(t_star): 
             plt.plot(x_ref_star, u_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
             plt.plot(x_ref_star, u_ref[i,:], label='COMSOL' if i == 0 else '', color='red', linestyle='--')
-        plt.xlabel("Distance [m]")
-        plt.ylabel("Potential [V]")
-        plt.title("Potential predictions using PINN and COMSOL")
+        plt.xlabel("Distance [m]", fontsize=14)
+        plt.ylabel("Potential [V]", fontsize=14)
+        plt.title("Potential predictions using PINN and COMSOL", fontsize=14)
         plt.grid()
-        plt.legend()
+        plt.legend(fontsize=11)
         plt.tight_layout()
         plt.xlim(x_star[0], x_star[-1])
 
@@ -156,11 +174,11 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
         for i, t in enumerate(t_star): 
             plt.plot(x_ref_star, e_ref_pred[i,:], label='PINN' if i == 0 else '', color='blue')
             plt.plot(x_ref_star, e_ref[i,:], label='COMSOL' if i == 0 else '', color='red', linestyle='--')
-        plt.xlabel("Distance [m]")
-        plt.ylabel("Electric field [V/m]")
-        plt.title("Electric field predictions using PINN and COMSOL")
+        plt.xlabel("Distance [m]", fontsize=14)
+        plt.ylabel("Electric field [V/m]", fontsize=14)
+        plt.title("Electric field predictions using PINN and COMSOL", fontsize=14)
         plt.grid()
-        plt.legend()
+        plt.legend(fontsize=11)
         plt.tight_layout()
         plt.xlim(x_star[0], x_star[-1])
 
@@ -169,6 +187,26 @@ def evaluate(u_config: ml_collections.ConfigDict, n_config: ml_collections.Confi
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
         plt.close(fig)
 
+        # save image data to csv
+        if step == u_config.training.max_steps:
+
+            df = pd.DataFrame({'x_values': x_ref_star})
+            for i, t in enumerate(t_star):
+                df[f'e_ref_pred_{i}'] = e_ref_pred[i, :]
+                df[f'e_ref_{i}'] = e_ref[i, :]
+            df.to_csv('field_comparison_data.csv', index=False)
+
+            df = pd.DataFrame({'x_values': x_ref_star})
+            for i, t in enumerate(t_star):
+                df[f'u_ref_pred_{i}'] = u_ref_pred[i, :]
+                df[f'u_ref_{i}'] = u_ref[i, :]
+            df.to_csv('potential_comparison_data.csv', index=False)
+           
+            df = pd.DataFrame({'x_values': x_ref_star})
+            for i, t in enumerate(t_star):
+                df[f'n_ref_pred_{i}'] = n_ref_pred[i, :]
+                df[f'n_ref_{i}'] = n_ref[i, :]
+            df.to_csv('charge_density_comparison_data.csv', index=False)
 
     # Save observations
     if step == "":
