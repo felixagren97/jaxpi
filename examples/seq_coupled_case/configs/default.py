@@ -28,7 +28,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "Ablation-PINN-Sequential-Coupled-case-5e13"
+    wandb.project = "Seq-Coupled-Case-Final-Evaluation"
     wandb.name = "default"
     wandb.tag = None
 
