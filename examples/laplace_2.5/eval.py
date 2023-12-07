@@ -5,64 +5,64 @@ import ml_collections
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
-import numpy as np
 
 from jaxpi.utils import restore_checkpoint
 import models
-from utils import get_dataset
+from utils import get_dataset, get_reference_dataset
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str, step =""):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
     # Problem setup
-    n_x = config.setting.n_x    # used to be 128, but increased and kept separate for unique points
+    n_x = config.setting.n_x    # number of spatial points
+    n_scale = config.setting.n_scale
 
     # Get  dataset
-    _, x_star = get_dataset(n_x = n_x)
+    _, x_star = get_dataset(n_x=n_x)
 
     # Initial condition (TODO: Looks as though this is for t = 0 in their solution, should we have for x = 0)?
     u_scale = config.setting.u0
     u0 = config.setting.u0
     u1 = config.setting.u1
-    n_inj = config.setting.n_scale
+
+    # Define domain
+    x0 = x_star[0]
+    x1 = x_star[-1]
+
+    dom = jnp.array([x0, x1]) 
 
     # Restore model
-    model = models.Laplace(config, u0, u1, x_star, n_inj)
+    model = models.Laplace(config, u0, u1, x_star, n_scale)
     ckpt_path = os.path.join(workdir, "ckpt", config.wandb.name)
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
     u_pred = model.u_pred_fn(params, model.x_star)
     u_pred *= u_scale
-    n_values = n_inj * jax.vmap(model.heaviside)(x_star)
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
-    
-    # Saving predictions for inverse case 1.5
-    input_data = x_star
-    predictions = u_pred
 
-    in_dat = jax.device_get(input_data)
-    pred_dat = jax.device_get(predictions)
+    #n_pred = model.n_pred_fn(params, model.x_star)
+    #n_pred *= n_scale   # TODO: check if correct
 
-    data = np.column_stack((in_dat, pred_dat))
-    
-    output_file_path = 'obs.dat'
-    np.savetxt(output_file_path, data, delimiter=' ')
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
-    e_pred *= u_scale
+    e_pred *= u0
+    
+    n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+
     r_pred = model.r_pred_fn(params, model.x_star)**2
 
-    
 
     # Create a Matplotlib figure and axis
-    fig = plt.figure(figsize=(18, 14))
+    fig = plt.figure(figsize=(8, 14))
     plt.subplot(4,1,1)
     plt.xlabel('Distance [m]')
     plt.ylabel('Charge density n(x)')
     plt.title('Charge density')
-    plt.plot(x_star, n_values, label='n(x)', color='red')
+    #plt.plot(x_star, n_pred, label='pred (x)', color='blue')
+    plt.plot(x_star, n_values, linestyle='--', label='true n(x)', color='red')
+    plt.legend()
     plt.tight_layout()    
     plt.xlim(x_star[0], x_star[-1])
     plt.grid()
@@ -96,24 +96,108 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step =""):
     plt.xlim(x_star[0], x_star[-1])
     plt.tight_layout()    
 
-    plt.subplot(4, 1, 4)
-    plt.scatter(x_star, r_pred, color='blue', marker='o', s=1, alpha=0.5)  # Use marker='o' for circular markers, adjust 's' for marker size
-    plt.yscale('log')
-    plt.plot(x_star, jnp.full_like(x_star, jnp.mean(r_pred)), label='Mean', linestyle='--', color='red')
-
-    plt.xlabel('Distance [m]')
-    plt.ylabel('Squared Residual Loss')
-    plt.title('Squared Residual Loss')
-    plt.legend()
-    plt.grid()
-    plt.xlim(x_star[0], x_star[-1])
-    plt.tight_layout()
+    #plt.subplot(4, 1, 4)
+    #plt.scatter(x_star, r_pred, color='blue', marker='o', s=1, alpha=0.5)  # Use marker='o' for circular markers, adjust 's' for marker size
+    #plt.yscale('log')
+    #plt.plot(x_star, jnp.full_like(x_star, jnp.mean(r_pred)), label='Mean', linestyle='--', color='red')
+#
+    #plt.xlabel('Distance [m]')
+    #plt.ylabel('Squared Residual Loss')
+    #plt.title('Squared Residual Loss')
+    #plt.legend()
+    #plt.grid()
+    #plt.xlim(x_star[0], x_star[-1])
+    #plt.tight_layout()
 
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "laplace_2.5.pdf")
+    fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
- 
+    
+    # Save COMSOL comparison
+    file_paths = [config.eval.potential_file_path, config.eval.field_file_path]
+    has_ref_data = all(path is not None for path in file_paths)
+    print()
+    if has_ref_data:
+        x_ref_star, e_ref, u_ref = get_reference_dataset(config, config.eval.field_file_path, config.eval.potential_file_path)
+        
+        # get new pred data
+        u_ref_pred = model.u_pred_fn(params, x_ref_star)
+        u_ref_pred *= config.setting.u0
+
+        #n_pred = model.n_pred_fn(params, x_ref_star)
+        #n_pred *= model.n_scale
+
+        e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
+
+        e_pred = e_pred_fn(params, x_ref_star)
+        e_pred *= config.setting.u0
+
+        n_values = n_scale * jax.vmap(model.heaviside)(x_ref_star)
+        
+        # Plot n results
+        fig = plt.figure(figsize=(8, 12))
+        #plt.subplot(3, 1, 1)
+        #
+        ##plt.plot(x_ref_star, n_pred, label='PINN', color='blue')
+        #plt.plot(x_ref_star, n_values, label='True', color='red')
+        #plt.grid()
+        #plt.xlabel("Distance [m]")
+        #plt.ylabel(r'Charge density [$\# / \mathrm{m}^3}$]')
+        #plt.title("Charge density predictions using PINN and COMSOL")
+        #plt.legend()
+        #plt.tight_layout()
+        #plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # plot Potential field
+        plt.subplot(2, 1, 1)
+        
+        plt.plot(x_ref_star, u_ref_pred, label='PINN', color='blue')
+        plt.plot(x_ref_star, u_ref, label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Potential [V]")
+        plt.title("Potential predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # plot electrical field
+        plt.subplot(2, 1, 2) 
+        plt.plot(x_ref_star, e_pred, label='PINN', color='blue')
+        plt.plot(x_ref_star, e_ref, label='COMSOL', color='red', linestyle='--')
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Electric field [V/m]")
+        plt.title("Electric field predictions using PINN and COMSOL")
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.xlim(x_ref_star[0], x_ref_star[-1])
+
+        # save image
+        fig_path = os.path.join(save_dir, f"comp_case_1_5_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+        plt.close(fig)
+
+
+    # plot observations
+    #if config.setting.guassian_noise_perc is not None and step == "":
+    #    # get clean data
+    #    obs_x, obs_u = get_observations(config)
+    #
+    #    fig = plt.figure(figsize=(8, 6))
+    #    plt.xlabel('Radius [m]')
+    #    plt.ylabel('Potential V')
+    #    plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
+    #    plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
+    #    plt.scatter(obs_x, obs_u, label='Analytical Solution', color='red')
+    #    plt.grid()
+    #    plt.xlim(x_star[0], x_star[-1])
+    #    plt.legend()
+    #    plt.tight_layout()
+    #
+    #    fig_path = os.path.join(save_dir, "Observations.png")
+    #    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
