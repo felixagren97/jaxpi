@@ -132,11 +132,17 @@ class InversePoisson(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def compute_l2_error(self, params, _):
+        # Compute n_l2 error:
+        n_pred = self.n_pred_fn(params, self.x_star)
+        n_true = self.heaviside(self.x_star)
+        n_error = jnp.linalg.norm(n_pred - n_true) / jnp.linalg.norm(n_true)
+
+        # Compute u_l2 error:
         u_ref = self.u_ref
         u_pred = self.u_pred_fn(params, self.x_ref)
         u_pred *= self.u_scale
         u_error = jnp.linalg.norm(u_pred - u_ref) / jnp.linalg.norm(u_ref)
-        return u_error
+        return u_error, n_error
 
 
 class InversePoissonEvaluator(BaseEvaluator):
@@ -144,8 +150,9 @@ class InversePoissonEvaluator(BaseEvaluator):
         super().__init__(config, model)
 
     def log_errors(self, params, u_ref):
-        l2_error = self.model.compute_l2_error(params, u_ref)
-        self.log_dict["u_l2_error"] = l2_error
+        u_l2_error, n_l2_error = self.model.compute_l2_error(params, u_ref)
+        self.log_dict["u_l2_error"] = u_l2_error
+        self.log_dict["n_l2_error"] = n_l2_error
 
     def log_preds(self, params):
         u_pred = self.model.u_pred_fn(params, self.model.r_star)
