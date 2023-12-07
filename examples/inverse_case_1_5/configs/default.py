@@ -29,7 +29,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Poisson"   
+    wandb.project = "PINN-Inverse-Case1.5-ablation"   
     wandb.name = "default"
     wandb.tag = None
 
@@ -40,9 +40,7 @@ def get_config():
     arch.layer_size = 256
     arch.out_dim = 2
     arch.activation = "gelu"
-    arch.periodicity = ml_collections.ConfigDict(
-        {"period": (1.0,), "axis": (1,), "trainable": (False,)} 
-    )
+    arch.periodicity = ml_collections.ConfigDict({"period": (1.0,), "axis": (1,), "trainable": (False,)})
 
     arch.fourier_emb = ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
     arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
