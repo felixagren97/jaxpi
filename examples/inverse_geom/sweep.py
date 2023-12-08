@@ -32,23 +32,13 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep",
-        "metric": {"goal": "minimize", "name": "l2_error"},
+        "name": "Noise-inverse-geom",
+        "metric": {"goal": "minimize", "name": "l2_param_error"},
     }
 
     parameters_dict = {
-        "arch_name": {"values": ["Mlp", "ModifiedMlp"]},
-        "layer_size": {"values": [256, 512]},
-        "num_layers": {"values": [3, 4, 5]},
-        "activation": {"values": ["tanh", "gelu"]},
-        "arch_reparam": {
-            "values": [
-                {"type": "weight_fact", "mean": 0.5, "stddev": 0.1},
-                {"type": "weight_fact", "mean": 1.0, "stddev": 0.1},
-            ]
-        },
-        "weighting_scheme": {"values": ["grad_norm", "ntk"]},
-        "causal_tol": {"values": [1.0, 10.0]},
+        "n_obs" : {"values": [1_000, 100, 10]},
+        "guassian_noise_perc" : {"values": [0.1, 0.25, 0.5]}
     }
 
     sweep_config["parameters"] = parameters_dict
