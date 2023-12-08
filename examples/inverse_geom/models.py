@@ -28,7 +28,7 @@ class InversePoisson(ForwardIVP):
         self.r1 = r_star[-1]
         
         use_noisy_data = config.setting.guassian_noise_perc is None or not config.setting.guassian_noise_perc != 0
-        if use_noisy_data:
+        if not use_noisy_data:
             self.obs_r, self.obs_u = get_observations(self.r0, self.r1, self.true_offset, config)
         else: 
             self.obs_r, self.obs_u = get_noisy_observations(self.r0, self.r1, self.true_offset, config)
