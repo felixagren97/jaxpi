@@ -46,3 +46,12 @@ def get_observations(r0, r1, true_offset, config):
 
    return obs_r, u_exact
 
+def get_noisy_observations(r0, r1, true_offset, config):
+   relative_noise = config.setting.guassian_noise_perc
+   r_star, clean_data = get_observations(r0, r1, true_offset, config)
+   noise_std = clean_data * relative_noise  # Calculate noise standard deviation
+   key = jax.random.PRNGKey(config.seed)
+   noise = noise_std * jax.random.normal(key, shape=r_star.shape)  # Generate Gaussian noise
+   noisy_data = clean_data + noise
+   return r_star, noisy_data
+

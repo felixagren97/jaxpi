@@ -17,7 +17,8 @@ def get_config():
     setting.r_1 = 0.5      # outer radius
     setting.n_r = 12_800    # number of spatial points 
 
-    setting.true_offset = 1e-4 # True offset   
+    setting.true_offset = 1e-4 # True offset  
+    setting.guassian_noise_perc = 0.0 # Gaussian Noise std
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
