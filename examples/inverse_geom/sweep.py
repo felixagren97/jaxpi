@@ -38,7 +38,7 @@ def main(argv):
 
     parameters_dict = {
         "n_obs" : {"values": [1_000, 100, 10]},
-        "guassian_noise_perc" : {"values": [0.1, 0.25, 0.5]}
+        "guassian_noise_perc" : {"values": [0.01, 0.05, .1]}
     }
 
     sweep_config["parameters"] = parameters_dict
