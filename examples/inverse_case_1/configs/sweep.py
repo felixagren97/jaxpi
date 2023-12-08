@@ -14,8 +14,8 @@ def get_config():
     setting.n_r = 12_800    # number of spatial points 
     
     setting.n_obs = 1_000
-    setting.guassian_noise_perc = None
-    setting.loss_scale = 1e-8
+    setting.guassian_noise_perc = 0
+    setting.loss_scale = 1e-9
 
     setting.u0 = 1
     setting.u1 = 0
@@ -25,14 +25,14 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Poisson"   
-    wandb.name = "sweep"
+    wandb.project = "Inverse-Case-1-Noise"
+    wandb.name = "Noise-sweep"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlpRho"
-    arch.num_layers = 4
+    arch.num_layers = 6
     arch.layer_size = 256
     arch.out_dim = 1
     arch.activation = "gelu"
@@ -49,7 +49,7 @@ def get_config():
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
-    optim.learning_rate = 5e-4
+    optim.learning_rate = 1e-3
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
