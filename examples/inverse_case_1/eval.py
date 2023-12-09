@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from jaxpi.utils import restore_checkpoint
 import models
 from utils import get_dataset
-
+import pandas as pd
 
 
 def evaluate(config: ml_collections.ConfigDict, workdir: str):
@@ -141,6 +141,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if config.setting.guassian_noise_perc is not None:
         print(f'Noise level:    {config.setting.guassian_noise_perc}')
     print('---------------------------\n')
+
+    df = pd.DataFrame({
+        'radius': r_star,
+        'predicted potetial': u_pred,
+        'analytical potential': u_ref,
+        'predicted field': e_pred,
+        'analytical field': e_ref})
+    df.to_csv('inverse_laplace_plot_data.csv', index=False)
 
     # plot observations
     if config.setting.guassian_noise_perc is not None:
