@@ -1,7 +1,7 @@
 import os
 
 import ml_collections
-
+import pandas as pd
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
@@ -111,12 +111,16 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     fig_path = os.path.join(save_dir, f"laplace_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
-    if step == "":
-        # save plot information as csv for later use
-        combined_array = np.column_stack((r_star_np, u_pred_np, u_ref_np, e_pred_np, e_ref_np))
-        csv_file_path = "laplace.csv"
-        header_names = ['r_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
-        np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
+    # save figure data when finished training
+    if step == config.training.max_steps or step == "":
+        df = pd.DataFrame({
+            'radius': r_star,
+            'predicted potetial': u_pred,
+            'analytical potential': u_ref,
+            'predicted field': e_pred,
+            'analytical field': e_ref
+        })
+        df.to_csv('laplace_plot_data.csv', index=False)
 
 
  
