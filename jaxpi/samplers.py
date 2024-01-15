@@ -42,6 +42,19 @@ class UniformSampler(BaseSampler):
 
         return batch
 
+# 
+class OneDimensionalRadSampler(BaseSampler):
+    def __init__(self, x, probs, batch_size, rng_key=random.PRNGKey(1234)):
+        super().__init__(batch_size, rng_key)
+        self.dim = 1
+        self.x = x
+        self.probs = probs
+
+    @partial(pmap, static_broadcasted_argnums=(0,))
+    def data_generation(self, key):
+        "Generates data containing batch_size samples"
+        batch = random.choice(key, self.x, shape=(self.batch_size,), p=self.probs) 
+        return batch
 
 class SpaceSampler(BaseSampler):
     def __init__(self, coords, batch_size, rng_key=random.PRNGKey(1234)):

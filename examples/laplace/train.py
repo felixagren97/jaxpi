@@ -10,7 +10,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler
+from jaxpi.samplers import BaseSampler, OneDimensionalRadSampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -24,6 +24,7 @@ import jax.numpy as jnp
 from jax import random, pmap, local_device_count
 from eval import evaluate
 from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
 
 class OneDimensionalUniformSampler(BaseSampler):
     def __init__(self, dom, batch_size, rng_key=random.PRNGKey(1234)):
@@ -61,11 +62,12 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     r0 = r_star[0]
     r1 = r_star[-1]
 
-    dom = jnp.array([r0, r1]) # TODO: used to be 2d, check if creates issues? 
+    dom = jnp.array([r0, r1])
 
     # Initialize model
     model = models.Laplace(config, r_star)
-    # Initialize residual sampler
+
+    # Initialize residual sampler. starting with uniform sampling 
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
     evaluator = models.LaplaceEvaluator(config, model)
@@ -73,6 +75,35 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
+        
+        # Update RAD points
+        if step % config.training.resample_every_steps == 0:
+            # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
+            r_eval = jnp.linspace(r_0, r_1, 10_000)
+            u_eval = model.r_pred_fn(model.state.params, r_eval) # not sure about this
+            norm_u_eval = u_eval / jnp.sum(u_eval)
+            res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_u_eval, config.training.batch_size_per_device))
+            
+            if config.plot_rad == True:
+                fig = plt.figure(figsize=(8, 8))
+                plt.xlabel('Radius [m]')
+                plt.ylabel('norm_u_eval')
+                plt.title('norm_u_eval')
+                plt.plot(r_eval, norm_u_eval, label='norm_u_eval', color='blue')
+                plt.grid()
+                plt.legend()
+                plt.tight_layout()
+                
+                # Save the figure
+                save_dir = os.path.join(workdir, "figures", config.wandb.name)
+                if not os.path.isdir(save_dir):
+                    os.makedirs(save_dir)
+
+                fig_path = os.path.join(save_dir, f"rad_prob_{step}.png")
+                fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+                plt.close(fig)
+
         start_time = time.time()
 
         batch = next(res_sampler)
