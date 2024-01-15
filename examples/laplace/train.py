@@ -4,6 +4,7 @@ import time
 import jax
 import jax.numpy as jnp
 from jax.tree_util import tree_map
+from jax import vmap
 
 import ml_collections
 
@@ -79,9 +80,13 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         # Update RAD points
         if step % config.setting.resample_every_steps == 0 and step != 0:
             # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
+            print('INSIDE RESAMPLING')
             r_eval = jnp.linspace(r_0, r_1, 10_000)
-            u_eval = model.r_pred_fn(model.state.params, r_eval) # not sure about this
-            norm_u_eval = u_eval / jnp.sum(u_eval)
+            res_pred_fn = vmap(model.r_net, (None, 0))
+            res_pred = res_pred_fn(model.state.params, r_eval)
+
+            #res_pred = model.r_pred_fn(model.state.params, r_eval) # not sure about this
+            norm_u_eval = res_pred / jnp.sum(res_pred)
             res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_u_eval, config.training.batch_size_per_device))
             
             if config.plot_rad == True:
