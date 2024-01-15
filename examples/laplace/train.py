@@ -82,6 +82,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
             print('INSIDE RESAMPLING')
             r_eval = jnp.linspace(r_0, r_1, 10_000)
+            print('shape of r_eval', r_eval.shape)
             res_pred_fn = vmap(model.r_net, (None, 0))
             res_pred = res_pred_fn(model.state.params, r_eval)
 
