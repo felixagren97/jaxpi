@@ -77,7 +77,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     for step in range(config.training.max_steps):
         
         # Update RAD points
-        if step % config.training.resample_every_steps == 0:
+        if step % config.setting.resample_every_steps == 0 and step != 0:
             # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
             r_eval = jnp.linspace(r_0, r_1, 10_000)
             u_eval = model.r_pred_fn(model.state.params, r_eval) # not sure about this
