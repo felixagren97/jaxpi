@@ -65,7 +65,7 @@ class OneDimensionalRadSampler(BaseSampler):
         self.dim = 1
         self.r_eval = jnp.linspace(0.001, 0.5, 10_000) 
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
-        res_pred = jnp.abs(self.model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
+        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
         self.prob = res_pred / jnp.sum(res_pred)
     
     @partial(pmap, static_broadcasted_argnums=(0,))
