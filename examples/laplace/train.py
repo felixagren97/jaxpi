@@ -79,6 +79,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         model.state = model.step(model.state, batch)
 
+        ####### Test
+        if step % 5000 == 0 and step != 0:
+            res_test = model.r_pred_fn(model.state.params, batch[:,0])
+        
+        #######
         # Update weights
         if config.weighting.scheme in ["grad_norm", "ntk"]:
             if step % config.weighting.update_every_steps == 0:
