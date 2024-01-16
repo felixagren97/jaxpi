@@ -54,6 +54,7 @@ class OneDimensionalRadSampler(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         batch = random.choice(key, self.x, shape=(self.batch_size,), p=self.probs) 
+        batch.reshape(-1,1)
         return batch
 
 class SpaceSampler(BaseSampler):

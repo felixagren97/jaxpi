@@ -90,7 +90,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             norm_r_eval = res_pred / jnp.sum(res_pred)
             res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
             
-            if config.plot_rad == True:
+            if config.setting.plot_rad == True:
                 fig = plt.figure(figsize=(8, 8))
                 plt.xlabel('Radius [m]')
                 plt.ylabel('norm_r_eval')
