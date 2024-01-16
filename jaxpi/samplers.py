@@ -6,6 +6,9 @@ import jax.numpy as jnp
 from jax import random, pmap, local_device_count
 from jax.tree_util import tree_map
 
+import matplotlib.pyplot as plt
+import os
+
 from torch.utils.data import Dataset
 
 
@@ -60,22 +63,37 @@ class OneDimensionalRadSampler(BaseSampler):
     def __init__(self, model, batch_size, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        #self.x = x
-        #self.probs = probs
-        self.model = model 
-
+        self.r_eval = jnp.linspace(0.001, 0.5, 10_000) 
+        self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
+        res_pred = jnp.abs(self.model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
+        self.prob = res_pred / jnp.sum(res_pred)
+    
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        state = jax.device_get(tree_map(lambda x: x[0], self.model.state))
-        params = state.params
-        r_eval = jnp.linspace(0.001, 0.5, 10_000)
-        res_pred = jnp.abs(self.model.r_pred_fn(params, r_eval)) # Verify shape on r_eval
-        norm_r_eval = res_pred / jnp.sum(res_pred)
-        
-        batch = random.choice(key, r_eval, shape=(self.batch_size,), p=norm_r_eval) 
+        batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.prob) 
         batch = batch.reshape(-1,1)
         return batch
+    
+    def plot(self, workdir, step, name):
+        fig = plt.figure(figsize=(8, 8))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('norm_r_eval')
+        plt.title('Residual distribution')
+        plt.plot(self.r_eval, self.prob, label='Norm. Residual', color='blue')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        
+        # Save the figure
+        save_dir = os.path.join(workdir, "figures", name)
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+
+        fig_path = os.path.join(save_dir, f"rad_prob_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+        plt.close(fig)
 
 class OneDimensionalRadSamplerTwo(BaseSampler):
     # Imporved RAD

@@ -90,25 +90,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             res_sampler = iter(sampler)
             #res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
             
-            if config.setting.plot_rad == True:
-                fig = plt.figure(figsize=(8, 8))
-                plt.xlabel('Radius [m]')
-                plt.ylabel('norm_r_eval')
-                plt.title('norm_r_eval')
-                plt.plot(r_eval, norm_r_eval, label='norm_r_eval', color='blue')
-                plt.grid()
-                plt.legend()
-                plt.tight_layout()
+            if config.sampler.plot_rad == True:
+                sampler.plot(workdir, step, config.wandb.name)
                 
-                # Save the figure
-                save_dir = os.path.join(workdir, "figures", config.wandb.name)
-                if not os.path.isdir(save_dir):
-                    os.makedirs(save_dir)
-
-                fig_path = os.path.join(save_dir, f"rad_prob_{step}.png")
-                fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-
-                plt.close(fig)
 
         start_time = time.time()
 
