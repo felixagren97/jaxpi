@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0001
+    setting.r_0 = 0.001
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
@@ -51,7 +51,7 @@ def get_config():
     # Training
     config.training = training = ml_collections.ConfigDict()
     training.max_steps = 200_000
-    training.batch_size_per_device = 516
+    training.batch_size_per_device = 1024
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()

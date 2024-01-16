@@ -77,7 +77,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     for step in range(config.training.max_steps):
         
         # Update RAD points
-        if step % 5000 == 0 and step != 0:
+        if step % config.setting.resample_every_steps == 0 and step != 0:
             
             # Fetch model parameters
             state = jax.device_get(tree_map(lambda x: x[0], model.state))
