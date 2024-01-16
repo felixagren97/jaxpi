@@ -72,13 +72,15 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
 
     evaluator = models.LaplaceEvaluator(config, model)
-
+    p = False
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
         
         # Update RAD points
-        if step % config.setting.resample_every_steps == 0 and step != 0:
+        if step % 5000 == 0 and step != 0:
+            p = True
+            
             # Fetch model parameters
             state = jax.device_get(tree_map(lambda x: x[0], model.state))
             params = state.params
@@ -113,7 +115,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         start_time = time.time()
 
         batch = next(res_sampler)
-
+        if p:
+          print('batch', batch)
+          print('batch shape', batch.shape)
         model.state = model.step(model.state, batch)
 
         # Update weights
