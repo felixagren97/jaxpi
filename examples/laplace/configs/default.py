@@ -20,6 +20,8 @@ def get_config():
     sampler.sampler_name = "rad"
     sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
     sampler.plot_rad = True
+    sampler.c = 0
+    sampler.k = 2
 
 
 
