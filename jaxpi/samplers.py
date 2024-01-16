@@ -57,11 +57,11 @@ class UniformSampler(BaseSampler):
 
 # 
 class OneDimensionalRadSampler(BaseSampler):
-    def __init__(self, model, x, probs, batch_size, rng_key=random.PRNGKey(1234)):
+    def __init__(self, model, batch_size, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.x = x
-        self.probs = probs
+        #self.x = x
+        #self.probs = probs
         self.model = model 
 
     @partial(pmap, static_broadcasted_argnums=(0,))
