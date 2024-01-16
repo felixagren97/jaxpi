@@ -15,8 +15,13 @@ def get_config():
     setting.u_0 = 1
     setting.u_1 = 0
     config.setting.n_r = 12_000
-    setting.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
-    setting.plot_rad = True
+    
+    config.sampler = sampler = ml_collections.ConfigDict()
+    sampler.sampler_name = "rad"
+    sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
+    sampler.plot_rad = True
+
+
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()

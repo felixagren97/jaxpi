@@ -11,7 +11,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler, OneDimensionalRadSampler
+from jaxpi.samplers import BaseSampler, OneDimensionalRadSampler, init_sampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -79,16 +79,16 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         # Update RAD points
         if step % config.setting.resample_every_steps == 0 and step != 0:
             
-            # Fetch model parameters
-            state = jax.device_get(tree_map(lambda x: x[0], model.state))
-            params = state.params
+            if config.sampler.sampler_name == "rad":
+                state = jax.device_get(tree_map(lambda x: x[0], model.state))
+                params = state.params
+                r_eval = jnp.linspace(r_0, r_1, 10_000)
+                res_pred = jnp.abs(model.r_pred_fn(params, r_eval)) # Verify shape on r_eval
+                norm_r_eval = res_pred / jnp.sum(res_pred)
 
-            # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
-            r_eval = jnp.linspace(r_0, r_1, 10_000)
-            
-            res_pred = jnp.abs(model.r_pred_fn(params, r_eval)) # Verify shape on r_eval
-            norm_r_eval = res_pred / jnp.sum(res_pred)
-            res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
+            sampler = init_sampler(config.sampler.sampler_name, x=r_eval, probs=norm_r_eval, batch_size=config.training.batch_size_per_device)
+            res_sampler = iter(sampler)
+            #res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
             
             if config.setting.plot_rad == True:
                 fig = plt.figure(figsize=(8, 8))

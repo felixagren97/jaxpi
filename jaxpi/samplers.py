@@ -7,6 +7,15 @@ from jax import random, pmap, local_device_count
 from torch.utils.data import Dataset
 
 
+# Function for initializing sampler from config file
+# argument: sampler name from config file 
+def init_sampler(sampler: str, **kwargs):
+    if sampler == "rad":
+        return OneDimensionalRadSampler(**kwargs)
+    else:     
+        raise NotImplementedError(f"Sampler {sampler} not implemented!")
+
+
 class BaseSampler(Dataset):
     def __init__(self, batch_size, rng_key=random.PRNGKey(1234)):
         self.batch_size = batch_size
