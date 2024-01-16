@@ -27,14 +27,11 @@ class Laplace(ForwardIVP):
 
     def u_net(self, params, r):
         # params = weights for NN
-        print('u_net shape r', r.shape) 
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
-        print('reshape shape r', r_reshape.shape)
         u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return (self.r1-r)/(self.r1-self.r0) * self.u0 + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
 
     def r_net(self, params, r):
-        print('r net shape r', r.shape)        
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         #du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
