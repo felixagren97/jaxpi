@@ -86,7 +86,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
             r_eval = jnp.linspace(r_0, r_1, 10_000)
             
-            res_pred = model.r_pred_fn(params, r_eval) # Verify shape on r_eval
+            res_pred = jnp.abs(model.r_pred_fn(params, r_eval)) # Verify shape on r_eval
             norm_r_eval = res_pred / jnp.sum(res_pred)
             res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
             
