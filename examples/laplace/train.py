@@ -79,23 +79,23 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         
         # Update RAD points
         if step % config.setting.resample_every_steps == 0 and step != 0:
-            # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
-            print('INSIDE RESAMPLING')
-            r_eval = jnp.linspace(r_0, r_1, 10_000)
-            print('shape of r_eval', r_eval.shape)
-            res_pred_fn = vmap(model.r_net, (None, 0))
-            res_pred = res_pred_fn(model.state.params, r_eval)
+            # Fetch model parameters
+            state = jax.device_get(tree_map(lambda x: x[0], model.state))
+            params = state.params
 
-            #res_pred = model.r_pred_fn(model.state.params, r_eval) # not sure about this
-            norm_u_eval = res_pred / jnp.sum(res_pred)
-            res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_u_eval, config.training.batch_size_per_device))
+            # TODO: Create a RAD sampler by passing x-values and associated normalized model preditions as probabilities.
+            r_eval = jnp.linspace(r_0, r_1, 10_000)
+            
+            res_pred = model.r_pred_fn(params, r_eval) # Verify shape on r_eval
+            norm_r_eval = res_pred / jnp.sum(res_pred)
+            res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
             
             if config.plot_rad == True:
                 fig = plt.figure(figsize=(8, 8))
                 plt.xlabel('Radius [m]')
-                plt.ylabel('norm_u_eval')
-                plt.title('norm_u_eval')
-                plt.plot(r_eval, norm_u_eval, label='norm_u_eval', color='blue')
+                plt.ylabel('norm_r_eval')
+                plt.title('norm_r_eval')
+                plt.plot(r_eval, norm_r_eval, label='norm_r_eval', color='blue')
                 plt.grid()
                 plt.legend()
                 plt.tight_layout()
