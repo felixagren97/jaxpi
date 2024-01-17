@@ -17,9 +17,9 @@ def get_config():
     config.setting.n_r = 12_000
     
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad2"
+    sampler.sampler_name = "rad"
     sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
-    sampler.plot_rad = True
+    sampler.plot_rad = False
     sampler.c = 0
     sampler.k = 2
 
