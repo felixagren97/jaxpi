@@ -99,7 +99,6 @@ class OneDimensionalRadSampler(BaseSampler):
 
 class OneDimensionalRadSamplerTwo(BaseSampler):
     # Imporved RAD
-
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
@@ -120,6 +119,26 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.norm_prob) 
         batch = batch.reshape(-1, 1)
         return batch
+    
+    def plot(self, workdir, step, name):
+        fig = plt.figure(figsize=(8, 8))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('norm_r_eval')
+        plt.title('Residual distribution')
+        plt.plot(self.r_eval, self.norm_prob, label='Norm. Residual', color='blue')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        
+        # Save the figure
+        save_dir = os.path.join(workdir, "figures", name)
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+
+        fig_path = os.path.join(save_dir, f"rad2_prob_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+        plt.close(fig)
 
 class SpaceSampler(BaseSampler):
     def __init__(self, coords, batch_size, rng_key=random.PRNGKey(1234)):
