@@ -51,7 +51,7 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.sampler.sampler_name = sweep_config.name
+        config.sampler.sampler_name = sweep_config.sampling_method
         config.training.batch_size_per_device = sweep_config.batch_size
 
         train.train_and_evaluate(config, workdir)
