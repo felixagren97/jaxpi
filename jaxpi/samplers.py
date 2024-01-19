@@ -82,27 +82,6 @@ class OneDimensionalRadSampler(BaseSampler):
     def get_data(self):
         return jnp.concatenate(self.data, axis=0)
     
-    def plot_data_histogram(self, workdir, step, name):
-        #plots the sampled data histogram
-        fig = plt.figure(figsize=(8, 8))
-        plt.xlabel('Radius [m]')
-        plt.ylabel('Count')
-        plt.title('Sampled data histogram')
-        plt.hist(self.get_data(), bins=100, label='Sampled data', color='blue')
-        plt.grid()
-        plt.legend()
-        plt.tight_layout()
-
-        # Save the figure
-        save_dir = os.path.join(workdir, "figures", name)
-        if not os.path.isdir(save_dir):
-            os.makedirs(save_dir)
-
-        fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
-        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-
-        plt.close(fig)
-    
     def plot(self, workdir, step, name):
         fig = plt.figure(figsize=(8, 8))
         plt.xlabel('Radius [m]')

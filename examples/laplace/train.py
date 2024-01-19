@@ -80,18 +80,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         # Update RAD points
         if config.sampler.sampler_name != "random":
             if step % config.sampler.resample_every_steps == 0 and step != 0:
-                if len(sampler.get_data) > 0 and sampler.name == "rad":
-                    res_sampler.plot_data_histogram(workdir, step, config.wandb.name)
-                #if config.sampler.sampler_name == "rad":
-                    #state = jax.device_get(tree_map(lambda x: x[0], model.state))
-                    #params = state.params
-                    #r_eval = jnp.linspace(r_0, r_1, 10_000)
-                    #res_pred = jnp.abs(model.r_pred_fn(params, r_eval)) # Verify shape on r_eval
-                    #norm_r_eval = res_pred / jnp.sum(res_pred)
-
+                
                 sampler = init_sampler(model, config)
                 res_sampler = iter(sampler)
-                #res_sampler = iter(OneDimensionalRadSampler(r_eval, norm_r_eval, config.training.batch_size_per_device))
                 
                 if config.sampler.plot_rad == True:
                     sampler.plot(workdir, step, config.wandb.name)
@@ -100,6 +91,26 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         start_time = time.time()
 
         batch = next(res_sampler)
+        if step % config.sampler.resample_every_steps == 0 and step != 0:
+            # plot histogram of new batch
+            
+            fig = plt.figure(figsize=(8, 8))
+            plt.xlabel('Radius [m]')
+            plt.ylabel('Count')
+            plt.title('Sampled data histogram')
+            plt.hist(batch, bins=50, label='Sampled data', color='blue')
+            plt.grid()
+            plt.legend()
+            plt.tight_layout()
+
+            # Save the figure
+            save_dir = os.path.join(workdir, "figures", config.wandb.name)
+            if not os.path.isdir(save_dir):
+                os.makedirs(save_dir)
+
+            fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
+            fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
         model.state = model.step(model.state, batch)
 
         # Update weights
