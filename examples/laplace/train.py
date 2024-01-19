@@ -79,7 +79,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         # Update RAD points
         if config.sampler.sampler_name != "random":
             if step % config.sampler.resample_every_steps == 0 and step != 0:
-                
+                if len(res_sampler) > 0:
+                    res_sampler.plot_data_histogram(workdir, step, config.wandb.name)
                 #if config.sampler.sampler_name == "rad":
                     #state = jax.device_get(tree_map(lambda x: x[0], model.state))
                     #params = state.params

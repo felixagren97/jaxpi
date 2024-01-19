@@ -69,13 +69,39 @@ class OneDimensionalRadSampler(BaseSampler):
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
         res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
         self.prob = res_pred / jnp.sum(res_pred)
+        self.data = []
     
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.prob) 
         batch = batch.reshape(-1, 1)
+        self.data.append(batch)
         return batch
+    
+    def get_data(self):
+        return jnp.concatenate(self.data, axis=0)
+    
+    def plot_data_histogram(self, workdir, step, name):
+        #plots the sampled data histogram
+        fig = plt.figure(figsize=(8, 8))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('Count')
+        plt.title('Sampled data histogram')
+        plt.hist(self.get_data(), bins=100, label='Sampled data', color='blue')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+
+        # Save the figure
+        save_dir = os.path.join(workdir, "figures", name)
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+
+        fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+        plt.close(fig)
     
     def plot(self, workdir, step, name):
         fig = plt.figure(figsize=(8, 8))
