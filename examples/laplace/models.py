@@ -34,8 +34,6 @@ class Laplace(ForwardIVP):
 
     def r_net(self, params, r):
         #jax.debug.print("r in r_net: {x} 🤯", x=r)
-
-        print("r.shape: ", r.shape)
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
         return r * du_rr + du_r  # Scaled by r, try w/o? 

@@ -159,14 +159,14 @@ class GradientSampler(BaseSampler):
         
         #l_grad_fn = jax.vmap(lambda params, r: jax.grad(model.r_net, argnums=1)(params, r), (None, 0))
         #dl_r = jnp.abs(l_grad_fn(self.state.params, self.r_eval))
-        dl_r = jnp.abs(self.batched_gradient_computation(model, self.state.params, self.batch_size))
+        dl_r = jnp.abs(self.batched_gradient_computation(model, self.state.params))
         self.norm_prob =  dl_r / dl_r.sum()
 
-    def batched_gradient_computation(self, model, params, batch_size):
-        num_batches = len(self.r_eval) // self.batch_size + (len(self.r_eval) % batch_size != 0)
+    def batched_gradient_computation(self, model, params, grad_batch_size=8192):
+        num_batches = len(self.r_eval) // self.batch_size + (len(self.r_eval) % grad_batch_size != 0)
         all_grads = []
         for i in range(num_batches):
-            batch_r_eval = self.r_eval[i * batch_size:(i + 1) * batch_size]
+            batch_r_eval = self.r_eval[i * grad_batch_size:(i + 1) * grad_batch_size]
             batch_grads = jax.vmap(lambda r: jax.grad(model.r_net, argnums=1)(params, r))(batch_r_eval)
             all_grads.append(batch_grads)
         return jnp.concatenate(all_grads, axis=0)
