@@ -69,20 +69,15 @@ class OneDimensionalRadSampler(BaseSampler):
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
-        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
+        res_pred = (model.r_pred_fn(self.state.params, self.r_eval) ** 2) # Verify shape on r_eval
         self.prob = res_pred / jnp.sum(res_pred)
-        self.data = []
-    
+        
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.prob) 
         batch = batch.reshape(-1, 1)
-        self.data.append(batch)
         return batch
-    
-    def get_data(self):
-        return jnp.concatenate(self.data, axis=0)
     
     def plot(self, workdir, step, name):
         fig = plt.figure(figsize=(8, 8))
