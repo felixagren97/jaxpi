@@ -163,7 +163,9 @@ class GradientSampler(BaseSampler):
 
 
     def compute_batch_grad(self, model, params, r_eval_batch):
-        return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch))
+        #return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch)) #Possibly only works for scalar input
+        dl_r_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
+        return jnp.abs(dl_r_fn(params, r_eval_batch))
 
     def batched_gradient_computation(self, model, r_eval, batch_size):
         num_batches = (len(r_eval) + batch_size - 1) // batch_size  # Calculate how many batches are needed
