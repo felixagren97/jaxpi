@@ -153,6 +153,8 @@ class GradientSampler(BaseSampler):
         super().__init__(batch_size, rng_key)
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.r_eval = self.r_eval.reshape(-1, 1)
+
         self.gamma = config.sampler.gamma 
         
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
@@ -160,7 +162,6 @@ class GradientSampler(BaseSampler):
         #dl_r = jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
         dl_r = self.batched_gradient_computation(model, self.r_eval, batch_size)
         self.norm_prob =  dl_r / dl_r.sum()
-
 
     def compute_batch_grad(self, model, params, r_eval_batch):
         #return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch)) #Possibly only works for scalar input
