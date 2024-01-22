@@ -61,7 +61,7 @@ class UniformSampler(BaseSampler):
             minval=self.dom[:, 0],
             maxval=self.dom[:, 1],
         )
-
+        jax.debug.print("Uniform batch shape: {x} 🤯", x=batch.shape)
         return batch
  
 class OneDimensionalRadSampler(BaseSampler):
