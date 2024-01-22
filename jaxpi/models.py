@@ -145,13 +145,11 @@ class PINN:
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
 
         if self.config.setting.regularization:
-            jax.debug.print("Regularization is on!")
             reg_loss = sum(
                 PINN.l2_loss(w, alpha=0.001) 
                 for w in tree_leaves(params)
             )
-            jax.debug.print("params: {x}", x=params)
-            jax.debug.print("Reg loss: {x}", x=reg_loss)
+           
             loss += reg_loss
         return loss
 
