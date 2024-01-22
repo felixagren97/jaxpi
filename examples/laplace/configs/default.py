@@ -14,10 +14,12 @@ def get_config():
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
-    config.setting.n_r = 12_000
+    setting.n_r = 12_000
+
+    setting.regularization = True
     
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad"
+    sampler.sampler_name = "random"
     sampler.resample_every_steps = 50_000 # Resample new RAD points every 10_000 steps
     sampler.plot_rad = True
     sampler.c = 1
