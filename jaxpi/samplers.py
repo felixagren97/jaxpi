@@ -152,7 +152,7 @@ class GradientSampler(BaseSampler):
         super().__init__(batch_size, rng_key)
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 1024) # 100k used in paper
-        self.r_eval = self.r_eval.reshape(-1, 1)
+        #self.r_eval = self.r_eval.reshape(-1, 1)
         self.gamma = config.sampler.gamma 
         
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
