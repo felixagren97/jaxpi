@@ -22,6 +22,8 @@ def init_sampler(model, config):
         return OneDimensionalRadSampler(model, batch_size, config)
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)
+    elif sampler == "adaptive-g":
+        return GradientSampler(model, batch_size, config)
     else:     
         raise NotImplementedError(f"Sampler {sampler} not implemented!")
 
@@ -144,6 +146,47 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
         plt.close(fig)
+
+class GradientSampler(BaseSampler):
+    def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
+        super().__init__(batch_size, rng_key)
+        self.dim = 1
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.gamma = config.sampler.gamma 
+        
+        self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
+    
+        dl_r = jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
+        self.norm_prob = dl_r / dl_r.sum()
+
+    @partial(pmap, static_broadcasted_argnums=(0,))
+    def data_generation(self, key):
+        "Generates data containing batch_size samples"
+        
+        batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.norm_prob) 
+        batch = batch.reshape(-1, 1)
+        return batch
+    
+    def plot(self, workdir, step, name):
+        fig = plt.figure(figsize=(8, 8))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('norm_r_eval')
+        plt.title('Gradient distribution')
+        plt.plot(self.r_eval, self.norm_prob, label='Norm. Gradient', color='blue')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        
+        # Save the figure
+        save_dir = os.path.join(workdir, "figures", name)
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+
+        fig_path = os.path.join(save_dir, f"grad_prob_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+        plt.close(fig)
+
 
 class SpaceSampler(BaseSampler):
     def __init__(self, coords, batch_size, rng_key=random.PRNGKey(1234)):
