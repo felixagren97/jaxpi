@@ -159,7 +159,9 @@ class GradientSampler(BaseSampler):
         
         jax.debug.print("Pre dl_r calculation:")
         # Compute gradient, does this work with large r_eval?
-        dl_r = jnp.abs(grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
+        l_grad_fn = jax.vmap(lambda params, r: jax.grad(model.r_net, argnums=1)(params, r), (None, 0))
+        dl_r = jnp.abs(l_grad_fn(self.state.params, self.r_eval))
+        #dl_r = jnp.abs(grad(model.r_net, argnums=1)(self.state.params, self.r_eval))
         jax.debug.print("Post dl_r calculation:")
         self.norm_prob =  dl_r / dl_r.sum()
 
