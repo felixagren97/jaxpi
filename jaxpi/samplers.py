@@ -151,21 +151,25 @@ class GradientSampler(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 1024) # 100k used in paper
-        #self.r_eval = self.r_eval.reshape(-1, 1)
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.gamma = config.sampler.gamma 
+        self.batch_size = batch_size
         
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
         
-        jax.debug.print("Pre dl_r calculation:")
-        # Compute gradient, does this work with large r_eval?
-        l_grad_fn = jax.vmap(lambda params, r: jax.grad(model.r_net, argnums=1)(params, r), (None, 0))
-        dl_r = jnp.abs(l_grad_fn(self.state.params, self.r_eval))
-        #dl_r = jnp.abs(grad(model.r_net, argnums=1)(self.state.params, self.r_eval))
-        jax.debug.print("Post dl_r calculation:")
+        #l_grad_fn = jax.vmap(lambda params, r: jax.grad(model.r_net, argnums=1)(params, r), (None, 0))
+        #dl_r = jnp.abs(l_grad_fn(self.state.params, self.r_eval))
+        dl_r = jnp.abs(self.batched_gradient_computation(model, self.state.params, self.batch_size))
         self.norm_prob =  dl_r / dl_r.sum()
 
-
+    def batched_gradient_computation(self, model, params, batch_size):
+        num_batches = len(self.r_eval) // self.batch_size + (len(self.r_eval) % batch_size != 0)
+        all_grads = []
+        for i in range(num_batches):
+            batch_r_eval = self.r_eval[i * batch_size:(i + 1) * batch_size]
+            batch_grads = jax.vmap(lambda r: jax.grad(model.r_net, argnums=1)(params, r))(batch_r_eval)
+            all_grads.append(batch_grads)
+        return jnp.concatenate(all_grads, axis=0)
     
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
