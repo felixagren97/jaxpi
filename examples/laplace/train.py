@@ -98,7 +98,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             plt.xlabel('Radius [m]')
             plt.ylabel('Count')
             plt.title('Sampled data histogram')
-            plt.hist(batch, bins=50, label='Sampled data', color='blue')
+            plt.hist(batch.flatten(), bins=50, label='Sampled data', color='blue')
             plt.grid()
             plt.legend()
             plt.tight_layout()

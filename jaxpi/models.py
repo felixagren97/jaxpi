@@ -4,6 +4,7 @@ from typing import Any, Callable, Sequence, Tuple, Optional, Dict
 from flax.training import train_state
 from flax import jax_utils
 
+import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, pmap, random, tree_map, jacfwd, jacrev
 from jax.tree_util import tree_map, tree_reduce, tree_leaves
@@ -144,10 +145,13 @@ class PINN:
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
 
         if self.config.setting.regularization:
+            jax.debug.print("Regularization is on!")
             reg_loss = sum(
                 PINN.l2_loss(w, alpha=0.001) 
                 for w in tree_leaves(params)
             )
+            jax.debug.print("params: {x}", x=params)
+            jax.debug.print("Reg loss: {x}", x=reg_loss)
             loss += reg_loss
         return loss
 
