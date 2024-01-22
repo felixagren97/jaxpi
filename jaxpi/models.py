@@ -130,6 +130,10 @@ class PINN:
     def compute_diag_ntk(self, params, batch, *args):
         raise NotImplementedError("Subclasses should implement this!")
 
+    @staticmethod
+    def l2_loss(x, alpha):
+        return alpha * (x ** 2).mean()
+
     @partial(jit, static_argnums=(0,))
     def loss(self, params, weights, batch, *args):
         # Compute losses
@@ -141,15 +145,13 @@ class PINN:
 
         if self.config.setting.regularization:
             reg_loss = sum(
-                self.l2_loss(w, alpha=0.001) 
+                PINN.l2_loss(w, alpha=0.001) 
                 for w in tree_leaves(params)
             )
             loss += reg_loss
         return loss
 
-    def l2_loss(x, alpha):
-        return alpha * (x ** 2).mean()
-
+ 
     @partial(jit, static_argnums=(0,))
     def compute_weights(self, params, batch, *args):
         if self.config.weighting.scheme == "grad_norm":
