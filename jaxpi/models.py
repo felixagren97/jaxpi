@@ -138,7 +138,17 @@ class PINN:
         weighted_losses = tree_map(lambda x, y: x * y, losses, weights)
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
+
+        if self.config.setting.regularization:
+            reg_loss = sum(
+                self.l2_loss(w, alpha=0.001) 
+                for w in tree_leaves(params)
+            )
+            loss += reg_loss
         return loss
+
+    def l2_loss(x, alpha=1e-3):
+        return alpha * (x ** 2).mean()
 
     @partial(jit, static_argnums=(0,))
     def compute_weights(self, params, batch, *args):
