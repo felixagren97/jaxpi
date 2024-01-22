@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 
 import jax
+from jax import lax, jit, grad, vmap
 import jax.numpy as jnp
 from jax import random, pmap, local_device_count
 from jax.tree_util import tree_map
@@ -156,9 +157,26 @@ class GradientSampler(BaseSampler):
         
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
     
-        dl_r = jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
-        self.norm_prob = dl_r / dl_r.sum()
+        #dl_r = jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
+        dl_r = self.batched_gradient_computation(model, self.r_eval, batch_size)
+        self.norm_prob =  dl_r / dl_r.sum()
 
+
+    def compute_batch_grad(self, model, params, r_eval_batch):
+        return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch))
+
+    def batched_gradient_computation(self, model, r_eval, batch_size):
+        num_batches = (len(r_eval) + batch_size - 1) // batch_size  # Calculate how many batches are needed
+        grads = []
+        for i in range(num_batches):
+            start = i * batch_size
+            end = start + batch_size
+            r_eval_batch = r_eval[start:end]
+            batch_grad = self.compute_batch_grad(model, model.state.params, r_eval_batch)
+            grads.append(batch_grad)
+        return jnp.concatenate(grads)
+
+    
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
