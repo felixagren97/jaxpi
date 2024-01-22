@@ -167,9 +167,12 @@ class GradientSampler(BaseSampler):
 
     def compute_batch_grad(self, model, params, r_eval_batch):
         print("compute_batch_grad")
-        #return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch)) #Possibly only works for scalar input
-        dl_r_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
-        return jnp.abs(dl_r_fn(params, r_eval_batch))
+        print("r_eval_batch.shape", r_eval_batch.shape)
+
+        # TODO: Start digging here, wrong shape somewhere
+        return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch)) #Possibly only works for scalar input
+        #dl_r_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
+        #return jnp.abs(dl_r_fn(params, r_eval_batch))
 
     def batched_gradient_computation(self, model, r_eval, batch_size):
         print("batched_gradient_computation")
@@ -187,7 +190,7 @@ class GradientSampler(BaseSampler):
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        
+        print("data_generation")
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.norm_prob) 
         batch = batch.reshape(-1, 1)
         return batch
