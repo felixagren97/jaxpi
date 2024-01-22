@@ -147,7 +147,7 @@ class PINN:
             loss += reg_loss
         return loss
 
-    def l2_loss(x, alpha=1e-3):
+    def l2_loss(x, alpha):
         return alpha * (x ** 2).mean()
 
     @partial(jit, static_argnums=(0,))
