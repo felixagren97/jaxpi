@@ -151,39 +151,18 @@ class GradientSampler(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 1024) # 100k used in paper
         self.r_eval = self.r_eval.reshape(-1, 1)
-
         self.gamma = config.sampler.gamma 
         
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
-
-        print("Pre dl_r")
-        dl_r = self.batched_gradient_computation(model, self.r_eval, batch_size)
-        print("Post dl_r")
         
+        jax.debug.print("Pre dl_r calculation:")
+        # Compute gradient, does this work with large r_eval?
+        dl_r = jnp.abs(grad(model.r_pred_fn, argnums=1)(self.state.params, self.r_eval))
+        jax.debug.print("Post dl_r calculation:")
         self.norm_prob =  dl_r / dl_r.sum()
 
-    def compute_batch_grad(self, model, params, r_eval_batch):
-        print("compute_batch_grad")
-        print("r_eval_batch.shape", r_eval_batch.shape)
-
-        # TODO: Start digging here, wrong shape somewhere
-        return jnp.abs(jax.grad(model.r_pred_fn, argnums=1)(params, r_eval_batch)) #Possibly only works for scalar input
-        #dl_r_fn = jax.vmap(lambda params, r: jax.grad(model.u_net, argnums=1)(params, r), (None, 0))
-        #return jnp.abs(dl_r_fn(params, r_eval_batch))
-
-    def batched_gradient_computation(self, model, r_eval, batch_size):
-        print("batched_gradient_computation")
-        num_batches = (len(r_eval) + batch_size - 1) // batch_size  # Calculate how many batches are needed
-        grads = []
-        for i in range(num_batches):
-            start = i * batch_size
-            end = start + batch_size
-            r_eval_batch = r_eval[start:end]
-            batch_grad = self.compute_batch_grad(model, model.state.params, r_eval_batch)
-            grads.append(batch_grad)
-        return jnp.concatenate(grads)
 
     
     @partial(pmap, static_broadcasted_argnums=(0,))

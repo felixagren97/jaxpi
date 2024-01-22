@@ -42,8 +42,6 @@ class OneDimensionalUniformSampler(BaseSampler):
             minval=self.dom[0],
             maxval=self.dom[1],
         )
-        jax.debug.print("1D-Uniform batch shape: {x} 🤯", x=batch)
-
         return batch
 
 
