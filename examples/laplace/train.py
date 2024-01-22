@@ -94,22 +94,20 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             pass
             # plot histogram of new batch
             
-            #fig = plt.figure(figsize=(8, 8))
-            #plt.xlabel('Radius [m]')
-            #plt.ylabel('Count')
-            #plt.title('Sampled data histogram')
-            #plt.hist(batch, bins=50, label='Sampled data', color='blue')
-            #plt.grid()
-            #plt.legend()
-            #plt.tight_layout()
-
-            ## Save the figure
-            #save_dir = os.path.join(workdir, "figures", config.wandb.name)
-            #if not os.path.isdir(save_dir):
-            #    os.makedirs(save_dir)
-
-            #fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
-            #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+            fig = plt.figure(figsize=(8, 8))
+            plt.xlabel('Radius [m]')
+            plt.ylabel('Count')
+            plt.title('Sampled data histogram')
+            plt.hist(batch, bins=50, label='Sampled data', color='blue')
+            plt.grid()
+            plt.legend()
+            plt.tight_layout()
+            # Save the figure
+            save_dir = os.path.join(workdir, "figures", config.wandb.name)
+            if not os.path.isdir(save_dir):
+                os.makedirs(save_dir)
+            fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
+            fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
         model.state = model.step(model.state, batch)
 
