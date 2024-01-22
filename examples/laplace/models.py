@@ -33,7 +33,7 @@ class Laplace(ForwardIVP):
         return (self.r1-r)/(self.r1-self.r0) * self.u0 + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
 
     def r_net(self, params, r):
-        jax.debug.print("r shape in r_net: {x} 🤯", x=r.shape)
+        jax.debug.print("r in r_net: {x} 🤯", x=r)
 
         print("r_net called")
         print("r: ", r)
