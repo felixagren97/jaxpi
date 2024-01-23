@@ -80,11 +80,11 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
         if config.sampler.sampler_name != "random":
             if step % config.sampler.resample_every_steps == 0 and step != 0:
                 
-                if config.sampler.sampler_name == "rad-cosine" and step!= 0: # Updating instead of creating new sampler, TODO: make use of singleton in init_sampler
+                if config.sampler.sampler_name == "rad-cosine" and step!= config.sampler.resample_every_steps: # Updating instead of creating new sampler, TODO: make use of singleton in init_sampler
                     sampler.update_probs(model, config)    
                 else:
                     sampler = init_sampler(model, config)
-                    
+
                 res_sampler = iter(sampler)
                 
                 if config.sampler.plot_rad == True:

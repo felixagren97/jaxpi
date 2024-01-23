@@ -166,7 +166,7 @@ class RadCosineAnnealing(BaseSampler):
 
         self.current_prob = self.norm_prob_uni
 
-        self.n = self.cosine_annealing(self.T_c, self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
+        self.n = self.cosine_annealing(self.T_c, self.T) #Portion of uniform distribution to be added to current distribution
 
     def cosine_annealing(self, T, T_c):
             return 0.5 * (1 + jnp.cos(jnp.pi * T / T_c))
