@@ -169,9 +169,11 @@ class RadCosineAnnealing(BaseSampler):
         self.current_prob = self.norm_prob_uni
 
         self.n = self.cosine_annealing(self.T_c, self.T) #Portion of uniform distribution to be added to current distribution
+        jax.debug.print("self.n: {x}", x=self.n)
 
     def cosine_annealing(self, T, T_c):
             jax.debug.print("In cosine_annealing fn")
+            jax.debug.print("cos: {x}", x=0.5 * (1 + jnp.cos(jnp.pi * T / T_c)))
             return 0.5 * (1 + jnp.cos(jnp.pi * T / T_c))
 
     def update_prob(self, model):
