@@ -189,7 +189,7 @@ class RadCosineAnnealing(BaseSampler):
         num_res = self.batch_size - num_uniform
         
         res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.norm_prob_res) 
-        uni_batch = random.uniform(key, shape=(num_uniform, 1), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
