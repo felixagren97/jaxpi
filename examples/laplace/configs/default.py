@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0001 # Prev best with random sampling: 0.0001 (0.1mm)
+    setting.r_0 = 0.001 # Prev best with random sampling: 0.0001 (0.1mm)
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
@@ -19,8 +19,8 @@ def get_config():
     setting.regularization = True
     
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad2"
-    sampler.resample_every_steps = 50_000 # Resample new RAD points every 10_000 steps
+    sampler.sampler_name = "rad-cosine"
+    sampler.resample_every_steps = 2_000 # Resample new RAD points every 10_000 steps
     sampler.plot_rad = True
     sampler.c = 1
     sampler.k = 0.5
