@@ -173,8 +173,8 @@ class RadCosineAnnealing(BaseSampler):
 
     def cosine_annealing(self, T, T_c):
             jax.debug.print("In cosine_annealing fn")
-            jax.debug.print("cos: {x}", x=0.5 * (1 + jnp.cos(jnp.pi * T / T_c)))
-            return 0.5 * (1 + jnp.cos(jnp.pi * T / T_c))
+            jax.debug.print("cos: {x}", x=0.5 * (1 + jnp.cos(jnp.pi * T_c / T)))
+            return 0.5 * (1 + jnp.cos(jnp.pi * T_c / T))
 
     def update_prob(self, model):
         jax.debug.print("In update_prob fn")
@@ -196,11 +196,11 @@ class RadCosineAnnealing(BaseSampler):
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
         
-        #jax.debug.print("🤯 {x} 🤯", x=num_res)
-        #jax.debug.print("🤯 {x} 🤯", x=num_uniform)
+        jax.debug.print("num_res {x} 🤯", x=num_res)
+        jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        res_batch = random.choice(key, self.r_eval, shape=(246,), p=self.current_prob) 
-        uni_batch = random.uniform(key, shape=(10, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
@@ -209,9 +209,6 @@ class RadCosineAnnealing(BaseSampler):
     def get_n(self):
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
-        print('regular print uni[0]', num_uniform[0])
-        print('regular print res[0]', num_res[0])
-
         
         #jax.debug.print("num_res {x} 🤯", x=num_res)
         #jax.debug.print("num_res {x} 🤯", x=num_uniform)
@@ -225,7 +222,7 @@ class RadCosineAnnealing(BaseSampler):
         plt.xlabel('Radius [m]')
         plt.ylabel('norm_r_eval')
         plt.title('Residual distribution')
-        plt.plot(self.r_eval, self.current_prob, label='Norm. Residual', color='blue')
+        plt.plot(self.r_eval, self.current_prob, label='Current prob.', color='blue')
         plt.grid()
         plt.legend()
         plt.tight_layout()
