@@ -191,10 +191,9 @@ class RadCosineAnnealing(BaseSampler):
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        #num_uniform, num_res = self.get_n()
-        num_uniform = jnp.floor(self.n * self.batch_size) - 1
-        num_res = self.batch_size - num_uniform + 1
-        jax.host_callback.id_print(num_res)
+        num_uniform, num_res = self.get_n()
+        #num_uniform = jnp.floor(self.n * self.batch_size) - 1
+        #num_res = self.batch_size - num_uniform + 1
 
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
