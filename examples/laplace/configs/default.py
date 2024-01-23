@@ -16,12 +16,12 @@ def get_config():
     setting.u_1 = 0
     setting.n_r = 12_000
 
-    setting.regularization = True
+    setting.regularization = False
     
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
     sampler.resample_every_steps = 2_000 # Resample new RAD points every 10_000 steps
-    sampler.plot_rad = True
+    sampler.plot_rad = False
     sampler.c = 1
     sampler.k = 0.5
     sampler.gamma = 0
