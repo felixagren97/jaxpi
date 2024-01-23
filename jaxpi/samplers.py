@@ -191,7 +191,9 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         
-        num_uniform, num_res = self.get_n()
+        #num_uniform, num_res = self.get_n()
+        num_uniform = jnp.floor(self.n * self.batch_size)-1
+        num_res = self.batch_size - num_uniform + 1
 
         res_batch = random.choice(key, self.r_eval, shape=(num_res.shape[0],), p=self.current_prob) 
         uni_batch = random.uniform(key, shape=(num_uniform.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
@@ -203,10 +205,6 @@ class RadCosineAnnealing(BaseSampler):
     def get_n(self):
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
-        print('Inside get_n')
-        print('num_uniform', num_uniform)
-        print('num_res', num_res)
-
         return num_uniform, num_res
 
     def plot(self, workdir, step, name):
@@ -214,7 +212,7 @@ class RadCosineAnnealing(BaseSampler):
         plt.xlabel('Radius [m]')
         plt.ylabel('norm_r_eval')
         plt.title('Residual distribution')
-        plt.plot(self.r_eval, self.norm_prob, label='Norm. Residual', color='blue')
+        plt.plot(self.r_eval, self.current_prob, label='Norm. Residual', color='blue')
         plt.grid()
         plt.legend()
         plt.tight_layout()
@@ -224,7 +222,7 @@ class RadCosineAnnealing(BaseSampler):
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
 
-        fig_path = os.path.join(save_dir, f"rad2_prob_{step}.png")
+        fig_path = os.path.join(save_dir, f"cosine_prob_{step}.png")
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
         plt.close(fig)
