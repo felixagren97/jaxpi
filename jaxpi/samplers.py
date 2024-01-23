@@ -23,6 +23,8 @@ def init_sampler(model, config):
         return OneDimensionalRadSampler(model, batch_size, config)
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)
+    elif sampler == "rad-cosine":
+        return RadCosineAnnealing(model, batch_size, config)
     elif sampler == "adaptive-g":
         return GradientSampler(model, batch_size, config)
     else:     
@@ -119,6 +121,77 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
         "Generates data containing batch_size samples"
         
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.norm_prob) 
+        batch = batch.reshape(-1, 1)
+        return batch
+    
+    def plot(self, workdir, step, name):
+        fig = plt.figure(figsize=(8, 8))
+        plt.xlabel('Radius [m]')
+        plt.ylabel('norm_r_eval')
+        plt.title('Residual distribution')
+        plt.plot(self.r_eval, self.norm_prob, label='Norm. Residual', color='blue')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        
+        # Save the figure
+        save_dir = os.path.join(workdir, "figures", name)
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+
+        fig_path = os.path.join(save_dir, f"rad2_prob_{step}.png")
+        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+
+        plt.close(fig)
+
+
+class RadCosineAnnealing(BaseSampler):
+    def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
+        super().__init__(batch_size, rng_key)
+        self.dim = 1
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.c = config.sampler.c 
+        self.k = config.sampler.k
+        
+        self.T = 10  # -> should be a annealing period of 100k iterations
+        self.T_c = 0 # Should be increased every 10k iterations
+        
+        self.lr = 0.9 # TODO: Make this a config parameter
+
+        self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
+        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval   
+        prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+        self.norm_prob_res = prob_res / prob_res.sum()
+        self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
+
+        self.current_prob = self.norm_prob_uni
+
+        self.n = self.cosine_annealing(self.T_c, self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
+
+    def cosine_annealing(self, T, T_c):
+            return 0.5 * (1 + jnp.cos(jnp.pi * T / T_c))
+
+    def update_prob(self, model):
+        # Update the current probability distribution every 10k iteration
+        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
+        self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+        self.current_prob += self.lr * self.norm_prob_res
+        self.current_prob /= self.current_prob.sum()
+
+        self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
+        self.n = self.cosine_annealing(self.T_c, self.T)
+
+
+    @partial(pmap, static_broadcasted_argnums=(0,))
+    def data_generation(self, key):
+        "Generates data containing batch_size samples"
+        num_uniform = int(self.n * self.batch_size)
+        num_res = self.batch_size - num_uniform
+        
+        res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.norm_prob) 
+        uni_batch = random.uniform(key, shape=(num_uniform, 1), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        batch = jnp.concatenate([res_batch, uni_batch], axis=0)
+
         batch = batch.reshape(-1, 1)
         return batch
     
