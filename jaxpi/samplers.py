@@ -148,6 +148,8 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
 class RadCosineAnnealing(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
+        jax.debug.print("Init cosine annealing")
+
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.c = config.sampler.c 
@@ -169,9 +171,12 @@ class RadCosineAnnealing(BaseSampler):
         self.n = self.cosine_annealing(self.T_c, self.T) #Portion of uniform distribution to be added to current distribution
 
     def cosine_annealing(self, T, T_c):
+            jax.debug.print("In cosine_annealing fn")
             return 0.5 * (1 + jnp.cos(jnp.pi * T / T_c))
 
     def update_prob(self, model):
+        jax.debug.print("In update_prob fn")
+
         # Update the current probability distribution every 10k iteration
         res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
         self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
