@@ -199,8 +199,8 @@ class RadCosineAnnealing(BaseSampler):
         #jax.debug.print("🤯 {x} 🤯", x=num_res)
         #jax.debug.print("🤯 {x} 🤯", x=num_uniform)
         
-        res_batch = random.choice(key, self.r_eval, shape=(num_res[0],), p=self.current_prob) 
-        uni_batch = random.uniform(key, shape=(num_uniform[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(246,), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(10, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
