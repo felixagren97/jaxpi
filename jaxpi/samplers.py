@@ -191,15 +191,12 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         
-        num_uniform = jnp.floor(self.n * self.batch_size)
-        num_res = self.batch_size - num_uniform
+        num_uniform = jnp.floor(self.n * self.batch_size) -1
+        num_res = self.batch_size - num_uniform + 1
 
-        if num_res == 0:
-            batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        else:
-            res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.norm_prob_res) 
-            uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-            batch = jnp.concatenate([res_batch, uni_batch], axis=0)
+        res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.norm_prob_res) 
+        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
         return batch
