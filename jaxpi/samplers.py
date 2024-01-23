@@ -209,12 +209,14 @@ class RadCosineAnnealing(BaseSampler):
         num_res = self.batch_size - num_uniform + 1
         print('regular print res', num_res.shape)
         print('regular print uni', num_uniform.shape)
+        print('regular print uni[0]', num_uniform[0])
+        print('regular print res[0]', num_res[0])
 
         
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_res {x} 🤯", x=num_uniform)
         jax.debug.print("shape num_res {x} 🤯", x=num_res.shape)
-        jax.debug.print("shape num_uniform 🤯", x=num_uniform.shape)
+        jax.debug.print("shape num_uniform {x} 🤯", x=num_uniform.shape)
         
         return num_uniform, num_res
 
