@@ -154,6 +154,7 @@ class RadCosineAnnealing(BaseSampler):
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
+        self.batch_size = batch_size
         
         self.T = 10  # -> should be a annealing period of 100k iterations
         self.T_c = 0 # Should be increased every 10k iterations
@@ -191,14 +192,16 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         #num_uniform, num_res = self.get_n()
-        num_uniform = jnp.floor(self.n * self.batch_size)-1
+        num_uniform = jnp.floor(self.n * self.batch_size) - 1
         num_res = self.batch_size - num_uniform + 1
-        
+        jax.host_callback.id_print(num_res)
+
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.current_prob) 
-        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        uni_batch = random.uniform(key, shape=(num_uniform[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(num_res[0], ), p=self.current_prob) 
+        
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
