@@ -190,11 +190,13 @@ class RadCosineAnnealing(BaseSampler):
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        
-        #num_uniform, num_res = self.get_n()
+        num_uniform, num_res = self.get_n()
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
-
+        
+        jax.debug.print("🤯 {x} 🤯", x=num_res)
+        jax.debug.print("🤯 {x} 🤯", x=num_uniform)
+        
         res_batch = random.choice(key, self.r_eval, shape=(num_res.shape[0],), p=self.current_prob) 
         uni_batch = random.uniform(key, shape=(num_uniform.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
@@ -205,6 +207,15 @@ class RadCosineAnnealing(BaseSampler):
     def get_n(self):
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
+        print('regular print res', num_res.shape)
+        print('regular print uni', num_uniform.shape)
+
+        
+        jax.debug.print("num_res {x} 🤯", x=num_res)
+        jax.debug.print("num_res {x} 🤯", x=num_uniform)
+        jax.debug.print("shape num_res {x} 🤯", x=num_res.shape)
+        jax.debug.print("shape num_uniform 🤯", x=num_uniform.shape)
+        
         return num_uniform, num_res
 
     def plot(self, workdir, step, name):
