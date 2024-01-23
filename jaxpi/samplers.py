@@ -186,7 +186,7 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         num_uniform = int(self.n * self.batch_size)
-        num_uniform = num_uniform.astype(int)
+        num_uniform = jnp.array(num_uniform, int)
         num_res = self.batch_size - num_uniform
         
         res_batch = random.choice(key, self.r_eval, shape=(num_res,), p=self.norm_prob_res) 
