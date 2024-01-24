@@ -191,8 +191,8 @@ class RadCosineAnnealing(BaseSampler):
 
         self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
         self.n = self.cosine_annealing(self.T, self.T_c)
-        self.num_res = jnp.floor(self.n * self.batch_size) - 1
-        self.num_uniform = self.batch_size - self.num_res
+        self.num_res = int(jnp.floor(self.n * self.batch_size) - 1)
+        self.num_uniform = int(self.batch_size - self.num_res)
         jax.debug.print("New self.n: {x}", x=self.n)
         jax.debug.print("New self.num_res: {x}", x=self.num_res)
         jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
