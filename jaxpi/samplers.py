@@ -171,7 +171,11 @@ class RadCosineAnnealing(BaseSampler):
         self.current_prob = self.norm_prob_uni
 
         self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
+        self.num_res = jnp.floor(self.n * self.batch_size) - 1
+        self.num_uniform = self.batch_size - self.num_res
         jax.debug.print("self.n: {x}", x=self.n)
+        jax.debug.print("self.num_res: {x}", x=self.num_res)
+        jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
 
     def cosine_annealing(self, T, T_c):
             return 0.5 * (1 + jnp.cos(jnp.pi * T_c / T))
@@ -187,39 +191,25 @@ class RadCosineAnnealing(BaseSampler):
 
         self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
         self.n = self.cosine_annealing(self.T, self.T_c)
+        self.num_res = jnp.floor(self.n * self.batch_size) - 1
+        self.num_uniform = self.batch_size - self.num_res
         jax.debug.print("New self.n: {x}", x=self.n)
+        jax.debug.print("New self.num_res: {x}", x=self.num_res)
+        jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
+
         
-
-
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        #num_uniform, num_res = self.get_n()
-        num_uniform = jnp.array(jnp.floor(self.n * self.batch_size) - 1, jnp.int32)
-        num_res = jnp.array(self.batch_size - num_uniform, jnp.int32)
-
-        np_uni = np.array(num_uniform)
-        np_res = np.array(num_res)
-        #res_int = jnp.array(num_res, int)
-        #uni_int = jnp.array(num_uniform, int)
-
-        jax.debug.print("num_res {x} 🤯", x=num_res)
-        jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        uni_batch = random.uniform(key, shape=(np_uni, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(np_res, ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
         batch = batch.reshape(-1, 1)
         return batch
     
-    def get_n(self):
-        # subtracting 1 to ennsure at least 1 residual point is sampled 
-        num_uniform = jnp.floor(self.n * self.batch_size) - 1
-        num_res = self.batch_size - num_uniform 
-    
-        return num_uniform, num_res
 
     def plot(self, workdir, step, name):
         fig = plt.figure(figsize=(8, 8))
