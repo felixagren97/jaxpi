@@ -171,8 +171,8 @@ class RadCosineAnnealing(BaseSampler):
         self.current_prob = self.norm_prob_uni
 
         self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
-        self.num_res = jnp.floor(self.n * self.batch_size) - 1
-        self.num_uniform = self.batch_size - self.num_res
+        self.num_res = (jnp.floor(self.n * self.batch_size) - 1).astype(int)
+        self.num_uniform = (self.batch_size - self.num_res).astype(int)
         jax.debug.print("self.n: {x}", x=self.n)
         jax.debug.print("self.num_res: {x}", x=self.num_res)
         jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
@@ -202,8 +202,8 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         
-        uni_batch = random.uniform(key, shape=(self.num_uniform.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(self.num_res.shape[0], ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
