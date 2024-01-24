@@ -210,8 +210,8 @@ class RadCosineAnnealing(BaseSampler):
         num_uniform = jnp.floor(self.n * self.batch_size)-1
         num_res = self.batch_size - num_uniform + 1
         
-        jax.debug.print("num_res {x} 🤯", x=num_res)
-        jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
+        #jax.debug.print("num_res {x} 🤯", x=num_res)
+        #jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
     
         return num_uniform, num_res
 
