@@ -17,6 +17,7 @@ def get_config():
     setting.n_r = 12_000
 
     setting.regularization = False
+    setting.gpinn = True
     
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"

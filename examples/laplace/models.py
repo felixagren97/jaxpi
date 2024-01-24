@@ -26,6 +26,7 @@ class Laplace(ForwardIVP):
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
+
     def u_net(self, params, r):
         # params = weights for NN
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
@@ -51,8 +52,14 @@ class Laplace(ForwardIVP):
         else:
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
             res_loss = jnp.mean((r_pred) ** 2)
-
+        
         loss_dict = {"res": res_loss}
+
+        if self.config.setting.gpinn == True:
+            g_pred = grad(vmap(self.r_net, (None, 0)), argnums=1)(params, batch[:,0])
+            g_loss = jnp.mean((g_pred) ** 2)
+            loss_dict["g"] = g_loss
+
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
@@ -66,13 +73,12 @@ class Laplace(ForwardIVP):
 
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
-            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
+            raise NotImplementedError(f"Casual weights not supported for time-independant 1D Laplace!")
 
         else:
             res_ntk = vmap(ntk_fn, (None, None, 0))(
                 self.r_net, params, batch[:, 0]
             )
-        #ntk_dict = {"ics": ics_ntk, "res": res_ntk}
         ntk_dict = {"res": res_ntk}
 
         return ntk_dict
