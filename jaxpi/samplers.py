@@ -198,8 +198,8 @@ class RadCosineAnnealing(BaseSampler):
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        uni_batch = random.uniform(key, shape=(246, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(10, ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(num_res, ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
@@ -207,11 +207,9 @@ class RadCosineAnnealing(BaseSampler):
         return batch
     
     def get_n(self):
-        num_uniform = jnp.floor(self.n * self.batch_size)-1
-        num_res = self.batch_size - num_uniform + 1
-        
-        #jax.debug.print("num_res {x} 🤯", x=num_res)
-        #jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
+        # subtracting 1 to ennsure at least 1 residual point is sampled 
+        num_uniform = jnp.floor(self.n * self.batch_size) - 1
+        num_res = self.batch_size - num_uniform 
     
         return num_uniform, num_res
 
