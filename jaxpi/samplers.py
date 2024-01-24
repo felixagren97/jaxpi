@@ -191,8 +191,8 @@ class RadCosineAnnealing(BaseSampler):
 
         self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
         self.n = self.cosine_annealing(self.T, self.T_c)
-        self.num_res = int(jnp.floor(self.n * self.batch_size) - 1)
-        self.num_uniform = int(self.batch_size - self.num_res)
+        self.num_res = jnp.floor(self.n * self.batch_size) - 1
+        self.num_uniform = self.batch_size - self.num_res
         jax.debug.print("New self.n: {x}", x=self.n)
         jax.debug.print("New self.num_res: {x}", x=self.num_res)
         jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
@@ -202,8 +202,8 @@ class RadCosineAnnealing(BaseSampler):
     def data_generation(self, key):
         "Generates data containing batch_size samples"
         
-        uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(self.num_uniform.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(self.num_res.shape[0], ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
