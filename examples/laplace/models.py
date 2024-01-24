@@ -22,6 +22,8 @@ class Laplace(ForwardIVP):
         self.r0 = config.setting.r_0
         self.r1 = config.setting.r_1
 
+        self.grad_points = jnp.linspace(self.r0, self.r1, 100)
+
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
@@ -56,8 +58,14 @@ class Laplace(ForwardIVP):
         loss_dict = {"res": res_loss}
 
         if self.config.setting.gpinn == True:
-            grad_fn = vmap(grad(lambda p, x: self.r_net(p, x)), (None, 0)) # function for calculating gradient for the residual
-            g_pred = grad_fn(params, batch[:, 0])
+            #obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_x)
+            #obs_loss = jnp.mean((self.loss_scale * (self.obs_u - self.u_scale * obs_u_pred)) ** 2)
+            
+            #grad_fn = vmap(grad(lambda p, x: self.r_net(p, x)), (None, 0)) # function for calculating gradient for the residual
+
+            g_pred_fn = vmap(lambda params, r: grad(self.r_net, argnums=1)(params, r), (None, 0))
+
+            g_pred = g_pred_fn(params, self.grad_points) # Testing with fewer grad points to speed up computation
             g_loss = jnp.mean(g_pred ** 2)
             loss_dict["g"] = g_loss
 
