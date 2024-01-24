@@ -56,8 +56,9 @@ class Laplace(ForwardIVP):
         loss_dict = {"res": res_loss}
 
         if self.config.setting.gpinn == True:
-            g_pred = grad(vmap(self.r_net, (None, 0)), argnums=1)(params, batch[:,0])
-            g_loss = jnp.mean((g_pred) ** 2)
+            grad_fn = vmap(grad(lambda p, x: self.r_net(p, x)), (None, 0)) # function for calculating gradient for the residual
+            g_pred = grad_fn(params, batch[:, 0])
+            g_loss = jnp.mean(g_pred ** 2)
             loss_dict["g"] = g_loss
 
         return loss_dict
