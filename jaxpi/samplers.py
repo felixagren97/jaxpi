@@ -175,6 +175,10 @@ class RadCosineAnnealing(BaseSampler):
         jax.debug.print("self.n: {x}", x=self.n)
         jax.debug.print("self.num_res: {x}", x=self.num_res)
         jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
+        jax.debug.print("shape r_eval: {x}", x=self.r_eval.shape)
+        jax.debug.print("shape current prob: {x}", x=self.current_prob.shape)
+
+
 
     def cosine_annealing(self, T, T_c):
             return 0.5 * (1 + jnp.cos(jnp.pi * T_c / T))
