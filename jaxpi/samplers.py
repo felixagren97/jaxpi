@@ -6,6 +6,7 @@ from jax import lax, jit, grad, vmap
 import jax.numpy as jnp
 from jax import random, pmap, local_device_count
 from jax.tree_util import tree_map
+import numpy as np
 
 import matplotlib.pyplot as plt
 import os
@@ -197,14 +198,16 @@ class RadCosineAnnealing(BaseSampler):
         num_uniform = jnp.array(jnp.floor(self.n * self.batch_size) - 1, jnp.int32)
         num_res = jnp.array(self.batch_size - num_uniform, jnp.int32)
 
+        np_uni = np.array(num_uniform)
+        np_res = np.array(num_res)
         #res_int = jnp.array(num_res, int)
         #uni_int = jnp.array(num_uniform, int)
 
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        uni_batch = random.uniform(key, shape=(num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(num_res, ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(np_uni, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(np_res, ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
