@@ -206,7 +206,7 @@ class RadCosineAnnealing(BaseSampler):
         "Generates data containing batch_size samples"
         
         uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(1, ), p=self.current_prob) 
+        res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
