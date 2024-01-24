@@ -171,7 +171,7 @@ class RadCosineAnnealing(BaseSampler):
 
         self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
         self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
-        self.num_res = (self.batch_size - self.num_uniform).item()
+        self.num_res = (self.batch_size - self.num_uniform)
         jax.debug.print("self.n: {x}", x=self.n)
         jax.debug.print("self.num_res: {x}", x=self.num_res)
         jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
