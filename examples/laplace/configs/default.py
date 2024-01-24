@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.001 # Prev best with random sampling: 0.0001 (0.1mm)
+    setting.r_0 = 0.0001 # Prev best with random sampling: 0.0001 (0.1mm)
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
@@ -37,8 +37,8 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 6
-    arch.layer_size = 256
+    arch.num_layers = 4
+    arch.layer_size = 64
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
@@ -61,7 +61,7 @@ def get_config():
     # Training
     config.training = training = ml_collections.ConfigDict()
     training.max_steps = 200_000
-    training.batch_size_per_device = 1024
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()

@@ -216,8 +216,10 @@ class RadCosineAnnealing(BaseSampler):
         fig = plt.figure(figsize=(8, 8))
         plt.xlabel('Radius [m]')
         plt.ylabel('norm_r_eval')
-        plt.title('Residual distribution')
-        plt.plot(self.r_eval, self.current_prob, label='Current prob.', color='blue')
+        plt.title('Sample distributions')
+        plt.plot(self.r_eval, self.current_prob, label='Res. dist.', color='blue')
+        plt.plot(self.r_eval, self.norm_prob_uni, label='Uniform dist..', color='red', linestyle='--')
+        
         plt.grid()
         plt.legend()
         plt.tight_layout()
