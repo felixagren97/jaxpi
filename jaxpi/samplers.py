@@ -149,8 +149,6 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
 class RadCosineAnnealing(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
-        jax.debug.print("Init cosine annealing")
-
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.c = config.sampler.c 
@@ -172,11 +170,11 @@ class RadCosineAnnealing(BaseSampler):
         self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
         self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
         self.num_res = (self.batch_size - self.num_uniform)
-        jax.debug.print("self.n: {x}", x=self.n)
-        jax.debug.print("self.num_res: {x}", x=self.num_res)
-        jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
-        jax.debug.print("shape r_eval: {x}", x=self.r_eval.shape)
-        jax.debug.print("shape current prob: {x}", x=self.current_prob.shape)
+        #jax.debug.print("self.n: {x}", x=self.n)
+        #jax.debug.print("self.num_res: {x}", x=self.num_res)
+        #jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
+        #jax.debug.print("shape r_eval: {x}", x=self.r_eval.shape)
+        #jax.debug.print("shape current prob: {x}", x=self.current_prob.shape)
 
 
 
@@ -194,8 +192,8 @@ class RadCosineAnnealing(BaseSampler):
 
         self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
         self.n = self.cosine_annealing(self.T, self.T_c)
-        self.num_res = jnp.floor(self.n * self.batch_size) - 1
-        self.num_uniform = self.batch_size - self.num_res
+        self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
+        self.num_res = self.batch_size - self.num_uniform
         jax.debug.print("New self.n: {x}", x=self.n)
         jax.debug.print("New self.num_res: {x}", x=self.num_res)
         jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
