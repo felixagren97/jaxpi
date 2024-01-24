@@ -186,22 +186,25 @@ class RadCosineAnnealing(BaseSampler):
 
         self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
         self.n = self.cosine_annealing(self.T, self.T_c)
+        jax.debug.print("New self.n: {x}", x=self.n)
+        
 
 
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        num_uniform, num_res = self.get_n()
-        #num_uniform = jnp.floor(self.n * self.batch_size) - 1
-        #num_res = self.batch_size - num_uniform + 1
-        res_int = jnp.array(num_res, int)
-        uni_int = jnp.array(num_uniform, int)
+        #num_uniform, num_res = self.get_n()
+        num_uniform = jnp.array(jnp.floor(self.n * self.batch_size) - 1, jnp.int32)
+        num_res = jnp.array(self.batch_size - num_uniform, jnp.int32)
+
+        #res_int = jnp.array(num_res, int)
+        #uni_int = jnp.array(num_uniform, int)
 
         jax.debug.print("num_res {x} 🤯", x=num_res)
         jax.debug.print("num_uniform {x} 🤯", x=num_uniform)
         
-        uni_batch = random.uniform(key, shape=(uni_int.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
-        res_batch = random.choice(key, self.r_eval, shape=(res_int.shape[0], ), p=self.current_prob) 
+        uni_batch = random.uniform(key, shape=(num_uniform.shape[0], ), minval=self.r_eval[0], maxval=self.r_eval[-1])
+        res_batch = random.choice(key, self.r_eval, shape=(num_res.shape[0], ), p=self.current_prob) 
         
         batch = jnp.concatenate([res_batch, uni_batch], axis=0)
 
