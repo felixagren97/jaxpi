@@ -16,7 +16,8 @@ from torch.utils.data import Dataset
 
 # Function for initializing sampler from config file
 # argument: model reference, sampler name, and specific kwargs from config file 
-def init_sampler(model, config):
+def init_sampler(model, config, prev=None):
+
     sampler = config.sampler.sampler_name
     batch_size = config.training.batch_size_per_device
 
@@ -25,7 +26,7 @@ def init_sampler(model, config):
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)
     elif sampler == "rad-cosine":
-        return RadCosineAnnealing(model, batch_size, config)
+        return RadCosineAnnealing(model, batch_size, config, prev = None)
     elif sampler == "adaptive-g":
         return GradientSampler(model, batch_size, config)
     else:     
@@ -147,56 +148,61 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
 
 
 class RadCosineAnnealing(BaseSampler):
-    def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
+    def __init__(self, model, batch_size, config, prev, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
         
-        self.T = 10  # -> should be a annealing period of 100k iterations
-        self.T_c = 0 # Should be increased every 10k iterations
+        self.T = 10 # -> should be a annealing period of 100k iterations
+        self.lr = 0.9
         
-        self.lr = 0.9 # TODO: Make this a config parameter
+        if prev is None: # First iteration  
+            self.T_c = 0 # Should be increased every 10k iterations
+            self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
+            res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval   
+            prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+            self.norm_prob_res = prob_res / prob_res.sum()
+            self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
+            self.current_prob = self.norm_prob_uni
+            self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
+            self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
+            self.num_res = (self.batch_size - self.num_uniform)
+        
+         # TODO: Make this a config parameter
 
-        self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
-        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval   
-        prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
-        self.norm_prob_res = prob_res / prob_res.sum()
-        self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
+        else: # Not first iteration
+            res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
+            self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+            self.current_prob = prev.current_prob + self.lr * self.norm_prob_res
+            self.current_prob /= self.current_prob.sum()
 
-        self.current_prob = self.norm_prob_uni
-
-        self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
-        self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
-        self.num_res = (self.batch_size - self.num_uniform)
-        #jax.debug.print("self.n: {x}", x=self.n)
-        #jax.debug.print("self.num_res: {x}", x=self.num_res)
-        #jax.debug.print("self.num_uniform: {x}", x=self.num_uniform)
-        #jax.debug.print("shape r_eval: {x}", x=self.r_eval.shape)
-        #jax.debug.print("shape current prob: {x}", x=self.current_prob.shape)
-
+            self.T_c = (prev.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
+            self.n = self.cosine_annealing(self.T, self.T_c)
+            self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
+            self.num_res = self.batch_size - self.num_uniform
 
 
     def cosine_annealing(self, T, T_c):
             return 0.5 * (1 + jnp.cos(jnp.pi * T_c / T))
 
-    def update_prob(self, model):
-        jax.debug.print("In update_prob fn")
-
-        # Update the current probability distribution every 10k iteration
-        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
-        self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
-        self.current_prob += self.lr * self.norm_prob_res
-        self.current_prob /= self.current_prob.sum()
-
-        self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
-        self.n = self.cosine_annealing(self.T, self.T_c)
-        self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
-        self.num_res = self.batch_size - self.num_uniform
-        jax.debug.print("New self.n: {x}", x=self.n)
-        jax.debug.print("New self.num_res: {x}", x=self.num_res)
-        jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
+    #def update_prob(self, model):
+    #    jax.debug.print("In update_prob fn")
+#
+    #    # Update the current probability distribution every 10k iteration
+    #    res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
+    #    self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+    #    self.current_prob += self.lr * self.norm_prob_res
+    #    self.current_prob /= self.current_prob.sum()
+#
+    #    self.T_c = (self.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
+    #    self.n = self.cosine_annealing(self.T, self.T_c)
+    #    self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
+    #    self.num_res = self.batch_size - self.num_uniform
+    #    jax.debug.print("New self.n: {x}", x=self.n)
+    #    jax.debug.print("New self.num_res: {x}", x=self.num_res)
+    #    jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
 
         
     @partial(pmap, static_broadcasted_argnums=(0,))
