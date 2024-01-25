@@ -18,11 +18,12 @@ def get_config():
 
     setting.regularization = False
     setting.gpinn = True
+    setting.num_grad_points = 100
     
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
     sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
-    sampler.plot_rad = True
+    sampler.plot_rad = False
     sampler.c = 1
     sampler.k = 0.5
     sampler.gamma = 0
@@ -31,7 +32,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
+    wandb.project = "PINN-Laplace-gpinn"
     wandb.name = "default"
     wandb.tag = None
 
@@ -67,7 +68,7 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = None
-    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
+    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0, "g": 0.1})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 

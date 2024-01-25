@@ -22,7 +22,7 @@ class Laplace(ForwardIVP):
         self.r0 = config.setting.r_0
         self.r1 = config.setting.r_1
 
-        self.grad_points = jnp.linspace(self.r0, self.r1, 100)
+        self.grad_points = jnp.linspace(self.r0, self.r1, config.setting.num_grad_points)
 
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
