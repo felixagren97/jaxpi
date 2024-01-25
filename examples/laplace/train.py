@@ -81,6 +81,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             if step % config.sampler.resample_every_steps == 0 and step != 0:
                 
                 if config.sampler.sampler_name == "rad-cosine" and step!= config.sampler.resample_every_steps: 
+                    jax.debug.print("Resampling with rad-cosine and passign prev sampler")
                     sampler = init_sampler(model, config, prev = sampler)    
                 else:
                     sampler = init_sampler(model, config)

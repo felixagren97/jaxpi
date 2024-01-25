@@ -173,6 +173,7 @@ class RadCosineAnnealing(BaseSampler):
          # TODO: Make this a config parameter
 
         else: # Not first iteration
+            jax.debug.print("In else statement in init")
             res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
             self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
             self.current_prob = prev.current_prob + self.lr * self.norm_prob_res
@@ -182,6 +183,10 @@ class RadCosineAnnealing(BaseSampler):
             self.n = self.cosine_annealing(self.T, self.T_c)
             self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
             self.num_res = self.batch_size - self.num_uniform
+            jax.debug.print("New self.n: {x}", x=self.n)
+            jax.debug.print("New self.num_res: {x}", x=self.num_res)
+            jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
+            
 
 
     def cosine_annealing(self, T, T_c):
