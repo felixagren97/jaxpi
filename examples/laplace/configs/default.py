@@ -17,13 +17,13 @@ def get_config():
     setting.n_r = 12_000
 
     setting.regularization = False
-    setting.gpinn = True
+    setting.gpinn = False
     setting.num_grad_points = 100
     
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
-    sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
-    sampler.plot_rad = False
+    sampler.resample_every_steps = 1_000 # Resample new RAD points every 10_000 steps
+    sampler.plot_rad = True
     sampler.c = 1
     sampler.k = 0.5
     sampler.gamma = 0
@@ -68,7 +68,7 @@ def get_config():
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
     weighting.scheme = None
-    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0, "g": 0.1})
+    weighting.init_weights = ml_collections.ConfigDict({"res": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
 
@@ -78,7 +78,7 @@ def get_config():
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 100
+    logging.log_every_steps = 1000
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
