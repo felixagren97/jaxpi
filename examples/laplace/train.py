@@ -110,7 +110,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             save_dir = os.path.join(workdir, "figures", config.wandb.name)
             if not os.path.isdir(save_dir):
                 os.makedirs(save_dir)
-            fig_path = os.path.join(save_dir, f"rad_data_hist_{step}.png")
+            fig_path = os.path.join(save_dir, f"batch_hist_{step}.png")
             fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
         model.state = model.step(model.state, batch)
