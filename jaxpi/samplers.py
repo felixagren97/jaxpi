@@ -208,9 +208,9 @@ class RadCosineAnnealing(BaseSampler):
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        jax.debug.print("batch.num_res: {x}", x=self.num_res)
-        jax.debug.print("batch.num_uniform: {x}", x=self.num_uniform)
-        jax.debug.print("batch.curr prob: {x}", x=self.current_prob)
+        #jax.debug.print("batch.num_res: {x}", x=self.num_res)
+        #jax.debug.print("batch.num_uniform: {x}", x=self.num_uniform)
+        #jax.debug.print("batch.curr prob: {x}", x=self.current_prob)
         
         
         uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
