@@ -69,13 +69,6 @@ class InversePoisson(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):    #TODO: Implement loss for observed synthetic data.
-        # inner boundary condition 
-        #u_pred = self.u_net(params, self.r0)
-        #inner_bcs_loss = jnp.mean((self.u0 - u_pred) ** 2)
-
-        # outer boundary condition 
-        #u_pred = self.u_net(params, self.r1)
-        #outer_bcs_loss = jnp.mean((self.u1 - u_pred) ** 2)
 
         # Residual loss
         if self.config.weighting.use_causal == True:

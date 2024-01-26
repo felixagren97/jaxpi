@@ -32,7 +32,6 @@ def get_config():
     sampler.cosine_T = 10
 
 
-
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Laplace-gpinn"

@@ -14,7 +14,7 @@ def get_config():
     setting.r_1 = 0.5
     setting.u0 = 1
     setting.u1 = 0
-    config.setting.n_r = 12_000
+    setting.n_r = 12_000
 
     setting.n_obs = 100
     setting.guassian_noise_perc = None
@@ -23,6 +23,7 @@ def get_config():
     setting.true_rho = 1e-3
     setting.rho_scale = 1e-4
 
+    setting.regularization = False
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Poisson-Ablation-100-obs"
@@ -32,8 +33,8 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlpRho"
-    arch.num_layers = 6
-    arch.layer_size = 256
+    arch.num_layers = 4
+    arch.layer_size = 64
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
