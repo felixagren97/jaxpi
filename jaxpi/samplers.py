@@ -26,7 +26,7 @@ def init_sampler(model, config, prev=None):
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)
     elif sampler == "rad-cosine":
-        return RadCosineAnnealing(model, batch_size, config, prev = None)
+        return RadCosineAnnealing(model, batch_size, config, prev)
     elif sampler == "adaptive-g":
         return GradientSampler(model, batch_size, config)
     else:     
