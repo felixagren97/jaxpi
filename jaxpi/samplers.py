@@ -167,7 +167,6 @@ class RadCosineAnnealing(BaseSampler):
         self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
 
         if prev is None: # First iteration
-            #jax.debug.print("Prev is None")  
             self.T_c = 0 # Should be increased every 10k iterations
             self.current_prob = self.norm_prob_uni
             self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
@@ -177,7 +176,6 @@ class RadCosineAnnealing(BaseSampler):
          # TODO: Make this a config parameter
 
         else: # Not first iteration
-            #jax.debug.print("Prev is NOT None")
             # Update the current probability distribution every 10k iteration with moving average
             self.current_prob = prev.current_prob + self.lr * self.norm_prob_res
             self.current_prob /= self.current_prob.sum()
@@ -187,9 +185,6 @@ class RadCosineAnnealing(BaseSampler):
             self.n = self.cosine_annealing(self.T, self.T_c)
             self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
             self.num_res = self.batch_size - self.num_uniform
-            #jax.debug.print("New self.n: {x}", x=self.n)
-            #jax.debug.print("New self.num_res: {x}", x=self.num_res)
-            #jax.debug.print("New self.num_uniform: {x}", x=self.num_uniform)
             
 
 
@@ -199,11 +194,7 @@ class RadCosineAnnealing(BaseSampler):
         
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
-        "Generates data containing batch_size samples"
-        jax.debug.print("batch.num_res: {x}", x=self.num_res)
-        jax.debug.print("batch.num_uniform: {x}", x=self.num_uniform)
-        jax.debug.print("batch.curr prob: {x}", x=self.current_prob)
-        
+        "Generates data containing batch_size samples"    
         uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
         
