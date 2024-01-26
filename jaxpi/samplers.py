@@ -150,21 +150,25 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
 class RadCosineAnnealing(BaseSampler):
     def __init__(self, model, batch_size, config, prev, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
+        
+        # Constants
         self.dim = 1
         self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
-        
         self.T = 10 # -> should be a annealing period of 100k iterations
         self.lr = 0.9
         
-        if prev is None: # First iteration  
+        # Computing residual distribution 
+        self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
+        res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval   
+        prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+        self.norm_prob_res = prob_res / prob_res.sum()
+        self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
+
+        if prev is None: # First iteration
+            jax.debug.print("Prev is None")  
             self.T_c = 0 # Should be increased every 10k iterations
-            self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
-            res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval   
-            prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
-            self.norm_prob_res = prob_res / prob_res.sum()
-            self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
             self.current_prob = self.norm_prob_uni
             self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
             self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
@@ -173,13 +177,13 @@ class RadCosineAnnealing(BaseSampler):
          # TODO: Make this a config parameter
 
         else: # Not first iteration
-            jax.debug.print("In else statement in init")
-            res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval))
-            self.norm_prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
+            jax.debug.print("Prev is NOT None")
+            # Update the current probability distribution every 10k iteration with moving average
             self.current_prob = prev.current_prob + self.lr * self.norm_prob_res
             self.current_prob /= self.current_prob.sum()
-
-            self.T_c = (prev.T_c + 1) % self.T    #TODO: Make sure this function is called every 10k iteration 
+            
+            # Increment T_c and compute new n, num_uniform and num_res
+            self.T_c = (prev.T_c + 1) % self.T     
             self.n = self.cosine_annealing(self.T, self.T_c)
             self.num_uniform = jnp.floor(self.n * self.batch_size) - 1
             self.num_res = self.batch_size - self.num_uniform
@@ -216,7 +220,6 @@ class RadCosineAnnealing(BaseSampler):
         #jax.debug.print("batch.num_res: {x}", x=self.num_res)
         #jax.debug.print("batch.num_uniform: {x}", x=self.num_uniform)
         #jax.debug.print("batch.curr prob: {x}", x=self.current_prob)
-        
         
         uni_batch = random.uniform(key, shape=(self.num_uniform, ), minval=self.r_eval[0], maxval=self.r_eval[-1])
         res_batch = random.choice(key, self.r_eval, shape=(self.num_res, ), p=self.current_prob) 
