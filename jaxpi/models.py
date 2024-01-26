@@ -4,6 +4,7 @@ from typing import Any, Callable, Sequence, Tuple, Optional, Dict
 from flax.training import train_state
 from flax import jax_utils
 
+import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, pmap, random, tree_map, jacfwd, jacrev
 from jax.tree_util import tree_map, tree_reduce, tree_leaves
@@ -130,6 +131,10 @@ class PINN:
     def compute_diag_ntk(self, params, batch, *args):
         raise NotImplementedError("Subclasses should implement this!")
 
+    @staticmethod
+    def l2_loss(x, alpha):
+        return alpha * (x ** 2).mean()
+
     @partial(jit, static_argnums=(0,))
     def loss(self, params, weights, batch, *args):
         # Compute losses
@@ -138,8 +143,17 @@ class PINN:
         weighted_losses = tree_map(lambda x, y: x * y, losses, weights)
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
+
+        if self.config.setting.regularization:
+            reg_loss = sum(
+                PINN.l2_loss(w, alpha=0.001) 
+                for w in tree_leaves(params)
+            )
+           
+            loss += reg_loss
         return loss
 
+ 
     @partial(jit, static_argnums=(0,))
     def compute_weights(self, params, batch, *args):
         if self.config.weighting.scheme == "grad_norm":

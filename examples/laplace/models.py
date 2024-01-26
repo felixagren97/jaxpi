@@ -1,5 +1,6 @@
 from functools import partial
 
+import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, vmap
 
@@ -21,20 +22,23 @@ class Laplace(ForwardIVP):
         self.r0 = config.setting.r_0
         self.r1 = config.setting.r_1
 
+        self.grad_points = jnp.linspace(self.r0, self.r1, config.setting.num_grad_points)
+
         #new  
         self.u_pred_fn = vmap(self.u_net, (None, 0))
         self.r_pred_fn = vmap(self.r_net, (None, 0))
 
+
     def u_net(self, params, r):
-        # params = weights for NN 
+        # params = weights for NN
         r_reshape = jnp.reshape(r, (1, -1)) # make it a 2d array with just one column to emulate jnp.stack()
         u = self.state.apply_fn(params, r_reshape) # gives r to the neural network's (self.state) forward pass (apply_fn)
         return (self.r1-r)/(self.r1-self.r0) * self.u0 + (r-self.r0)*(self.r1 - r)*u[0] # hard boundary
 
-    def r_net(self, params, r):        
+    def r_net(self, params, r):
+        #jax.debug.print("r in r_net: {x} 🤯", x=r)
         du_r = grad(self.u_net, argnums=1)(params, r)
         du_rr = grad(grad(self.u_net, argnums=1), argnums=1)(params, r)
-        #du_rr = grad(lambda r: grad(self.u_net, argnums=1)(params, r))(r) #TODO: understand why this seems to work? Check if correct
         return r * du_rr + du_r  # Scaled by r, try w/o? 
 
     @partial(jit, static_argnums=(0,))
@@ -50,8 +54,21 @@ class Laplace(ForwardIVP):
         else:
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0]) 
             res_loss = jnp.mean((r_pred) ** 2)
-
+        
         loss_dict = {"res": res_loss}
+
+        if self.config.setting.gpinn == True:
+            #obs_u_pred = vmap(self.u_net, (None, 0))(params, self.obs_x)
+            #obs_loss = jnp.mean((self.loss_scale * (self.obs_u - self.u_scale * obs_u_pred)) ** 2)
+            
+            #grad_fn = vmap(grad(lambda p, x: self.r_net(p, x)), (None, 0)) # function for calculating gradient for the residual
+
+            g_pred_fn = vmap(lambda params, r: grad(self.r_net, argnums=1)(params, r), (None, 0))
+
+            g_pred = g_pred_fn(params, self.grad_points) # Testing with fewer grad points to speed up computation
+            g_loss = jnp.mean(g_pred ** 2)
+            loss_dict["g"] = g_loss
+
         return loss_dict
 
     @partial(jit, static_argnums=(0,))
@@ -65,13 +82,12 @@ class Laplace(ForwardIVP):
 
         # Consider the effect of causal weights
         if self.config.weighting.use_causal: 
-            raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
+            raise NotImplementedError(f"Casual weights not supported for time-independant 1D Laplace!")
 
         else:
             res_ntk = vmap(ntk_fn, (None, None, 0))(
                 self.r_net, params, batch[:, 0]
             )
-        #ntk_dict = {"ics": ics_ntk, "res": res_ntk}
         ntk_dict = {"res": res_ntk}
 
         return ntk_dict

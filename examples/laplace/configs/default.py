@@ -10,23 +10,40 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0001
+    setting.r_0 = 0.0001 # Prev best with random sampling: 0.0001 (0.1mm)
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
-    config.setting.n_r = 12_000
+    setting.n_r = 12_000
+
+    setting.regularization = False
+    setting.gpinn = False
+    setting.num_grad_points = 100
+    
+    config.sampler = sampler = ml_collections.ConfigDict()
+    sampler.sampler_name = "rad-cosine"
+    sampler.resample_every_steps = 10_000 # Resample new RAD points every 10_000 steps
+    sampler.num_rad_points = 100_000
+    sampler.plot_rad = True
+    sampler.c = 1
+    sampler.k = 0.5
+    sampler.gamma = 0
+    sampler.cosine_lr = 0.9
+    sampler.cosine_T = 10
+
+
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace"
+    wandb.project = "PINN-Laplace-gpinn"
     wandb.name = "default"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "Mlp"
-    arch.num_layers = 6
-    arch.layer_size = 256
+    arch.num_layers = 4
+    arch.layer_size = 64
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
@@ -49,7 +66,7 @@ def get_config():
     # Training
     config.training = training = ml_collections.ConfigDict()
     training.max_steps = 200_000
-    training.batch_size_per_device = 516
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
@@ -64,7 +81,7 @@ def get_config():
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 100
+    logging.log_every_steps = 1000
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
