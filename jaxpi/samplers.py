@@ -121,7 +121,6 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
         "Generates data containing batch_size samples"
-        
         batch = random.choice(key, self.r_eval, shape=(self.batch_size,), p=self.norm_prob) 
         batch = batch.reshape(-1, 1)
         return batch
