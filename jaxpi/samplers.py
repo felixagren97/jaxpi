@@ -71,7 +71,7 @@ class OneDimensionalRadSampler(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, config.sampler.num_rad_points) # 100k used in paper
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
         res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
         self.prob = res_pred / jnp.sum(res_pred)
@@ -108,7 +108,7 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, config.sampler.num_rad_points) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
         
@@ -152,11 +152,11 @@ class RadCosineAnnealing(BaseSampler):
         
         # Constants
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, 100_000) # 100k used in paper
+        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, config.sampler.num_rad_points) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
-        self.T = 10 # -> should be a annealing period of 100k iterations
-        self.lr = 0.9
+        self.T = config.sampler.cosine_T # -> should be a annealing period of 100k iterations
+        self.lr = config.sampler.cosine_lr
         
         # Computing residual distribution 
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
@@ -164,27 +164,21 @@ class RadCosineAnnealing(BaseSampler):
         prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
         self.norm_prob_res = prob_res / prob_res.sum()
         self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
-
-        if prev is None: # First iteration
-            self.T_c = 0 # Should be increased every 10k iterations
-            self.current_prob = self.norm_prob_uni
-            self.n = self.cosine_annealing(self.T, self.T_c) #Portion of uniform distribution to be added to current distribution
-            self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
-            self.num_res = (self.batch_size - self.num_uniform)
         
-         # TODO: Make this a config parameter
-
-        else: # Not first iteration
-            # Update the current probability distribution every 10k iteration with moving average
+        # If the sampler is initialized for the first time, set T_c = 0 and current_prob = norm_prob_uni
+        if prev is None: 
+            self.T_c = 0 
+            self.current_prob = self.norm_prob_uni
+        
+        # If the sampler is initialized from a previous sampler, set T_c = prev.T_c and current_prob = prev.current_prob
+        else: 
             self.current_prob = prev.current_prob + self.lr * self.norm_prob_res
             self.current_prob /= self.current_prob.sum()
-            
-            # Increment T_c and compute new n, num_uniform and num_res
             self.T_c = (prev.T_c + 1) % self.T     
-            self.n = self.cosine_annealing(self.T, self.T_c)
-            self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
-            self.num_res = self.batch_size - self.num_uniform
-            
+        
+        self.n = self.cosine_annealing(self.T, self.T_c) # Fraction of points sampled from uniform distribution
+        self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
+        self.num_res = (self.batch_size - self.num_uniform)
 
 
     def cosine_annealing(self, T, T_c):

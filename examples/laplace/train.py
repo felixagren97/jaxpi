@@ -113,6 +113,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 os.makedirs(save_dir)
             fig_path = os.path.join(save_dir, f"batch_hist_{step}.png")
             fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+            plt.close(fig)
 
         model.state = model.step(model.state, batch)
 
