@@ -29,7 +29,7 @@ def get_config():
     sampler.sampler_name = "rad-cosine"
     sampler.resample_every_steps = 10_000
     sampler.num_rad_points = 100_000
-    sampler.plot_rad = False
+    sampler.plot_rad = True
     sampler.c = 1
     sampler.k = 0.5
     sampler.gamma = 0

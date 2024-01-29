@@ -16,12 +16,14 @@ from jaxpi.utils import save_checkpoint
 
 import models
 from utils import get_dataset
+from eval import evaluate
 
 from abc import ABC, abstractmethod
 from functools import partial
 
 import jax.numpy as jnp
 from jax import random, pmap, local_device_count
+import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset
 
@@ -102,6 +104,24 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         batch = next(res_sampler)
 
+        if config.sampler.plot_batch == True:
+            # plot histogram of new batch
+            fig = plt.figure(figsize=(8, 8))
+            plt.xlabel('Radius [m]')
+            plt.ylabel('Count')
+            plt.title('Batch histogram')
+            plt.hist(batch.flatten(), bins=50, label='Sampled data', color='blue')
+            plt.grid()
+            plt.legend()
+            plt.tight_layout()
+            # Save the figure
+            save_dir = os.path.join(workdir, "figures", config.wandb.name)
+            if not os.path.isdir(save_dir):
+                os.makedirs(save_dir)
+            fig_path = os.path.join(save_dir, f"batch_hist_{step}.png")
+            fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+            plt.close(fig)
+
         model.state = model.step(model.state, batch)
 
         # Update weights
@@ -132,5 +152,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
             ) == config.training.max_steps:
                 path = os.path.join(workdir, "ckpt", config.wandb.name)
                 save_checkpoint(model.state, path, keep=config.saving.num_keep_ckpts)
+                if config.saving.plot == True:
+                    evaluate(config, workdir, step +1)
 
     return model
