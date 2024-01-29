@@ -27,7 +27,7 @@ def get_config():
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
-    sampler.resample_every_steps = 10_000
+    sampler.resample_every_steps = 10_00
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
     sampler.c = 1
