@@ -10,7 +10,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler
+from jaxpi.samplers import BaseSampler, init_sampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -72,8 +72,10 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Initialize model
     model = models.InversePoisson(config, u0, u1, r_star, true_rho, rho_scale)
-    # Initialize residual sampler
-    res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
+    
+    # Initialize residual sampler, start with uniform sampling
+    sampler = OneDimensionalUniformSampler(dom, config.training.batch_size_per_device)
+    res_sampler = iter(sampler)
 
     evaluator = models.LaplaceEvaluator(config, model)
 
@@ -81,6 +83,21 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
         start_time = time.time()
+
+        # Update RAD points
+        if config.sampler.sampler_name != "random":
+            if step % config.sampler.resample_every_steps == 0 and step != 0:
+                
+                if config.sampler.sampler_name == "rad-cosine" and step!= config.sampler.resample_every_steps: 
+                    #jax.debug.print("Resampling with rad-cosine and passign prev sampler")
+                    sampler = init_sampler(model, config, prev = sampler)    
+                else:
+                    sampler = init_sampler(model, config)
+
+                res_sampler = iter(sampler)
+                
+                if config.sampler.plot_rad == True:
+                    sampler.plot(workdir, step, config.wandb.name)
 
         batch = next(res_sampler)
 

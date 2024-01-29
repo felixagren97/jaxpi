@@ -11,7 +11,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler, OneDimensionalRadSampler, init_sampler
+from jaxpi.samplers import BaseSampler, init_sampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -76,6 +76,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
         
+        start_time = time.time()
+
         # Update RAD points
         if config.sampler.sampler_name != "random":
             if step % config.sampler.resample_every_steps == 0 and step != 0:
@@ -90,19 +92,16 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 
                 if config.sampler.plot_rad == True:
                     sampler.plot(workdir, step, config.wandb.name)
-                    
-
-        start_time = time.time()
+                
 
         batch = next(res_sampler)
-        if step % config.sampler.resample_every_steps == 0 and step != 0:
-            pass
+        
+        if config.sampler.plot_batch == True:
             # plot histogram of new batch
-            
             fig = plt.figure(figsize=(8, 8))
             plt.xlabel('Radius [m]')
             plt.ylabel('Count')
-            plt.title('Sampled data histogram')
+            plt.title('Batch histogram')
             plt.hist(batch.flatten(), bins=50, label='Sampled data', color='blue')
             plt.grid()
             plt.legend()
