@@ -35,7 +35,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace-gpinn"
+    wandb.project = "PINN-Laplace-RAD-Sweep"
     wandb.name = "default"
     wandb.tag = None
 
