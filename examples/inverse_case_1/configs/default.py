@@ -24,6 +24,14 @@ def get_config():
     setting.rho_scale = 1e-4
 
     setting.regularization = False
+
+    config.sampler = sampler = ml_collections.ConfigDict()
+    sampler.sampler_name = "rad-cosine"
+    sampler.resample_every_step = 10_000
+    sampler.num_rad_points = 100_000
+    sampler.plot_rad = False
+    
+
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Poisson-Ablation-100-obs"
