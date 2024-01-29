@@ -77,7 +77,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     for step in range(config.training.max_steps):
         
         start_time = time.time()
-
+    
         # Update RAD points
         if config.sampler.sampler_name != "random":
             if step % config.sampler.resample_every_steps == 0 and step != 0:

@@ -69,7 +69,7 @@ class InversePoisson(ForwardIVP):
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch):    #TODO: Implement loss for observed synthetic data.
-
+        jax.debug.print('params: {x}', x=params)
         # Residual loss
         if self.config.weighting.use_causal == True:
             raise NotImplementedError(f"Casual weights not supported yet for 1D Laplace!")
