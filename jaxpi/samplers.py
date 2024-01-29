@@ -161,7 +161,6 @@ class RadCosineAnnealing(BaseSampler):
         # Computing residual distribution 
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
         res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval  
-        jax.debug.print(f"res_pred shape: {res_pred.shape}") 
         prob_res = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
         self.norm_prob_res = prob_res / prob_res.sum()
         self.norm_prob_uni = jnp.ones_like(self.norm_prob_res) / len(self.norm_prob_res)
@@ -180,7 +179,6 @@ class RadCosineAnnealing(BaseSampler):
         self.n = self.cosine_annealing(self.T, self.T_c) # Fraction of points sampled from uniform distribution
         self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
         self.num_res = (self.batch_size - self.num_uniform)
-        jax.debug.print(f"current_prob shape: {self.current_prob.shape}, r_eval shape: {self.r_eval.shape}")
 
 
     def cosine_annealing(self, T, T_c):
