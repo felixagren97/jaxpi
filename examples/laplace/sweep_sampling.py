@@ -32,13 +32,13 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep_sampling_laplace",
+        "name": "sweep_sampling_laplace_rad",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
     parameters_dict = {
-        "batch_size": {"values": [256, 512, 1024, 2048]},
-        "sampling_method": {"values": ["random", "rad", "rad2"]},
+        "rad_k": {"values": [0.2, 1, 2, 5] },
+        "rad_c": {"values": [0, 0.1, 1, 10] }
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -51,9 +51,9 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.sampler.sampler_name = sweep_config.sampling_method
-        config.training.batch_size_per_device = sweep_config.batch_size
-
+        config.sampler.c = sweep_config.rad_c
+        config.sampler.k = sweep_config.rad_k
+        config.sampler.resample_every_steps = sweep_config.resample_every
         train.train_and_evaluate(config, workdir)
 
     sweep_id = wandb.sweep(
