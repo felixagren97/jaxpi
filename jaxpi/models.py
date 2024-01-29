@@ -149,6 +149,7 @@ class PINN:
                 PINN.l2_loss(w, alpha=0.001) 
                 for w in tree_leaves(params)
             )
+            jax.debug.print('Tree:', tree_leaves(params))
            
             loss += reg_loss
         return loss
