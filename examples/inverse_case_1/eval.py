@@ -12,7 +12,7 @@ from utils import get_dataset
 import pandas as pd
 
 
-def evaluate(config: ml_collections.ConfigDict, workdir: str):
+def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
     eps = 8.85e-12
     true_rho = config.setting.true_rho
@@ -113,10 +113,10 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
-    fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    #fig_path = os.path.join(save_dir, "inverse_poisson.pdf")
+    #fig.savefig(fig_path, bbox_inches="tight", dpi=800)
     # save as png for easy copy
-    fig_path = os.path.join(save_dir, "inverse_poisson.png")
+    fig_path = os.path.join(save_dir, f"inverse_poisson_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
 
     # To view in colab, run, run: 

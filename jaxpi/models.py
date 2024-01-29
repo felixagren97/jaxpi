@@ -146,7 +146,7 @@ class PINN:
 
         if self.config.setting.regularization:
             reg_loss = sum(
-                PINN.l2_loss(w, alpha=0.001) for w in tree_leaves(params)
+                PINN.l2_loss(w, alpha=0.001) for w in tree_leaves(params) if w is not params['params']['rho_param']
             )
             
             loss += reg_loss
