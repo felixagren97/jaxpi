@@ -30,6 +30,7 @@ def get_config():
     sampler.gamma = 0
     sampler.cosine_lr = 0.9
     sampler.cosine_T = 10
+    sampler.plot_batch = False 
 
 
     # Weights & Biases

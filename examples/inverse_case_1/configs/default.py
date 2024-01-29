@@ -23,7 +23,7 @@ def get_config():
     setting.true_rho = 1e-3
     setting.rho_scale = 1e-4
 
-    setting.regularization = False
+    setting.regularization = True
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
@@ -35,6 +35,7 @@ def get_config():
     sampler.gamma = 0
     sampler.cosine_lr = 0.9
     sampler.cosine_T = 10
+    sampler.plot_batch = False
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
