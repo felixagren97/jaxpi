@@ -179,6 +179,7 @@ class RadCosineAnnealing(BaseSampler):
         self.n = self.cosine_annealing(self.T, self.T_c) # Fraction of points sampled from uniform distribution
         self.num_uniform = (jnp.floor(self.n * self.batch_size) - 1).astype(int).item()
         self.num_res = (self.batch_size - self.num_uniform)
+        jax.debug.print(f"current_prob shape: {self.current_prob.shape}, r_eval shape: {self.r_eval.shape}")
 
 
     def cosine_annealing(self, T, T_c):

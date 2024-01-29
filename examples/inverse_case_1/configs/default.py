@@ -27,10 +27,14 @@ def get_config():
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
-    sampler.resample_every_step = 10_000
+    sampler.resample_every_steps = 10_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
-    
+    sampler.c = 1
+    sampler.k = 0.5
+    sampler.gamma = 0
+    sampler.cosine_lr = 0.9
+    sampler.cosine_T = 10
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
