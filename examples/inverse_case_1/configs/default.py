@@ -27,7 +27,7 @@ def get_config():
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
-    sampler.resample_every_steps = 10_00
+    sampler.resample_every_steps = 10_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
     sampler.c = 1
@@ -38,7 +38,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Poisson-Ablation-100-obs"
+    wandb.project = "PINN-Inverse-Rad-Testing"
     wandb.name = "default"
     wandb.tag = None
 
