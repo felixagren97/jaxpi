@@ -146,13 +146,9 @@ class PINN:
 
         if self.config.setting.regularization:
             reg_loss = sum(
-                PINN.l2_loss(w, alpha=0.001) 
-                for w in tree_leaves(params)
+                PINN.l2_loss(w, alpha=0.001) for w in tree_leaves(params)
             )
-            jax.debug.print('L2 REG')
-
-            jax.debug.print('Tree:', tree_leaves(params))
-
+            
             loss += reg_loss
         return loss
 
