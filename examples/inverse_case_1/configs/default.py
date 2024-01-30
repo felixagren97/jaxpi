@@ -23,12 +23,12 @@ def get_config():
     setting.true_rho = 1e-3
     setting.rho_scale = 1e-4
 
-    setting.regularization = True
+    setting.regularization = False
     setting.reg_param = 1e-4
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
-    sampler.resample_every_steps = 10_000
+    sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = True
     sampler.c = 1
@@ -40,7 +40,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Rad-Testing"
+    wandb.project = "PINN-Inverse-Rad-Sweep"
     wandb.name = "default"
     wandb.tag = None
 
@@ -96,9 +96,9 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = 10_000
-    saving.num_keep_ckpts = 1
-    saving.plot = True
+    saving.save_every_steps = None
+    #saving.num_keep_ckpts = 1
+    saving.plot = False
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
