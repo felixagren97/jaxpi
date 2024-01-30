@@ -7,7 +7,7 @@ from flax import jax_utils
 import jax
 import jax.numpy as jnp
 from jax import lax, jit, grad, pmap, random, tree_map, jacfwd, jacrev
-from jax.tree_util import tree_map, tree_reduce, tree_leaves
+from jax.tree_util import tree_map, tree_reduce, tree_leaves, tree_flatten
 
 import optax
 
@@ -144,32 +144,10 @@ class PINN:
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
         
-        def find_params_by_node_name(params, node_name):
-            from typing import Iterable
-
-            def _is_leaf_fun(x):
-                if isinstance(x, Iterable) and jax.tree_util.all_leaves(x.values()):
-                    return True
-                return False
-
-            def _get_key_finder(key):
-                def _finder(x):
-                    value = x.get(key)
-                    return None if value is None else {key: value}
-                return _finder
-
-            filtered_params = jax.tree_map(_get_key_finder(node_name), params, is_leaf=_is_leaf_fun)
-            filtered_params = [x for x in jax.tree_leaves(filtered_params) if x is not None]
-
-            return filtered_params
-        
         if self.config.setting.regularization:
-            kernels = find_params_by_node_name(params, 'kernel')
-            jax.debug.print('kernels: {x}', x=kernels)
-
-            reg_loss = sum(
-                PINN.l2_loss(w, alpha=0.001) for w in kernels if w is not params['params']['FourierEmbs_0']
-            )
+            jax.debug.print("Adding regularization")
+            jax.debug.print("Regularization strength: {x}", x=tree_flatten(params))
+            reg_loss = 0
             
             loss += reg_loss
         return loss
