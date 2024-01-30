@@ -143,10 +143,20 @@ class PINN:
         weighted_losses = tree_map(lambda x, y: x * y, losses, weights)
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
-
+        
+        def select_kernel(x, key):
+            if key == 'kernel':
+                return x  # return the kernel array
+            return jnp.array(0)  # return a zero array for non-kernel arrays
+        
         if self.config.setting.regularization:
+            
+            selected_kernels = tree_map(select_kernel, params)
+            kernel_leaves = tree_leaves(selected_kernels)
+            jax.debug.print('selected leaves: {x}', x=kernel_leaves)
+
             reg_loss = sum(
-                PINN.l2_loss(w, alpha=0.001) for w in tree_leaves(params) if w is not params['params']['rho_param']
+                PINN.l2_loss(w, alpha=0.001) for w in kernel_leaves if w is not params['params']['FourierEmbs_0']
             )
             
             loss += reg_loss
