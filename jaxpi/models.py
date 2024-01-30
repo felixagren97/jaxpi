@@ -145,12 +145,11 @@ class PINN:
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
         
         if self.config.setting.regularization:
-            jax.debug.print("Adding regularization")
-            jax.debug.print("TREE FLATTEN: {x}", x=tree_flatten(params))
-            jax.debug.print("TREE LEAVES: {x}", x=tree_leaves(params))
-
-            reg_loss = 0
-            
+            reg_loss = 0    #TODO: Make this more generic
+            for i in range(self.config.arch.num_layers + 1):
+                reg_loss += sum(
+                    PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"]["Dense_{i}"]["kernel"])
+                    )
             loss += reg_loss
         return loss
 

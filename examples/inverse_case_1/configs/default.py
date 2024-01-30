@@ -24,6 +24,7 @@ def get_config():
     setting.rho_scale = 1e-4
 
     setting.regularization = True
+    setting.reg_param = 1e-4
 
     config.sampler = sampler = ml_collections.ConfigDict()
     sampler.sampler_name = "rad-cosine"
