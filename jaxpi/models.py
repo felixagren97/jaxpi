@@ -146,7 +146,9 @@ class PINN:
         
         if self.config.setting.regularization:
             jax.debug.print("Adding regularization")
-            jax.debug.print("Regularization strength: {x}", x=tree_flatten(params))
+            jax.debug.print("TREE FLATTEN: {x}", x=tree_flatten(params))
+            jax.debug.print("TREE LEAVES: {x}", x=tree_leaves(params))
+
             reg_loss = 0
             
             loss += reg_loss
