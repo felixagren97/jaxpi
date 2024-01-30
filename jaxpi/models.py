@@ -150,6 +150,7 @@ class PINN:
                 reg_loss += sum(
                     PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"][f"Dense_{i}"]["kernel"])
                     )
+                jax.debug.print("reg loss {x}", x=reg_loss)
             loss += reg_loss
         return loss
 
