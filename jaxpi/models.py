@@ -148,7 +148,7 @@ class PINN:
             reg_loss = 0    #TODO: Make this more generic
             for i in range(self.config.arch.num_layers + 1):
                 reg_loss += sum(
-                    PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"]["Dense_{i}"]["kernel"])
+                    PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"][f"Dense_{i}"]["kernel"])
                     )
             loss += reg_loss
         return loss
