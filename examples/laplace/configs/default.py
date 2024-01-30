@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0001 # Prev best with random sampling: 0.0001 (0.1mm)
+    setting.r_0 = 0.00005 # Prev best with random sampling: 0.0001 (0.1mm)
     setting.r_1 = 0.5
     setting.u_0 = 1
     setting.u_1 = 0
@@ -35,7 +35,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace-RAD-Sweep"
+    wandb.project = "PINN-Laplace-RAD-Sweep-5e-5"
     wandb.name = "default"
     wandb.tag = None
 
