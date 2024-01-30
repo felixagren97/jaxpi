@@ -144,19 +144,31 @@ class PINN:
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
         
-        def select_kernel(x, key):
-            if key == 'kernel':
-                return x  # return the kernel array
-            return jnp.array(0)  # return a zero array for non-kernel arrays
+        def find_params_by_node_name(params, node_name):
+            from typing import Iterable
+
+            def _is_leaf_fun(x):
+                if isinstance(x, Iterable) and jax.tree_util.all_leaves(x.values()):
+                    return True
+                return False
+
+            def _get_key_finder(key):
+                def _finder(x):
+                    value = x.get(key)
+                    return None if value is None else {key: value}
+                return _finder
+
+            filtered_params = jax.tree_map(_get_key_finder(node_name), params, is_leaf=_is_leaf_fun)
+            filtered_params = [x for x in jax.tree_leaves(filtered_params) if x is not None]
+
+            return filtered_params
         
         if self.config.setting.regularization:
-            
-            selected_kernels = tree_map(select_kernel, params)
-            kernel_leaves = tree_leaves(selected_kernels)
-            jax.debug.print('selected leaves: {x}', x=kernel_leaves)
+            kernels = find_params_by_node_name(params, 'kernel')
+            jax.debug.print('kernels: {x}', x=kernels)
 
             reg_loss = sum(
-                PINN.l2_loss(w, alpha=0.001) for w in kernel_leaves if w is not params['params']['FourierEmbs_0']
+                PINN.l2_loss(w, alpha=0.001) for w in kernels if w is not params['params']['FourierEmbs_0']
             )
             
             loss += reg_loss
