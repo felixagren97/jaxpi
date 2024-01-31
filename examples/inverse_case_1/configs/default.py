@@ -86,7 +86,7 @@ def get_config():
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 100
+    logging.log_every_steps = 1000
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True
@@ -98,7 +98,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = None
     saving.num_keep_ckpts = 1
-    saving.plot = False
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
