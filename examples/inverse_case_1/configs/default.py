@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.001
+    setting.r_0 = 0.0005
     setting.r_1 = 0.5
     setting.u0 = 1
     setting.u1 = 0
@@ -27,7 +27,7 @@ def get_config():
     setting.reg_param = 1e-4
 
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad-cosine"
+    sampler.sampler_name = "random"
     sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = True
@@ -97,7 +97,7 @@ def get_config():
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = None
-    #saving.num_keep_ckpts = 1
+    saving.num_keep_ckpts = 1
     saving.plot = False
 
     # # Input shape for initializing Flax models

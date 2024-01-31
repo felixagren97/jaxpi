@@ -91,7 +91,7 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None
+    saving.save_every_steps = 20_000
     saving.plot = True
     saving.num_keep_ckpts = 1
 
