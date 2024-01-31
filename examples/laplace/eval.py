@@ -74,6 +74,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
+    print('Max potential error:', jnp.max(jnp.abs(u_pred_np - u_ref_np)))
 
     # plot electrical field
     plt.subplot(2, 2, 2)
@@ -102,7 +103,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     plt.grid()
     plt.xlim(r_star_np[0], r_star_np[-1])
     plt.tight_layout()
-
+    print('Max field error:', jnp.max(jnp.abs(e_pred - e_ref)))
     # Save the figure
     save_dir = os.path.join(workdir, "figures", config.wandb.name)
     if not os.path.isdir(save_dir):
