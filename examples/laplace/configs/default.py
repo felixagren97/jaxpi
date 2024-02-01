@@ -26,7 +26,7 @@ def get_config():
     sampler.num_rad_points = 100_000
     sampler.plot_rad = True
     sampler.c = 1
-    sampler.k = 0.5
+    sampler.k = 2
     sampler.gamma = 0
     sampler.cosine_lr = 0.9
     sampler.cosine_T = 10
@@ -35,7 +35,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Laplace-RAD-Sweep-5e-5"
+    wandb.project = "PINN-Laplace-RAD-Test-5e-5"
     wandb.name = "default"
     wandb.tag = None
 
