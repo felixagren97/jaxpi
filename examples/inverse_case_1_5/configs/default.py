@@ -21,6 +21,8 @@ def get_config():
     setting.k = 100
     setting.loss_scale = 1
 
+    setting.regularization = False
+
     # Evaluate 
     config.eval = eval = ml_collections.ConfigDict()
     # COMSOL reference solution files (set None if not available for the current n_inj
