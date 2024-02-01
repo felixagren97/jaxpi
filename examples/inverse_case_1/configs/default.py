@@ -10,7 +10,7 @@ def get_config():
     config.mode = "train"
 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.r_0 = 0.0005
+    setting.r_0 = 0.0001
     setting.r_1 = 0.5
     setting.u0 = 1
     setting.u1 = 0
