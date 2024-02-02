@@ -32,13 +32,14 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep_sampling_laplace_rad",
+        "name": "sweep_sampling_laplace_rad_seeds",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
     parameters_dict = {
-        "rad_k": {"values": [0.2, 1, 2, 5] },
-        "rad_c": {"values": [0, 0.1, 1, 10] }
+        "rad_k": {"values": [0.5, 1, 5] },
+        "rad_c": {"values": [0, 1, 10] },
+        "seed": {"value": [40, 41, 42]},
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -53,6 +54,7 @@ def main(argv):
         # Update config with sweep parameters
         config.sampler.c = sweep_config.rad_c
         config.sampler.k = sweep_config.rad_k
+        config.seed = sweep_config.seed
         train.train_and_evaluate(config, workdir)
 
     sweep_id = wandb.sweep(
