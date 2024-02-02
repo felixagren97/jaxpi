@@ -53,7 +53,6 @@ def main(argv):
         # Update config with sweep parameters
         config.sampler.c = sweep_config.rad_c
         config.sampler.k = sweep_config.rad_k
-        config.seed = sweep_config.seed
         train.train_and_evaluate(config, workdir)
 
     sweep_id = wandb.sweep(
