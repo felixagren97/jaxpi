@@ -23,6 +23,9 @@ def init_sampler(model, config, prev=None):
 
     if sampler == "rad":
         return OneDimensionalRadSampler(model, batch_size, config)
+    elif sampler == "random":
+        dom = [model.r0, model.r1]
+        return OneDimensionalUniformSampler(dom, batch_size)
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)
     elif sampler == "rad-cosine":
@@ -66,7 +69,26 @@ class UniformSampler(BaseSampler):
             maxval=self.dom[:, 1],
         )
         return batch
- 
+    
+
+class OneDimensionalUniformSampler(BaseSampler):
+    def __init__(self, dom, batch_size, rng_key=random.PRNGKey(1234)):
+        super().__init__(batch_size, rng_key)
+        self.dom = dom
+        self.dim = 1
+
+    @partial(pmap, static_broadcasted_argnums=(0,))
+    def data_generation(self, key):
+        "Generates data containing batch_size samples"
+        batch = random.uniform(
+            key,
+            shape=(self.batch_size, self.dim),
+            minval=self.dom[0],
+            maxval=self.dom[1],
+        )
+        return batch
+
+
 class OneDimensionalRadSampler(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
