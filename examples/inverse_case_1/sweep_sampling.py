@@ -37,8 +37,8 @@ def main(argv):
     }
 
     parameters_dict = {
-        "rad_k": {"values": [0.2, 1, 2, 5] },
-        "rad_c": {"values": [0, 0.1, 1, 10] }
+        "rad_k": {"values": [0.2, 0.5, 1, 2] },
+        "rad_c": {"values": [0, 1, 10] }
     }
 
     sweep_config["parameters"] = parameters_dict

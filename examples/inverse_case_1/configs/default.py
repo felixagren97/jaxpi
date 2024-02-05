@@ -27,7 +27,7 @@ def get_config():
     setting.reg_param = 1e-4
 
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "random"
+    sampler.sampler_name = "rad2"
     sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = True
@@ -70,8 +70,8 @@ def get_config():
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 200_000
-    training.batch_size_per_device = 516
+    training.max_steps = 150_000
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
