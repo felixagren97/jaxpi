@@ -30,7 +30,7 @@ def get_config():
     sampler.sampler_name = "rad2"
     sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
-    sampler.plot_rad = True
+    sampler.plot_rad = False
     sampler.c = 1
     sampler.k = 0.5
     sampler.gamma = 0
@@ -98,7 +98,7 @@ def get_config():
     config.saving = saving = ml_collections.ConfigDict()
     saving.save_every_steps = None
     saving.num_keep_ckpts = 1
-    saving.plot = True
+    saving.plot = False
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
