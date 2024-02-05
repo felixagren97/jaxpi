@@ -27,7 +27,7 @@ def get_config():
     setting.reg_param = 1e-4
 
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad2"
+    sampler.sampler_name = "random"
     sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
@@ -40,7 +40,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Rad-Sweep"
+    wandb.project = "PINN-Inverse-Random-1e-4-multiple"
     wandb.name = "default"
     wandb.tag = None
 

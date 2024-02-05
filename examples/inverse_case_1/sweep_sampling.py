@@ -32,7 +32,7 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep_sampling_inv_poisson_rad",
+        "name": "sweep_sampling_inv_poisson_rad2_1e-4",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
