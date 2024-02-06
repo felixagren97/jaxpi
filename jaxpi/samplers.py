@@ -24,7 +24,7 @@ def init_sampler(model, config, prev=None):
     if sampler == "rad":
         return OneDimensionalRadSampler(model, batch_size, config)
     elif sampler == "random":
-        dom = [model.r0, model.r1]
+        dom = model.dom
         return OneDimensionalUniformSampler(dom, batch_size)
     elif sampler == "rad2":
         return OneDimensionalRadSamplerTwo(model, batch_size, config)

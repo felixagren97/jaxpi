@@ -25,6 +25,7 @@ class InversePoisson(ForwardIVP):
 
         self.x0 = x_star[0]
         self.x1 = x_star[-1]
+        self.dom = jnp.array([self.x0, self.x1])
 
         # parameters 
         self.q = 1.602e-19

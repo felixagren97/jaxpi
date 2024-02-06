@@ -24,6 +24,7 @@ class InversePoisson(ForwardIVP):
 
         self.r0 = r_star[0]
         self.r1 = r_star[-1]
+        self.dom = jnp.array([self.r0, self.r1])
 
         ln = jnp.log(self.r0 / self.r1)
         self.C_2 = self.u0 / ln - self.true_rho * (self.r1**2 - self.r0**2) / (4 * self.eps * ln)
