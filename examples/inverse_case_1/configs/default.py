@@ -30,7 +30,7 @@ def get_config():
     sampler.sampler_name = "rad2"
     sampler.resample_every_steps = 20_000
     sampler.num_rad_points = 100_000
-    sampler.plot_rad = False
+    sampler.plot_rad = True
     sampler.c = 1
     sampler.k = 0.2
     sampler.gamma = 0
@@ -40,7 +40,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Rad-1e-4-multiple"
+    wandb.project = "PINN-Inverse-Rad-1e-4"
     wandb.name = "default"
     wandb.tag = None
 
@@ -96,9 +96,9 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None
+    saving.save_every_steps = 20_000
     saving.num_keep_ckpts = 1
-    saving.plot = False
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
