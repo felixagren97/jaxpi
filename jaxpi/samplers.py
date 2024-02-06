@@ -139,6 +139,7 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
     
         prob = jnp.power(res_pred, self.k) / jnp.power(res_pred, self.k).mean() + self.c
         self.norm_prob = prob / prob.sum()
+        self.norm_prob_uni = jnp.ones_like(self.norm_prob) / len(self.norm_prob)
 
     @partial(pmap, static_broadcasted_argnums=(0,))
     def data_generation(self, key):
@@ -153,6 +154,8 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
         plt.ylabel('norm_r_eval')
         plt.title('Residual distribution')
         plt.plot(self.r_eval, self.norm_prob, label='Norm. Residual', color='blue')
+        plt.plot(self.r_eval, self.norm_prob_uni, label='Uniform dist.', color='red', linestyle='--')
+
         plt.grid()
         plt.legend()
         plt.tight_layout()

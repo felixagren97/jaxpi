@@ -102,7 +102,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
         batch = next(res_sampler)
 
-        if config.sampler.plot_batch == True:
+        if config.sampler.plot_batch == True and step % config.sampler.resample_every_steps == 0 and step != 0:
             # plot histogram of new batch
             fig = plt.figure(figsize=(8, 8))
             plt.xlabel('Radius [m]')
