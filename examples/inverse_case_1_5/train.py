@@ -80,7 +80,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     sampler = init_sampler(model, config)
     res_sampler = iter(sampler)
 
-    evaluator = models.LaplaceEvaluator(config, model)
+    evaluator = models.InversePoissonEvaluator(config, model)
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):

@@ -89,7 +89,7 @@ def get_config():
 
     # Logging
     config.logging = logging = ml_collections.ConfigDict()
-    logging.log_every_steps = 100
+    logging.log_every_steps = 1_000
     logging.log_errors = True
     logging.log_losses = True
     logging.log_weights = True

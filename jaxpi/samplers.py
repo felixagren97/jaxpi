@@ -93,7 +93,7 @@ class OneDimensionalRadSampler(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, config.sampler.num_rad_points) # 100k used in paper
+        self.r_eval = jnp.linspace(model.dom[0], model.dom[1], config.sampler.num_rad_points) # 100k used in paper
         self.state = jax.device_get(tree_map(lambda x: x[0], model.state))
         res_pred = jnp.abs(model.r_pred_fn(self.state.params, self.r_eval)) # Verify shape on r_eval
         self.prob = res_pred / jnp.sum(res_pred)
@@ -130,7 +130,7 @@ class OneDimensionalRadSamplerTwo(BaseSampler):
     def __init__(self, model, batch_size, config, rng_key=random.PRNGKey(1234)):
         super().__init__(batch_size, rng_key)
         self.dim = 1
-        self.r_eval = jnp.linspace(config.setting.r_0, config.setting.r_1, config.sampler.num_rad_points) # 100k used in paper
+        self.r_eval = jnp.linspace(model.dom[0], model.dom[1], config.sampler.num_rad_points) # 100k used in paper
         self.c = config.sampler.c 
         self.k = config.sampler.k
         
