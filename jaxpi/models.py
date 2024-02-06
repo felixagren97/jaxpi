@@ -61,6 +61,9 @@ def _create_arch(config):
     elif config.arch_name == "InverseMlpMu":
         arch = archs.InverseMlpMu(**config)
 
+    elif config.arch_name == "InverseMlpCaseChargeProfile":
+        arch = archs.InverseMlpCaseChargeProfile(**config)
+
     elif config.arch_name == "MlpDriftDiffusion":
         arch = archs.MlpDriftDiffusion(**config)
 

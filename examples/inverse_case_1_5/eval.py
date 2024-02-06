@@ -115,6 +115,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
     fig_path = os.path.join(save_dir, f"laplace_2.5_{step}.png")
     fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+    plt.close(fig)
     
     # Save COMSOL comparison
     file_paths = [config.eval.potential_file_path, config.eval.field_file_path]
@@ -200,3 +201,4 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
         fig_path = os.path.join(save_dir, "Observations.png")
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+        plt.close(fig)

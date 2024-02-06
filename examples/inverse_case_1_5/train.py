@@ -10,7 +10,7 @@ import ml_collections
 # from absl import logging
 import wandb
 
-from jaxpi.samplers import BaseSampler, UniformSampler
+from jaxpi.samplers import BaseSampler, UniformSampler, init_sampler
 from jaxpi.logging import Logger
 from jaxpi.utils import save_checkpoint
 
@@ -27,6 +27,7 @@ from eval import evaluate
 from torch.utils.data import Dataset
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 class OneDimensionalUniformSampler(BaseSampler):
     def __init__(self, dom, batch_size, rng_key=random.PRNGKey(1234)):
@@ -76,16 +77,52 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     model = models.InversePoisson(config, u0, u1, x_star, n_scale)
     
     # Initialize sampler
-    res_sampler = iter(OneDimensionalUniformSampler(dom, config.training.batch_size_per_device))
+    sampler = init_sampler(model, config)
+    res_sampler = iter(sampler)
 
-    evaluator = models.InversePoissonEvaluator(config, model)
-
+    evaluator = models.LaplaceEvaluator(config, model)
     # jit warm up
     print("Waiting for JIT...")
     for step in range(config.training.max_steps):
+        
         start_time = time.time()
+    
+        # Update RAD points
+        if config.sampler.sampler_name != "random":
+            if step % config.sampler.resample_every_steps == 0 and step != 0:
+                
+                if config.sampler.sampler_name == "rad-cosine": #and step!= config.sampler.resample_every_steps: 
+                    #jax.debug.print("Resampling with rad-cosine and passign prev sampler")
+                    sampler = init_sampler(model, config, prev = sampler)    
+                else:
+                    sampler = init_sampler(model, config)
+
+                res_sampler = iter(sampler)
+                
+                if config.sampler.plot_rad == True:
+                    sampler.plot(workdir, step, config.wandb.name)
+                
 
         batch = next(res_sampler)
+        
+        if config.sampler.plot_batch == True:
+            # plot histogram of new batch
+            fig = plt.figure(figsize=(8, 8))
+            plt.xlabel('Radius [m]')
+            plt.ylabel('Count')
+            plt.title('Batch histogram')
+            plt.hist(batch.flatten(), bins=50, label='Sampled data', color='blue')
+            plt.grid()
+            plt.legend()
+            plt.tight_layout()
+            # Save the figure
+            save_dir = os.path.join(workdir, "figures", config.wandb.name)
+            if not os.path.isdir(save_dir):
+                os.makedirs(save_dir)
+            fig_path = os.path.join(save_dir, f"batch_hist_{step}.png")
+            fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+            plt.close(fig)
+
 
         model.state = model.step(model.state, batch)
 
