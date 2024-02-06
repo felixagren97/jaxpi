@@ -23,6 +23,19 @@ def get_config():
 
     setting.regularization = False
 
+    # Sampler Config
+    config.sampler = sampler = ml_collections.ConfigDict()
+    sampler.sampler_name = "random"
+    sampler.resample_every_steps = 20_000 # Resample new RAD points every 10_000 steps
+    sampler.num_rad_points = 100_000
+    sampler.plot_rad = True
+    sampler.c = 1
+    sampler.k = 0.5
+    sampler.gamma = 0
+    sampler.cosine_lr = 0.9
+    sampler.cosine_T = 10
+    sampler.plot_batch = False
+
     # Evaluate 
     config.eval = eval = ml_collections.ConfigDict()
     # COMSOL reference solution files (set None if not available for the current n_inj
@@ -31,15 +44,15 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-ablation"   
+    wandb.project = "PINN-Inverse-Case1.5-RAD"   
     wandb.name = "default"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlpCaseChargeProfile"
-    arch.num_layers = 6
-    arch.layer_size = 256
+    arch.num_layers = 4
+    arch.layer_size = 64
     arch.out_dim = 2
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict({"period": (1.0,), "axis": (1,), "trainable": (False,)})
@@ -60,8 +73,8 @@ def get_config():
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 200_000
-    training.batch_size_per_device = 1024 #4096
+    training.max_steps = 150_000
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
@@ -86,7 +99,7 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = 10_000
+    saving.save_every_steps = 25_000
     saving.num_keep_ckpts = 3
     saving.plot = True
 
