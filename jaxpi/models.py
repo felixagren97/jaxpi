@@ -98,9 +98,9 @@ def _create_optimizer(config, params):
         weight_decay_params = flax.traverse_util.ModelParamTraversal(
             lambda path, _ : re.match(r'^dense.+', path) is not None 
         )
-        jax.debug.print('weght_decay_params: {x}', x=weight_decay_params)
+        print('weght_decay_params:', weight_decay_params)
         all_false = jax.tree_map(lambda _: False, params)
-        jax.debug.print('all_false: {x}', x=all_false)
+        print('all_false:', all_false)
         
         # Creating mask matching params structure, where true indicate weight counted for in weight decay
         weight_mask = weight_decay_params.update(lambda _ : True, all_false)
