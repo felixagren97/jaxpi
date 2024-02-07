@@ -96,7 +96,7 @@ def _create_optimizer(config, params):
         )
         # Matching all parameters for the dense layers
         weight_decay_params = flax.traverse_util.ModelParamTraversal(
-            lambda path, _ : re.match(r'^dense.+', path) is not None 
+            lambda path, _ : "Dense" in path 
         )
         print('weght_decay_params:', weight_decay_params)
         all_false = jax.tree_map(lambda _: False, params)
