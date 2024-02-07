@@ -1,8 +1,11 @@
 from functools import partial
 from typing import Any, Callable, Sequence, Tuple, Optional, Dict
 
+import flax
 from flax.training import train_state
 from flax import jax_utils
+
+import re
 
 import jax
 import jax.numpy as jnp
@@ -73,7 +76,7 @@ def _create_arch(config):
     return arch
 
 
-def _create_optimizer(config):
+def _create_optimizer(config, params):
     if config.optimizer == "Adam":
         lr = optax.exponential_decay(
             init_value=config.learning_rate,
@@ -82,6 +85,24 @@ def _create_optimizer(config):
         )
         tx = optax.adam(
             learning_rate=lr, b1=config.beta1, b2=config.beta2, eps=config.eps
+        )
+    
+    elif config.optimizer == "AdamW":
+        lr = optax.exponential_decay(
+            init_value=config.learning_rate,
+            transition_steps=config.decay_steps,
+            decay_rate=config.decay_rate,
+        )
+        # Matching all parameters for the dense layers
+        weight_decay_params = flax.traverse_util.ModelParamTraversal(
+            lambda path, _ : re.match(r'^dense.+', path) is not None 
+        )
+        all_false = jax.tree_map(lambda _: False, params)
+        # Creating mask matching params structure, where true indicate weight counted for in weight decay
+        weight_mask = weight_decay_params.update(lambda _ : True, all_false)
+
+        tx = optax.adamw(
+            learning_rate=lr, b1=config.beta1, b2=config.beta2, eps=config.eps, weight_decay=config.weight_decay,mask=weight_mask
         )
 
     else:
@@ -147,13 +168,13 @@ class PINN:
         # Sum weighted losses
         loss = tree_reduce(lambda x, y: x + y, weighted_losses)
         
-        if self.config.setting.regularization:
-            reg_loss = 0    #TODO: Make this more generic
-            for i in range(self.config.arch.num_layers + 1):
-                reg_loss += sum(
-                    PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"][f"Dense_{i}"])
-                    )
-            loss += reg_loss
+        #if self.config.setting.regularization:
+        #    reg_loss = 0    #TODO: Make this more generic
+        #    for i in range(self.config.arch.num_layers + 1):
+        #        reg_loss += sum(
+        #            PINN.l2_loss(w, self.config.setting.reg_param) for w in jax.tree_leaves(params["params"][f"Dense_{i}"])
+        #            )
+        #    loss += reg_loss
         return loss
 
  

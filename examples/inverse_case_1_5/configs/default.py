@@ -63,7 +63,7 @@ def get_config():
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
-    optim.optimizer = "Adam"
+    optim.optimizer = "AdamW"
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
@@ -71,6 +71,7 @@ def get_config():
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
+    optim.weight_decay = 1e-4
 
     # Training
     config.training = training = ml_collections.ConfigDict()
