@@ -21,16 +21,17 @@ def get_config():
     setting.k = 100
     setting.loss_scale = 1
 
-    setting.regularization = False
+    setting.regularization = True
+    setting.reg_param = 10 # Huge regularization
 
     # Sampler Config
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "random"
+    sampler.sampler_name = "rad2"
     sampler.resample_every_steps = 20_000 # Resample new RAD points every 10_000 steps
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
-    sampler.c = 1
-    sampler.k = 0.5
+    sampler.c = 0
+    sampler.k = 1
     sampler.gamma = 0
     sampler.cosine_lr = 0.9
     sampler.cosine_T = 10
@@ -44,7 +45,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-RAD-sweep"   
+    wandb.project = "PINN-Inverse-Case1.5-random-1noise"   
     wandb.name = "default"
     wandb.tag = None
 
