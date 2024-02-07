@@ -136,7 +136,7 @@ class PINN:
 
     @staticmethod
     def l2_loss(x, alpha):
-        return alpha * (x ** 2).mean()
+        return 10_000 * (x ** 2).mean()
 
     @partial(jit, static_argnums=(0,))
     def loss(self, params, weights, batch, *args):
