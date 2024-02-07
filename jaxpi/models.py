@@ -88,6 +88,7 @@ def _create_optimizer(config, params):
         )
     
     elif config.optimizer == "AdamW":
+        jax.debug.print('Inside AdamW optimizer!')
         lr = optax.exponential_decay(
             init_value=config.learning_rate,
             transition_steps=config.decay_steps,
@@ -97,9 +98,13 @@ def _create_optimizer(config, params):
         weight_decay_params = flax.traverse_util.ModelParamTraversal(
             lambda path, _ : re.match(r'^dense.+', path) is not None 
         )
+        jax.debug.print('weght_decay_params: {x}', x=weight_decay_params)
         all_false = jax.tree_map(lambda _: False, params)
+        jax.debug.print('all_false: {x}', x=all_false)
+        
         # Creating mask matching params structure, where true indicate weight counted for in weight decay
         weight_mask = weight_decay_params.update(lambda _ : True, all_false)
+        jax.debug.print('weight_mask: {x}', x=weight_mask)
 
         tx = optax.adamw(
             learning_rate=lr, b1=config.beta1, b2=config.beta2, eps=config.eps, weight_decay=config.weight_decay,mask=weight_mask
