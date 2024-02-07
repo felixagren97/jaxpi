@@ -88,13 +88,13 @@ def _create_optimizer(config, params):
         )
     
     elif config.optimizer == "AdamW":
-        jax.debug.print('Inside AdamW optimizer!')
+        
         lr = optax.exponential_decay(
             init_value=config.learning_rate,
             transition_steps=config.decay_steps,
             decay_rate=config.decay_rate,
         )
-        
+
         # Matching all parameters for the dense layers in order not to apply weight decay to the Fourier embeddings and other parameters
         weight_decay_params = flax.traverse_util.ModelParamTraversal(
             lambda path, _ : "Dense" in path 
