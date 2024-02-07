@@ -94,18 +94,16 @@ def _create_optimizer(config, params):
             transition_steps=config.decay_steps,
             decay_rate=config.decay_rate,
         )
-        # Matching all parameters for the dense layers
+        
+        # Matching all parameters for the dense layers in order not to apply weight decay to the Fourier embeddings and other parameters
         weight_decay_params = flax.traverse_util.ModelParamTraversal(
             lambda path, _ : "Dense" in path 
         )
-        print('weght_decay_params:', weight_decay_params)
-        all_false = jax.tree_map(lambda _: False, params)
-        print('all_false:', all_false)
         
+        all_false = jax.tree_map(lambda _: False, params)
         # Creating mask matching params structure, where true indicate weight counted for in weight decay
         weight_mask = weight_decay_params.update(lambda _ : True, all_false)
-        jax.debug.print('weight_mask: {x}', x=weight_mask)
-
+        
         tx = optax.adamw(
             learning_rate=lr, b1=config.beta1, b2=config.beta2, eps=config.eps, weight_decay=config.weight_decay,mask=weight_mask
         )
