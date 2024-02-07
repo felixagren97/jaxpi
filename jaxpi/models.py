@@ -122,7 +122,7 @@ def _create_train_state(config):
     params = arch.init(random.PRNGKey(config.seed), x)
 
     # Initialize optax optimizer
-    tx = _create_optimizer(config.optim)
+    tx = _create_optimizer(config.optim, params)
 
     # Convert config dict to dict
     init_weights = dict(config.weighting.init_weights)
