@@ -22,6 +22,8 @@ class Laplace(ForwardIVP):
         self.r0 = config.setting.r_0
         self.r1 = config.setting.r_1
 
+        self.dom = jnp.array([self.r0, self.r1])
+
         self.grad_points = jnp.linspace(self.r0, self.r1, config.setting.num_grad_points)
 
         #new  
