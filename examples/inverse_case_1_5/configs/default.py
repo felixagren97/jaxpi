@@ -42,7 +42,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-RAD-Multiple"   
+    wandb.project = "PINN-Inverse-Case1.5-random-10noise"   
     wandb.name = "default"
     wandb.tag = None
 
@@ -98,9 +98,9 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None #20_000
-    #saving.num_keep_ckpts = 1
-    saving.plot = False
+    saving.save_every_steps = 25_000
+    saving.num_keep_ckpts = 1
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
