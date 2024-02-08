@@ -42,13 +42,13 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-random-10noise"   
-    wandb.name = "default"
+    wandb.project = "PINN-Inverse-Case1.5-mlp-reg"   
+    wandb.name = "standard-mlp-no-reg"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "InverseMlpCaseChargeProfile"
+    arch.arch_name = "Mlp"
     arch.num_layers = 4
     arch.layer_size = 64
     arch.out_dim = 2
