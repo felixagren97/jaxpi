@@ -11,7 +11,7 @@ def get_config():
     
     # Problem setting 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.guassian_noise_perc = None
+    setting.guassian_noise_perc = 0.1
     setting.obs_file = "obs_k_100.dat"
     setting.n_scale = 5e13
     setting.n_x = 12800
@@ -23,7 +23,7 @@ def get_config():
 
     # Sampler Config
     config.sampler = sampler = ml_collections.ConfigDict()
-    sampler.sampler_name = "rad2"
+    sampler.sampler_name = "random"
     sampler.resample_every_steps = 20_000 # Resample new RAD points every 10_000 steps
     sampler.num_rad_points = 100_000
     sampler.plot_rad = False
