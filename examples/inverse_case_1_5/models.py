@@ -75,7 +75,7 @@ class InversePoisson(ForwardIVP):
 
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        n = self.n_net(params, x) * (10 ** params['params']['n_scale'][0])  # Scaling with 10 ^ n_scale
+        n = self.n_net(params, x) * (10 ** params['params']['n_scale_param'][0])  # Scaling with 10 ^ n_scale
         return du_xx * self.u_scale + self.q * n / self.epsilon
     
     def heaviside(self, x):

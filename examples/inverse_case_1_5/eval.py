@@ -15,7 +15,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     
     # Problem setup
     n_x = config.setting.n_x    # number of spatial points
-    n_scale = config.setting.n_scale
+    #n_scale = config.setting.n_scale
 
     # Get  dataset
     _, x_star = get_dataset(n_x=n_x)
@@ -41,14 +41,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     n_pred = model.n_pred_fn(params, model.x_star)
-    n_pred *= model.params['params']['n_scale'][0]   # TODO: check if correct
+    n_pred *= model.params['params']['n_scale_param'][0]   # TODO: check if correct
 
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
     e_pred *= u0
     
-    n_values = model.params['params']['n_scale'][0] * jax.vmap(model.heaviside)(x_star)
+    n_values = model.params['params']['n_scale_param'][0] * jax.vmap(model.heaviside)(x_star)
 
     r_pred = model.r_pred_fn(params, model.x_star)**2
 
@@ -129,14 +129,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         u_ref_pred *= config.setting.u0
 
         n_pred = model.n_pred_fn(params, x_ref_star)
-        n_pred *= model.model.params['params']['n_scale'][0]
+        n_pred *= model.model.params['params']['n_scale_param'][0]
 
         e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
         e_pred = e_pred_fn(params, x_ref_star)
         e_pred *= config.setting.u0
 
-        n_values = model.params['params']['n_scale'][0] * jax.vmap(model.heaviside)(x_ref_star)
+        n_values = model.params['params']['n_scale_param'][0] * jax.vmap(model.heaviside)(x_ref_star)
         
         # Plot n results
         fig = plt.figure(figsize=(8, 12))
