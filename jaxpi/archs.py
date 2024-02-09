@@ -184,7 +184,7 @@ class InverseMlpCaseChargeProfile(Mlp):
         super().setup()  # Call the setup method of the parent class
 
         # Intorducting scale parameter as learnable parameter #TODO make random initailization 
-        self.n_scale = self.param('n_scale_param', lambda _: jnp.array([10.0]))
+        self.n_scale = self.param('n_scale_param', lambda _: jnp.array([1.0]))
         
     @nn.compact
     def __call__(self, x):
