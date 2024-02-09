@@ -13,7 +13,7 @@ def get_config():
     config.setting = setting = ml_collections.ConfigDict()
     setting.guassian_noise_perc = None
     setting.obs_file = "obs_k_100.dat"
-    setting.n_scale = 5e13
+    #setting.n_scale = 5e13
     setting.n_x = 12800
     setting.n_obs = 1000
     setting.u0 = 1e6
