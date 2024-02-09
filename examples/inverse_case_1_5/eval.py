@@ -36,19 +36,21 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
+    n_scale = (10 ** params['params']['n_scale_param'][0])
+
     u_pred = model.u_pred_fn(params, model.x_star)
     u_pred *= u_scale
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     n_pred = model.n_pred_fn(params, model.x_star)
-    n_pred *= model.params['params']['n_scale_param'][0]   # TODO: check if correct
+    n_pred *= n_scale   # TODO: check if correct
 
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U
     e_pred = e_pred_fn(params, model.x_star)
     e_pred *= u0
     
-    n_values = model.params['params']['n_scale_param'][0] * jax.vmap(model.heaviside)(x_star)
+    n_values = n_scale * jax.vmap(model.heaviside)(x_star)
 
     r_pred = model.r_pred_fn(params, model.x_star)**2
 
@@ -129,14 +131,14 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         u_ref_pred *= config.setting.u0
 
         n_pred = model.n_pred_fn(params, x_ref_star)
-        n_pred *= model.model.params['params']['n_scale_param'][0]
+        n_pred *= n_scale
 
         e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
         e_pred = e_pred_fn(params, x_ref_star)
         e_pred *= config.setting.u0
 
-        n_values = model.params['params']['n_scale_param'][0] * jax.vmap(model.heaviside)(x_ref_star)
+        n_values = n_scale * jax.vmap(model.heaviside)(x_ref_star)
         
         # Plot n results
         fig = plt.figure(figsize=(8, 12))
