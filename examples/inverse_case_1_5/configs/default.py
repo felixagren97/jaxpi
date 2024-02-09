@@ -11,7 +11,7 @@ def get_config():
     
     # Problem setting 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.guassian_noise_perc = 0.1
+    setting.guassian_noise_perc = None
     setting.obs_file = "obs_k_100.dat"
     setting.n_scale = 5e13
     setting.n_x = 12800
@@ -42,13 +42,13 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-mlp-reg"   
-    wandb.name = "standard-mlp-no-reg"
+    wandb.project = "PINN-Inverse-Case1.5-scaling-factor"   
+    wandb.name = "testing"
     wandb.tag = None
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "Mlp"
+    arch.arch_name = "InverseMlpCaseChargeProfile"
     arch.num_layers = 4
     arch.layer_size = 64
     arch.out_dim = 2
