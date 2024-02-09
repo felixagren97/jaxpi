@@ -60,7 +60,7 @@ def get_config():
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
-    optim.optimizer = "AdamW"
+    optim.optimizer = "Adam"
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
