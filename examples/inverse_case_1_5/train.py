@@ -56,7 +56,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
 
     # Problem setup
     n_x = config.setting.n_x    # number of spatial points (old: 128 TODO: INCREASE A LOT?)
-    n_scale = config.setting.n_scale
+    #n_scale = config.setting.n_scale
 
     # Get  dataset
     _, x_star = get_dataset(n_x=n_x)
@@ -74,7 +74,7 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
     dom = jnp.array([x0, x1]) 
 
     # Initialize model
-    model = models.InversePoisson(config, u0, u1, x_star, n_scale)
+    model = models.InversePoisson(config, u0, u1, x_star)
     
     # Initialize sampler
     sampler = init_sampler(model, config)
@@ -138,6 +138,8 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 state = jax.device_get(tree_map(lambda x: x[0], model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
                 log_dict = evaluator(state, batch, u_ref)
+                n_scale = (10 ** state.params['params']['n_scale'][0]) 
+                log_dict['n_scale'] = n_scale
                 wandb.log(log_dict, step)
                 end_time = time.time()
 

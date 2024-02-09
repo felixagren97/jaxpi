@@ -13,14 +13,13 @@ from matplotlib import pyplot as plt
 
 
 class InversePoisson(ForwardIVP):
-    def __init__(self, config, u0, u1, x_star, n_scale):
+    def __init__(self, config, u0, u1, x_star):
         super().__init__(config)
 
         self.u_scale = u0
         self.u0 = u0 / self.u_scale
         self.u1 = u1 / self.u_scale
         self.x_star = x_star
-        self.n_scale = n_scale
         self.loss_scale = config.setting.loss_scale
 
         self.x0 = x_star[0]
@@ -76,7 +75,7 @@ class InversePoisson(ForwardIVP):
 
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        n = self.n_net(params, x) * self.n_scale
+        n = self.n_net(params, x) * (10 ** params['params']['n_scale'][0])  # Scaling with 10 ^ n_scale
         return du_xx * self.u_scale + self.q * n / self.epsilon
     
     def heaviside(self, x):
