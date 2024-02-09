@@ -43,7 +43,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case1.5-mlp-reg"   
-    wandb.name = "standard-mlp-no-reg"
+    wandb.name = "standard-mlp-5e-2reg-no_grad_norm-1e-2lr"
     wandb.tag = None
 
     # Arch
@@ -60,15 +60,15 @@ def get_config():
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
-    optim.optimizer = "Adam"
+    optim.optimizer = "AdamW"
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
-    optim.learning_rate = 1e-3
+    optim.learning_rate = 1e-2
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
-    optim.weight_decay = 1e-2   # L2 Regularization strength
+    optim.weight_decay = 5e-2   # L2 Regularization strength
 
     # Training
     config.training = training = ml_collections.ConfigDict()
