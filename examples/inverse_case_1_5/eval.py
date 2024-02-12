@@ -36,7 +36,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    n_scale = (jnp.exp(params['params']['n_scale_param'][0]))
+    n_scale = (10 ** params['params']['n_scale_param'][0])
 
     u_pred = model.u_pred_fn(params, model.x_star)
     u_pred *= u_scale
