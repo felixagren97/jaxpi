@@ -32,13 +32,14 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "sweep_sampling_inv_case1p5_RAD",
+        "name": "sweep_inv_case_1.5_learnable_param",
         "metric": {"goal": "minimize", "name": "l2_error"},
     }
 
     parameters_dict = {
-        "rad_k": {"values": [0.2, 0.5, 1, 2] },
-        "rad_c": {"values": [0, 1, 10] }
+        "noise_level": {"values": [0.01, 0.05, 0.10] },
+        "sampling": {"values": ["rad2", "random"] },
+        "seed": {"values": [42, 43, 44] }
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -51,8 +52,10 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.sampler.c = sweep_config.rad_c
-        config.sampler.k = sweep_config.rad_k
+        config.sampler.sampler_name = sweep_config.sampling
+        config.setting.guassian_noise_perc = sweep_config.noise_level
+        config.seed = sweep_config.seed
+
         train.train_and_evaluate(config, workdir)
 
     sweep_id = wandb.sweep(

@@ -11,7 +11,7 @@ def get_config():
     
     # Problem setting 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.guassian_noise_perc = 0.10
+    setting.guassian_noise_perc = 0.01
     setting.obs_file = "obs_k_100.dat"
     setting.n_x = 12800
     setting.n_obs = 1000
@@ -42,7 +42,7 @@ def get_config():
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
     wandb.project = "PINN-Inverse-Case1.5-scaling-factor"   
-    wandb.name = "testing"
+    wandb.name = "sweep"
     wandb.tag = None
 
     # Arch
