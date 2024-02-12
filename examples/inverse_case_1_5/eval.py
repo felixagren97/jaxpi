@@ -36,7 +36,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     model.state = restore_checkpoint(model.state, ckpt_path)
     params = model.state.params
 
-    n_scale = (10 ** params['params']['n_scale_param'][0])
+    n_scale = (jnp.exp(params['params']['n_scale_param'][0]))
 
     u_pred = model.u_pred_fn(params, model.x_star)
     u_pred *= u_scale
@@ -50,7 +50,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     e_pred = e_pred_fn(params, model.x_star)
     e_pred *= u0
     
-    n_values = n_scale * jax.vmap(model.heaviside)(x_star)
+    n_values = 5e13 * jax.vmap(model.heaviside)(x_star)
 
     r_pred = model.r_pred_fn(params, model.x_star)**2
 
@@ -138,7 +138,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         e_pred = e_pred_fn(params, x_ref_star)
         e_pred *= config.setting.u0
 
-        n_values = n_scale * jax.vmap(model.heaviside)(x_ref_star)
+        n_values = 5e13 * jax.vmap(model.heaviside)(x_ref_star)
         
         # Plot n results
         fig = plt.figure(figsize=(8, 12))
