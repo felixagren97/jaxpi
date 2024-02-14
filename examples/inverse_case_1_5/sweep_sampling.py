@@ -38,8 +38,8 @@ def main(argv):
 
     parameters_dict = {
         "noise_level": {"values": [0.01, 0.05, 0.10] },
-        "sampling": {"values": ["rad2", "random"] },
-        "seed": {"values": [42, 43, 44] }
+        "reg_strength": {"values": [1e-5, 1e-4, 1e-3] }, # increaseing regularization strengh
+        "seed": {"values": [42, 44] }
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -52,9 +52,9 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.sampler.sampler_name = sweep_config.sampling
         config.setting.guassian_noise_perc = sweep_config.noise_level
         config.seed = sweep_config.seed
+        config.optim.weight_decay = sweep_config.reg_strength
 
         train.train_and_evaluate(config, workdir)
 
