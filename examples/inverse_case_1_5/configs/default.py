@@ -41,7 +41,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-scaling-factor"   
+    wandb.project = "PINN-Inverse-Case1.5-scaling-factor-reg"   
     wandb.name = "sweep"
     wandb.tag = None
 
@@ -59,7 +59,7 @@ def get_config():
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
-    optim.optimizer = "Adam"
+    optim.optimizer = "AdamW"
     optim.beta1 = 0.9
     optim.beta2 = 0.999
     optim.eps = 1e-8
