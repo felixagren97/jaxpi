@@ -38,7 +38,7 @@ def get_config():
     )
 
     arch.fourier_emb = None #ml_collections.ConfigDict({"embed_scale": 10.0, "embed_dim": 256})
-    arch.reparam = None #ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
+    arch.reparam = ml_collections.ConfigDict({"type": "weight_fact", "mean": 1.0, "stddev": 0.1})
 
     # Optim
     config.optim = optim = ml_collections.ConfigDict()
