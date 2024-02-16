@@ -29,8 +29,8 @@ def get_config():
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlpOffset"
-    arch.num_layers = 6
-    arch.layer_size = 256
+    arch.num_layers = 4
+    arch.layer_size = 64
     arch.out_dim = 1
     arch.activation = "gelu"
     arch.periodicity = ml_collections.ConfigDict(
@@ -53,8 +53,8 @@ def get_config():
 
     # Training
     config.training = training = ml_collections.ConfigDict()
-    training.max_steps = 200_000
-    training.batch_size_per_device = 4096
+    training.max_steps = 100_000
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
