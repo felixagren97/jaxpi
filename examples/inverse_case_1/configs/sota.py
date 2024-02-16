@@ -40,7 +40,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-1e-3"
+    wandb.project = "PINN-Inverse-space-charge-noise-sweep"
     wandb.name = "sota"
     wandb.tag = None
 
