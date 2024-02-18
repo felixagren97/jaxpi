@@ -145,7 +145,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         print(f'Relative error: {rel_error:.1%}\n')
         print('---------------------------\n')
 
-        e_pred_np, e_ref_np = jnp.array(e_pred), jnp.array(e_ref_np)
+        e_pred_np, e_ref_np = jnp.array(e_pred), jnp.array(f)
         combined_array = np.column_stack((r_star_np, u_pred_np, u_ref_np, e_pred_np, e_ref_np))
         csv_file_path = "inverse_case_1_geom.csv"
         header_names = ['r_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
