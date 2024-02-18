@@ -87,6 +87,6 @@ def get_config():
     config.input_dim = 1
 
     # Integer for PRNG random seed.
-    config.seed = 42
+    config.seed = 40
 
     return config
