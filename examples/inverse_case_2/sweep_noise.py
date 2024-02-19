@@ -52,7 +52,7 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.setting.guassian_noise_perc = sweep_config.guassian_noise_perc
+        config.setting.noise_level = sweep_config.guassian_noise_perc
         config.seed = sweep_config.seed
         train.train_and_evaluate(config, workdir)
 
