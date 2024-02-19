@@ -21,7 +21,7 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case-2"
+    wandb.project = "PINN-Inverse-Case-2-Final"
     wandb.name = "default"
     wandb.tag = None
 
@@ -29,7 +29,7 @@ def get_config():
     config.arch = arch = ml_collections.ConfigDict()
     arch.arch_name = "InverseMlpMu"
     arch.num_layers = 4
-    arch.layer_size = 256
+    arch.layer_size = 64
     arch.out_dim = 1
     arch.activation = "sigmoid"
     arch.periodicity = False # ml_collections.ConfigDict( {"period": (2 * jnp.pi, 1.0), "axis": (0, 1), "trainable": (True, False)})
@@ -50,7 +50,7 @@ def get_config():
     # Training
     config.training = training = ml_collections.ConfigDict()
     training.max_steps = 200_000
-    training.batch_size_per_device = 1024
+    training.batch_size_per_device = 8192
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
@@ -75,9 +75,9 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = 10000
-    saving.num_keep_ckpts = 10
-    saving.plot = True
+    saving.save_every_steps = None #10000
+    #saving.num_keep_ckpts = 10
+    saving.plot = False
 
     # # Input shape for initializing Flax models
     config.input_dim = 2
