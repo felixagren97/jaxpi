@@ -32,12 +32,12 @@ def main(argv):
 
     sweep_config = {
         "method": "grid",
-        "name": "Noise-inverse-case-2",
+        "name": "Noise-inverse-case-2-obs6400",
         "metric": {"goal": "minimize", "name": "l2_param_error"},
     }
 
     parameters_dict = {
-        "n_obs" : {"values": [6400, 100]},
+        #"n_obs" : {"values": [6400, 100]},
         "guassian_noise_perc" : {"values": [None ,0.01, 0.10, 0.25, 0.50]},
         "seed" : {"values": [44, 45, 46]}
     }
@@ -52,7 +52,6 @@ def main(argv):
         sweep_config = wandb.config
 
         # Update config with sweep parameters
-        config.setting.n_obs = sweep_config.n_obs
         config.setting.guassian_noise_perc = sweep_config.guassian_noise_perc
         config.seed = sweep_config.seed
         train.train_and_evaluate(config, workdir)
