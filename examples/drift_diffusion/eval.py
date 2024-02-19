@@ -99,5 +99,5 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=''):
         XX = XX.reshape(-1)
         combined_array = np.column_stack((TT, XX, u_pred, u_ref))
         csv_file_path = "Drift Diffusion.csv"
-        header_names = ['t_star', 'x_star', 'u_pred', 'u_ref']
+        header_names = ['t_star', 'x_star', 'n_pred', 'n_ref']
         np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')

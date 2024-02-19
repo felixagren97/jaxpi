@@ -98,15 +98,20 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
 
     
 
-    #if step == "":
-        #x_star_np = jnp.array(x_star)
-        #t_pred_np = jnp.array(t_star)
-        #u_pred_np = jnp.array(u_pred)
-        #e_pred_np = jnp.array(e_pred)
-        #e_ref_np = jnp.array(e_ref)
+    if step == '':
+        # save plot information as csv for later use        
+        TT, XX = jnp.meshgrid(t_star, x_star, indexing='ij')
 
-        # save plot information as csv for later use
-        #combined_array = np.column_stack((x_star_np, t_pred_np, u_pred_np, e_pred_np, e_ref_np))
-        #csv_file_path = "inverse_drift_diffusion.csv"
-        #header_names = ['x_star', 'u_pred', 'u_ref', 'e_pred', 'e_ref']
-        #np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
+        u_pred = jax.device_get(u_pred)
+
+        TT = jax.device_get(TT)
+        XX = jax.device_get(XX)
+
+        u_pred = u_pred.reshape(-1)
+        u_ref = u_ref.reshape(-1)
+        TT = TT.reshape(-1)
+        XX = XX.reshape(-1)
+        combined_array = np.column_stack((TT, XX, u_pred, u_ref))
+        csv_file_path = "Inverse_Drift_Diffusion.csv"
+        header_names = ['t_star', 'x_star', 'n_pred', 'n_ref']
+        np.savetxt(csv_file_path, combined_array, delimiter=",", header=",".join(header_names), comments='')
