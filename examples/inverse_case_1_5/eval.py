@@ -182,6 +182,7 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
         plt.close(fig)
 
+    if step == "":
         # save data to csv file
         csv_path = os.path.join(save_dir, f"inverse_case1p5_plot_data_{step}.csv")
         df = pd.DataFrame({'x': x_ref_star, 
@@ -193,24 +194,23 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
                            'e_true_comsol': e_ref,})
         df.to_csv(csv_path, index=False)
 
-        
 
-    # plot observations
-    if config.setting.guassian_noise_perc is not None and step == "":
-        # get clean data
-        obs_x, obs_u = get_observations(config)
+        # plot observations
+        if config.setting.guassian_noise_perc is not None:
+            # get clean data
+            obs_x, obs_u = get_observations(config)
 
-        fig = plt.figure(figsize=(8, 6))
-        plt.xlabel('Radius [m]')
-        plt.ylabel('Potential V')
-        plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
-        plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
-        plt.scatter(obs_x, obs_u, label='Analytical Solution', color='red')
-        plt.grid()
-        plt.xlim(x_star[0], x_star[-1])
-        plt.legend()
-        plt.tight_layout()
+            fig = plt.figure(figsize=(8, 6))
+            plt.xlabel('Radius [m]')
+            plt.ylabel('Potential V')
+            plt.title(f'Noisy observation data (noise level {config.setting.guassian_noise_perc:.0%})')
+            plt.scatter(model.obs_x, model.obs_u , label='Observations', color='blue')
+            plt.scatter(obs_x, obs_u, label='Analytical Solution', color='red')
+            plt.grid()
+            plt.xlim(x_star[0], x_star[-1])
+            plt.legend()
+            plt.tight_layout()
 
-        fig_path = os.path.join(save_dir, "Observations.png")
-        fig.savefig(fig_path, bbox_inches="tight", dpi=800)
-        plt.close(fig)
+            fig_path = os.path.join(save_dir, "Observations.png")
+            fig.savefig(fig_path, bbox_inches="tight", dpi=800)
+            plt.close(fig)
