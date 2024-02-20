@@ -67,7 +67,7 @@ def get_config():
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
-    optim.weight_decay = 1e-2   # L2 Regularization strength
+    optim.weight_decay = 1e-5   # L2 Regularization strength
 
     # Training
     config.training = training = ml_collections.ConfigDict()
@@ -97,9 +97,9 @@ def get_config():
 
     # Saving
     config.saving = saving = ml_collections.ConfigDict()
-    saving.save_every_steps = None #25_000
-    #saving.num_keep_ckpts = 1
-    saving.plot = False
+    saving.save_every_steps = 25_000
+    saving.num_keep_ckpts = 1
+    saving.plot = True
 
     # # Input shape for initializing Flax models
     config.input_dim = 1
