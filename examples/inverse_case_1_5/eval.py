@@ -1,7 +1,7 @@
 import os
 
 import ml_collections
-
+import pandas as pd
 import jax.numpy as jnp
 import jax
 import matplotlib.pyplot as plt
@@ -182,6 +182,18 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
         fig.savefig(fig_path, bbox_inches="tight", dpi=800)
         plt.close(fig)
 
+        # save data to csv file
+        csv_path = os.path.join(save_dir, f"inverse_case1p5_plot_data_{step}.csv")
+        df = pd.DataFrame({'x': x_ref_star, 
+                           'n_pred': n_pred, 
+                           'n_true': n_values, 
+                           'u_pred': u_ref_pred, 
+                           'u_true_comsol': u_ref, 
+                           'e_pred': e_pred, 
+                           'e_true_comsol': e_ref,})
+        df.to_csv(csv_path, index=False)
+
+        
 
     # plot observations
     if config.setting.guassian_noise_perc is not None and step == "":
