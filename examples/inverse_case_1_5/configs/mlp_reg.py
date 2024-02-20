@@ -68,7 +68,7 @@ def get_config():
     optim.decay_rate = 0.9
     optim.decay_steps = 2000
     optim.grad_accum_steps = 0
-    optim.weight_decay = 1e-1   # L2 Regularization strength
+    optim.weight_decay = 5e-2   # L2 Regularization strength
 
     # Training
     config.training = training = ml_collections.ConfigDict()
