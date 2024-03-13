@@ -41,7 +41,12 @@ def evaluate(config: ml_collections.ConfigDict, workdir: str, step=""):
     e_pred_fn = jax.vmap(lambda params, x: -jax.grad(model.u_net, argnums=1)(params, x), (None, 0))
 
     n_pred = model.n_pred_fn(params, model.x_star)
-    n_pred *= n_scale   # TODO: check if correct
+    
+    if config.arch.arch_name == "InverseMlpCaseChargeProfile":
+        a = params['params']['n_scale_param'][0]
+        n_pred *= a
+    else:    
+        n_pred *= n_scale   # TODO: check if correct
 
 
     #du_dr = jax.grad(model.u_pred_fn) # e = d/dr U

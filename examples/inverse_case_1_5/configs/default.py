@@ -42,8 +42,8 @@ def get_config():
 
     # Weights & Biases
     config.wandb = wandb = ml_collections.ConfigDict()
-    wandb.project = "PINN-Inverse-Case1.5-mlp-reg"   
-    wandb.name = "standard-mlp-no-reg"
+    wandb.project = "PINN-Inverse-Case1.5"   
+    wandb.name = "default"
     wandb.tag = None
 
     # Arch
@@ -106,6 +106,6 @@ def get_config():
     config.input_dim = 1
 
     # Integer for PRNG random seed.
-    config.seed = 42
+    config.seed = 43
 
     return config
