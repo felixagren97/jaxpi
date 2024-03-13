@@ -138,6 +138,9 @@ def train_and_evaluate(config: ml_collections.ConfigDict, workdir: str):
                 state = jax.device_get(tree_map(lambda x: x[0], model.state))
                 batch = jax.device_get(tree_map(lambda x: x[0], batch))
                 log_dict = evaluator(state, batch, u_ref)
+                if config.arch.arch_name == "InverseMlpCaseChargeProfile":
+                    n_scale = (10  ** state.params['params']['n_scale_param'][0]) 
+                    log_dict['n_scale_param'] = n_scale
                 wandb.log(log_dict, step)
                 end_time = time.time()
 

@@ -177,12 +177,15 @@ class MlpDriftDiffusion(Mlp):
         x = nn.sigmoid(x)
         return x
 
-###### New test for inverse case 1.5 with sigmoid as output activation
+
 class InverseMlpCaseChargeProfile(Mlp):
 
     def setup(self):
         super().setup()  # Call the setup method of the parent class
 
+        # Intorducting scale parameter as learnable parameter #TODO make random initailization 
+        self.n_scale = self.param('n_scale_param', lambda _: jnp.array([1.0]))
+        
     @nn.compact
     def __call__(self, x):
         if self.periodicity:
@@ -196,7 +199,9 @@ class InverseMlpCaseChargeProfile(Mlp):
 
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
         x = nn.sigmoid(x)
+
         return x
+    
 
 class InverseMlpOffset(Mlp):
     arch_name: Optional[str] = "InverseMlpOffset"

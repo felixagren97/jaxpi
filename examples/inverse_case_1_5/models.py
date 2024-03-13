@@ -76,7 +76,11 @@ class InversePoisson(ForwardIVP):
 
     def r_net(self, params, x):        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
-        n = self.n_net(params, x) * self.n_scale
+        if self.config.arch.arch_name == "InverseMlpCaseChargeProfile":
+            a = params['params']['n_scale_param'][0]
+            n = self.n_net(params, x) * (10 ** a)
+        else:
+            n = self.n_net(params, x) * self.n_scale
         return du_xx * self.u_scale + self.q * n / self.epsilon
     
     def heaviside(self, x):
@@ -89,14 +93,14 @@ class InversePoisson(ForwardIVP):
     
     @partial(jit, static_argnums=(0,))
     def res_and_w(self, params, batch):
-        raise NotImplementedError(f"Casual weights not supported for 1D Laplace!")
+        raise NotImplementedError(f"Casual weights not supported for 1D!")
 
     @partial(jit, static_argnums=(0,))
     def losses(self, params, batch): 
 
         # Residual loss
         if self.config.weighting.use_causal == True:
-            raise NotImplementedError(f"Casual weights not supported for 1D Laplace!")
+            raise NotImplementedError(f"Casual weights not supported for 1D!")
         else:
             r_pred = vmap(self.r_net, (None, 0))(params, batch[:,0])
             r_pred *= self.loss_scale 

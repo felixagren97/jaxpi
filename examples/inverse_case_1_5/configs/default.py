@@ -11,7 +11,7 @@ def get_config():
     
     # Problem setting 
     config.setting = setting = ml_collections.ConfigDict()
-    setting.guassian_noise_perc = 0.1
+    setting.guassian_noise_perc = 0.01
     setting.obs_file = "obs_k_100.dat"
     setting.n_scale = 5e13
     setting.n_x = 12800
@@ -48,7 +48,7 @@ def get_config():
 
     # Arch
     config.arch = arch = ml_collections.ConfigDict()
-    arch.arch_name = "Mlp"
+    arch.arch_name = "InverseMlpCaseChargeProfile"
     arch.num_layers = 4
     arch.layer_size = 64
     arch.out_dim = 2
@@ -77,7 +77,7 @@ def get_config():
 
     # Weighting
     config.weighting = weighting = ml_collections.ConfigDict()
-    weighting.scheme = "grad_norm"
+    weighting.scheme = None #"grad_norm"
     weighting.init_weights = ml_collections.ConfigDict({"res": 1.0, "observ": 1.0})
     weighting.momentum = 0.9
     weighting.update_every_steps = 1000
