@@ -17,7 +17,7 @@ def get_config():
     setting.n_r = 12_000
 
     setting.n_obs = 1000
-    setting.guassian_noise_perc = 0.50
+    setting.guassian_noise_perc = 0.0
     setting.loss_scale = 1
 
     setting.true_rho = 1e-10

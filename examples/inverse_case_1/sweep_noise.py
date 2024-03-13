@@ -39,7 +39,7 @@ def main(argv):
     parameters_dict = {
         "n_obs" : {"values": [1_000, 100, 10]},
         "guassian_noise_perc" : {"values": [None ,0.1, 0.25, 0.5]},
-        "seed" : {"values": [42, 43, 44, 45, 46]}
+        "seed" : {"values": [42, 43, 44]}
     }
 
     sweep_config["parameters"] = parameters_dict
@@ -54,6 +54,7 @@ def main(argv):
         # Update config with sweep parameters
         config.setting.n_obs = sweep_config.n_obs
         config.setting.guassian_noise_perc = sweep_config.guassian_noise_perc
+        config.seed = sweep_config.seed
         train.train_and_evaluate(config, workdir)
 
     sweep_id = wandb.sweep(

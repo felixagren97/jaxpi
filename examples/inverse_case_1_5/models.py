@@ -146,7 +146,7 @@ class InversePoisson(ForwardIVP):
         return u_error, n_error
 
 
-class InversePoissonEvaluator(BaseEvaluator):
+class InversePoissonEtvaluator(BaseEvaluator):
     def __init__(self, config, model):
         super().__init__(config, model)
 
