@@ -205,7 +205,8 @@ class InverseMlpCaseChargeProfile(Mlp):
         print('x:', x)
         print('n_scale:', self.n_scale[0])
         ## Scale the n output with learnable parameter
-        x[1] = x[1] * (10 ** self.n_scale[0])  # Scaling with e ^ learnable_param
+        n = x[1].copy()
+        x[1] = n * (10 ** self.n_scale[0])  # Scaling with e ^ learnable_param
 
         return x
 
