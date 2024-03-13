@@ -200,14 +200,6 @@ class InverseMlpCaseChargeProfile(Mlp):
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
         x = nn.sigmoid(x)
 
-         
-        print('x shape:', x.shape)
-        print('x:', x)
-        print('n_scale:', self.n_scale[0])
-        ## Scale the n output with learnable parameter
-        n = x[1]
-        x.at[1].set(n * (10 ** self.n_scale[0])) # Scaling with 10 ^ learnable_param
-
         return x
 
 class InverseMlpOffset(Mlp):

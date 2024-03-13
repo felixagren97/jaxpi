@@ -74,7 +74,12 @@ class InversePoisson(ForwardIVP):
         return n
 
     def r_net(self, params, x):
-        a = params['params']['n_scale_param'][0]        
+        # Checking if learnable scaling factor is used
+        if self.config.arch.arch_name == "InverseMlpCaseChargeProfile":
+            a = params['params']['n_scale_param'][0]
+        else:
+            a = 0        
+        
         du_xx = grad(grad(self.u_net, argnums=1), argnums=1)(params, x)
         n = self.n_net(params, x) * (10 ** a)  # Scaling with e ^ learnable_param
         return du_xx * self.u_scale + self.q * n / self.epsilon
