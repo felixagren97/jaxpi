@@ -199,6 +199,8 @@ class InverseMlpCaseChargeProfile(Mlp):
 
         x = Dense(features=self.out_dim, reparam=self.reparam)(x)
         x = nn.sigmoid(x)
+        print('x shape:', x.shape)
+        print('x:', x)
         return x
 
 class InverseMlpOffset(Mlp):
